@@ -1,0 +1,73 @@
+<div class="subscription-required-container">
+  <div class="content">
+    <!-- Icono de alerta -->
+    <div class="alert-icon">
+      🔒
+    </div>
+
+    <!-- Título -->
+    <h1>Acceso Restringido</h1>
+
+    <!-- Mensaje principal -->
+    <p class="main-message">
+      Esta función solo está disponible para usuarios con suscripción activa.
+    </p>
+
+    <!-- Información del estado -->
+    <div class="status-info" *ngIf="currentUser">
+      <div class="status-item">
+        <span class="label">Tu cuenta:</span>
+        <span class="value">{{ currentUser.nombre }} {{ currentUser.correo }}</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Estado de Suscripción:</span>
+        <span class="value" [ngClass]="'status-' + currentUser.estadoSuscripcion">
+          {{ currentUser.estadoSuscripcion === 'PENDIENTE_PAGO' ? 'Pendiente de Pago' : currentUser.estadoSuscripcion }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="actions">
+      <button 
+        *ngIf="currentUser?.estadoSuscripcion === 'PENDIENTE_PAGO'"
+        (click)="irACargarComprobante()" 
+        class="btn btn-primary">
+        Cargar Comprobante de Pago
+      </button>
+      
+      <button 
+        (click)="irAlDashboard()" 
+        class="btn btn-secondary">
+        Volver al Inicio
+      </button>
+
+      <button 
+        (click)="logout()" 
+        class="btn btn-logout">
+        Cerrar Sesión
+      </button>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info-section">
+      <h3>¿Qué necesitas hacer?</h3>
+      <ul>
+        <li *ngIf="currentUser?.estadoSuscripcion === 'PENDIENTE_PAGO'">
+          <strong>1. Cargar comprobante:</strong> Sube tu prueba de pago para que nuestro equipo la verifique
+        </li>
+        <li *ngIf="currentUser?.estadoSuscripcion === 'PENDIENTE_PAGO'">
+          <strong>2. Esperar aprobación:</strong> Nuestro equipo revisará tu comprobante en breve
+        </li>
+        <li *ngIf="currentUser?.estadoSuscripcion === 'PENDIENTE_PAGO'">
+          <strong>3. Acceso activo:</strong> Una vez aprobado, tendrás acceso inmediato a todas las funciones
+        </li>
+      </ul>
+    </div>
+
+    <!-- Mensaje de seguridad -->
+    <div class="security-message">
+      🔐 Tu suscripción es protegida y segura. Solo usuarios con suscripción activa pueden acceder a funciones administrativas.
+    </div>
+  </div>
+</div>

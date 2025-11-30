@@ -38,6 +38,7 @@ export interface AuthResponse {
   correo: string;
   tipoUsuario: string;
   idBarberia?: number;
+  estadoSuscripcion?: 'PENDIENTE_PAGO' | 'ACTIVA' | 'PAUSADA' | 'CANCELADA';
 }
 
 export interface ApiResponse<T> {
@@ -178,9 +179,35 @@ export class AuthService {
    * Guardar datos de autenticación
    */
   private saveAuthData(response: AuthResponse): void {
+    // Si el usuario no tiene estado de suscripción definido, asignar PENDIENTE_PAGO
+    if (!response.estadoSuscripcion) {
+      response.estadoSuscripcion = 'PENDIENTE_PAGO';
+    }
+    
     localStorage.setItem(this.tokenKey, response.token);
     localStorage.setItem(this.userKey, JSON.stringify(response));
     this.currentUserSubject.next(response);
+  }
+
+  /**
+   * Actualizar estado de suscripción de un usuario
+   */
+  actualizarEstadoSuscripcion(idUsuario: number, nuevoEstado: 'PENDIENTE_PAGO' | 'ACTIVA' | 'PAUSADA' | 'CANCELADA'): void {
+    const userJson = localStorage.getItem(this.userKey);
+    if (userJson) {
+      try {
+        const user = JSON.parse(userJson) as AuthResponse;
+        // Solo actualizar si es el usuario actual
+        if (user.idUsuario === idUsuario) {
+          user.estadoSuscripcion = nuevoEstado;
+          localStorage.setItem(this.userKey, JSON.stringify(user));
+          this.currentUserSubject.next(user);
+          console.log(`✅ Estado de suscripción actualizado a: ${nuevoEstado}`);
+        }
+      } catch (e) {
+        console.error('Error actualizando estado de suscripción:', e);
+      }
+    }
   }
 
   /**

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PagosService } from '../../../shared/services/pagos.service';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-pagos-solicitudes',
@@ -18,17 +19,38 @@ export class PagosSolicitudesComponent implements OnInit {
   formularioAprobacion: FormGroup;
   modalVisible: boolean = false;
   procesandoAprobacion: boolean = false;
+  currentUser: any = null;
+  isSuperAdmin: boolean = false;
+  estadisticas = {
+    totalPendientes: 0,
+    montoTotal: 0,
+    metodosDistintos: new Set<string>()
+  };
 
   constructor(
     private fb: FormBuilder,
-    private pagosService: PagosService
+    private pagosService: PagosService,
+    private authService: AuthService
   ) {
     this.formularioAprobacion = this.crearFormularioAprobacion();
   }
 
   ngOnInit(): void {
     console.log('📋 Componente Pagos Solicitudes inicializado');
-    this.cargarSolicitudesPago();
+    
+    // Verificar que el usuario sea SUPER_ADMIN
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.isSuperAdmin = user?.tipoUsuario === 'SUPER_ADMIN';
+      console.log('👤 Usuario:', user?.nombre, 'Rol:', user?.tipoUsuario);
+      console.log('👑 ¿Es SUPER_ADMIN?', this.isSuperAdmin);
+      
+      if (this.isSuperAdmin) {
+        this.cargarSolicitudesPago();
+      } else {
+        this.errores['general'] = '❌ ACCESO DENEGADO: Solo SUPER_ADMIN puede acceder a este panel.';
+      }
+    });
   }
 
   crearFormularioAprobacion(): FormGroup {
@@ -50,6 +72,7 @@ export class PagosSolicitudesComponent implements OnInit {
         
         if (response.success && response.data) {
           this.solicitudesPago = response.data;
+          this.calcularEstadisticas();
           console.log(`📊 Total de solicitudes: ${this.solicitudesPago.length}`);
         } else {
           this.errores['general'] = response.message || 'Error al cargar solicitudes';
@@ -64,7 +87,7 @@ export class PagosSolicitudesComponent implements OnInit {
             this.errores['general'] = '❌ No autenticado. Debes iniciar sesión.';
             break;
           case 403:
-            this.errores['general'] = '❌ Acceso denegado. Solo administradores pueden ver esto.';
+            this.errores['general'] = '❌ Acceso denegado. Solo SUPER_ADMIN puede ver esto.';
             break;
           case 500:
             this.errores['general'] = '❌ Error del servidor. Intenta más tarde.';
@@ -73,6 +96,24 @@ export class PagosSolicitudesComponent implements OnInit {
             this.errores['general'] = error.error?.message || 'Error al cargar solicitudes';
         }
       }
+    });
+  }
+
+  calcularEstadisticas(): void {
+    this.estadisticas.totalPendientes = this.solicitudesPago.length;
+    this.estadisticas.montoTotal = this.solicitudesPago.reduce((sum, sol) => sum + (sol.monto || 0), 0);
+    this.estadisticas.metodosDistintos.clear();
+    
+    this.solicitudesPago.forEach(sol => {
+      if (sol.metodoPago) {
+        this.estadisticas.metodosDistintos.add(sol.metodoPago);
+      }
+    });
+    
+    console.log('📊 Estadísticas calculadas:', {
+      pendientes: this.estadisticas.totalPendientes,
+      montoTotal: this.estadisticas.montoTotal,
+      metodos: Array.from(this.estadisticas.metodosDistintos)
     });
   }
 
@@ -113,6 +154,13 @@ export class PagosSolicitudesComponent implements OnInit {
         
         if (response.success) {
           console.log('✅ ¡Pago aprobado exitosamente!');
+          
+          // Actualizar estado de suscripción del usuario aprobado
+          if (this.solicitudSeleccionada.idUsuario) {
+            console.log('🔄 Actualizando estado de suscripción del usuario...');
+            this.authService.actualizarEstadoSuscripcion(this.solicitudSeleccionada.idUsuario, 'ACTIVA');
+          }
+          
           this.cerrarModal();
           this.cargarSolicitudesPago(); // Recargar lista
         } else {

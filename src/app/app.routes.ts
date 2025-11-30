@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './shared/guards/auth.guard';
+import { subscriptionGuard } from './shared/guards/subscription.guard';
+import { superAdminGuard } from './shared/guards/super-admin.guard';
 
 export const routes: Routes = [
   // Ruta por defecto - redirige a dashboard (página principal pública)
@@ -42,27 +44,38 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/cargar-comprobante/cargar-comprobante.component').then(m => m.CargarComprobanteComponent)
   },
   {
+    path: 'auth/suscripcion-requerida',
+    loadComponent: () => import('./shared/components/subscription-required/subscription-required.component').then(m => m.SubscriptionRequiredComponent)
+  },
+  {
+    path: 'auth/super-admin-requerido',
+    loadComponent: () => import('./shared/components/super-admin-required/super-admin-required.component').then(m => m.SuperAdminRequiredComponent)
+  },
+  {
     path: 'auth/pagos-solicitudes',
     loadComponent: () => import('./features/auth/pagos-solicitudes/pagos-solicitudes.component').then(m => m.PagosSolicitudesComponent),
-    canActivate: [authGuard]  // Solo para super admin
+    canActivate: [superAdminGuard]  // Solo para SUPER_ADMIN
   },
   {
     path: 'auth/forgot-password',
     loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
   
-  // Rutas de citas (públicas - clientes pueden ver y hacer reservas)
+  // Rutas de citas (solo clientes autenticados)
   {
     path: 'appointments/list',
-    loadComponent: () => import('./features/appointments/list/list.component').then(m => m.ListComponent)
+    loadComponent: () => import('./features/appointments/list/list.component').then(m => m.ListComponent),
+    canActivate: [authGuard]  // Solo para usuarios autenticados
   },
   {
     path: 'appointments/create',
-    loadComponent: () => import('./features/appointments/create/create.component').then(m => m.CreateComponent)
+    loadComponent: () => import('./features/appointments/create/create.component').then(m => m.CreateComponent),
+    canActivate: [authGuard]  // Solo para usuarios autenticados
   },
   {
     path: 'appointments/detail/:id',
-    loadComponent: () => import('./features/appointments/detail/detail.component').then(m => m.DetailComponent)
+    loadComponent: () => import('./features/appointments/detail/detail.component').then(m => m.DetailComponent),
+    canActivate: [authGuard]  // Solo para usuarios autenticados
   },
   
   // Rutas de barberías (públicas - clientes ven barberías + admin)
@@ -77,12 +90,12 @@ export const routes: Routes = [
   {
     path: 'barberias/administrar',
     loadComponent: () => import('./features/barberias/administrar/administrar.component').then(m => m.AdministrarBarberiasComponent),
-    canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
+    canActivate: [subscriptionGuard]  // Solo para usuarios autenticados con suscripción ACTIVA
   },
   {
     path: 'barberias/:id/detail',
     loadComponent: () => import('./features/barberias/detail-admin/barbershop-detail.component').then(m => m.BarbershopDetailComponent),
-    canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
+    canActivate: [subscriptionGuard]  // Solo para usuarios autenticados con suscripción ACTIVA
   },
 
   // Rutas de barberos (públicas - clientes ven perfiles)
@@ -97,7 +110,7 @@ export const routes: Routes = [
   {
     path: 'barbers/manage',
     loadComponent: () => import('./features/barbers/manage/manage.component').then(m => m.ManageComponent),
-    canActivate: [authGuard]  // Solo para barberos autenticados
+    canActivate: [subscriptionGuard]  // Solo para usuarios autenticados con suscripción ACTIVA
   },
   
   // Rutas de usuarios (públicas para ver perfil, protegidas para editar)
@@ -115,14 +128,14 @@ export const routes: Routes = [
   {
     path: 'horarios/administrar',
     loadComponent: () => import('./features/horarios/administrar/administrar.component').then(m => m.AdministrarHorariosComponent),
-    canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
+    canActivate: [subscriptionGuard]  // Solo para usuarios autenticados con suscripción ACTIVA
   },
 
   // Rutas de servicios (admin)
   {
     path: 'servicios/administrar',
     loadComponent: () => import('./features/servicios/administrar/administrar.component').then(m => m.AdministrarServiciosComponent),
-    canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
+    canActivate: [subscriptionGuard]  // Solo para usuarios autenticados con suscripción ACTIVA
   },
 
   // Rutas de planes de suscripción (públicas)

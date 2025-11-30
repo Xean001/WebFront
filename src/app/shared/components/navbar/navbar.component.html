@@ -74,6 +74,13 @@
             ✨ Servicios
           </a>
         </li>
+
+        <!-- Solicitudes de Pago: solo SUPER_ADMIN -->
+        <li class="nav-item" *ngIf="hasRole('SUPER_ADMIN')">
+          <a routerLink="/auth/pagos-solicitudes" routerLinkActive="active" class="nav-link super-admin-link">
+            👑 💳 Panel de Pagos (Admin)
+          </a>
+        </li>
       </ul>
 
       <!-- User Actions -->
@@ -83,7 +90,7 @@
             Iniciar Sesión
           </a>
           <a routerLink="/auth/register" class="btn btn-register">
-            Registrarse
+            Registrarse como Cliente
           </a>
         </ng-container>
 
@@ -91,7 +98,8 @@
           <div class="user-profile">
             <span class="user-name">¡Hola, {{ currentUser.nombre }}!</span>
             <span class="user-role" [ngClass]="'role-' + currentUser.tipoUsuario.toLowerCase()">
-              {{ currentUser.tipoUsuario }}
+              <span *ngIf="hasRole('SUPER_ADMIN')">👑 {{ currentUser.tipoUsuario }}</span>
+              <span *ngIf="!hasRole('SUPER_ADMIN')">{{ currentUser.tipoUsuario }}</span>
             </span>
             <button (click)="logout()" class="btn btn-logout">
               Salir

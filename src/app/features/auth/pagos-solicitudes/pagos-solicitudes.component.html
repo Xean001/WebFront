@@ -1,4 +1,43 @@
 <div class="solicitudes-container">
+  <!-- SUPER_ADMIN Banner -->
+  <div class="super-admin-banner">
+    <div class="banner-content">
+      <span class="banner-icon">👑</span>
+      <div class="banner-text">
+        <h2>PANEL EXCLUSIVO SUPER_ADMIN</h2>
+        <p>Sistema de Aprobación de Pagos y Gestión de Suscripciones</p>
+      </div>
+      <div class="banner-role">
+        <span class="role-badge">{{ currentUser?.tipoUsuario }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estadísticas Dashboard -->
+  <div *ngIf="isSuperAdmin && !cargando" class="stats-dashboard">
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-content">
+        <span class="stat-label">Solicitudes Pendientes</span>
+        <span class="stat-value">{{ estadisticas.totalPendientes }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-content">
+        <span class="stat-label">Monto Total</span>
+        <span class="stat-value">S/ {{ estadisticas.montoTotal | number:'1.2-2' }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏧</div>
+      <div class="stat-content">
+        <span class="stat-label">Métodos de Pago</span>
+        <span class="stat-value">{{ estadisticas.metodosDistintos.size }}</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Header -->
   <div class="solicitudes-header">
     <h1>Solicitudes de Pago Pendientes</h1>
@@ -12,12 +51,12 @@
   </div>
 
   <!-- Errores Generales -->
-  <div *ngIf="errores['general']" class="alert-error">
+  <div *ngIf="errores['general'] && !isSuperAdmin" class="alert-error alert-critical">
     ⚠️ {{ errores['general'] }}
   </div>
 
   <!-- Lista de Solicitudes -->
-  <div *ngIf="!cargando && solicitudesPago.length > 0" class="solicitudes-grid">
+  <div *ngIf="!cargando && solicitudesPago.length > 0 && isSuperAdmin" class="solicitudes-grid">
     <div *ngFor="let solicitud of solicitudesPago" class="solicitud-card">
       <!-- Header Card -->
       <div class="card-header">
@@ -106,7 +145,7 @@
   </div>
 
   <!-- Sin Solicitudes -->
-  <div *ngIf="!cargando && solicitudesPago.length === 0" class="empty-state">
+  <div *ngIf="!cargando && solicitudesPago.length === 0 && isSuperAdmin" class="empty-state">
     <div class="empty-icon">✓</div>
     <h2>No hay solicitudes pendientes</h2>
     <p>Todos los pagos han sido procesados</p>

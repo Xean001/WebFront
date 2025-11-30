@@ -1,0 +1,69 @@
+<div class="super-admin-required-container">
+  <div class="content">
+    <!-- Icono de alerta -->
+    <div class="alert-icon">
+      👑
+    </div>
+
+    <!-- Título -->
+    <h1>Acceso Exclusivo para SUPER_ADMIN</h1>
+
+    <!-- Mensaje principal -->
+    <p class="main-message">
+      Esta sección solo está disponible para administradores de sistema.
+    </p>
+
+    <!-- Información del usuario -->
+    <div class="user-info" *ngIf="currentUser">
+      <div class="info-item">
+        <span class="label">Tu cuenta:</span>
+        <span class="value">{{ currentUser.nombre }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Correo:</span>
+        <span class="value">{{ currentUser.correo }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Tu rol:</span>
+        <span class="value" [ngClass]="'role-' + currentUser.tipoUsuario">
+          {{ currentUser.tipoUsuario }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="actions">
+      <button 
+        (click)="irAlDashboard()" 
+        class="btn btn-primary">
+        Volver al Dashboard
+      </button>
+
+      <button 
+        (click)="logout()" 
+        class="btn btn-secondary">
+        Cerrar Sesión
+      </button>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info-section">
+      <h3>¿Qué es esto?</h3>
+      <p>
+        La sección de <strong>Pagos y Solicitudes</strong> es un panel administrativo exclusivo donde:
+      </p>
+      <ul>
+        <li>Se revisan todas las solicitudes de pago pendientes</li>
+        <li>Se aprueban o rechazan comprobantes de pago</li>
+        <li>Se asignan planes de suscripción a usuarios</li>
+        <li>Se gestionan las suscripciones activas</li>
+      </ul>
+    </div>
+
+    <!-- Mensaje de seguridad -->
+    <div class="security-message">
+      🔐 Solo administradores de sistema pueden acceder a esta área. 
+      Si crees que debería tener acceso, contacta al equipo de soporte.
+    </div>
+  </div>
+</div>

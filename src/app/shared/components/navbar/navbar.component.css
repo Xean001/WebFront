@@ -101,6 +101,21 @@
   background-color: #e67e22;
 }
 
+/* Super Admin Links */
+.super-admin-link {
+  color: #ffd700;
+  font-weight: 600;
+}
+
+.super-admin-link:hover,
+.super-admin-link.active {
+  color: #ffed4e;
+}
+
+.super-admin-link.active::after {
+  background-color: #ffd700;
+}
+
 /* Admin Section Label */
 .admin-section {
   border-top: 1px solid #444;
@@ -202,6 +217,16 @@
 .role-super_admin {
   background-color: #e74c3c;
   color: white;
+}
+
+/* SUPER_ADMIN Badge - Estilo distintivo */
+.role-super_admin {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #000;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+  border: 2px solid #ffd700;
+  font-weight: 800;
+  padding: 6px 12px;
 }
 
 .role-cliente {
