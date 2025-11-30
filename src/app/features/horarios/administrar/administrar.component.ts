@@ -233,4 +233,7 @@ export class AdministrarHorariosComponent implements OnInit {
     if (!hora) return '--:--';
     return `${String(hora.hour || 0).padStart(2, '0')}:${String(hora.minute || 0).padStart(2, '0')}`;
   }
+
+  // Getter para String en el template
+  String = String;
 }

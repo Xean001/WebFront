@@ -208,4 +208,7 @@ export class AdministrarBarberiasComponent implements OnInit {
   get campoEmail() {
     return this.formulario.get('email');
   }
+
+  // Getter para String en el template
+  String = String;
 }
