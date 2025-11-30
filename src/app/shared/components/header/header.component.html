@@ -25,13 +25,13 @@
       <a *ngIf="isCliente()" routerLink="/appointments/list" class="nav-link">Mis Citas</a>
       
       <!-- Gestión de Barbería: solo admin/super_admin/recepcionista -->
-      <a *ngIf="isAdmin()" routerLink="/barberias/list" class="nav-link">Gestionar Barbería</a>
+      <a *ngIf="isAdmin()" routerLink="/barberias/administrar" class="nav-link">Gestionar Barbería</a>
       
       <!-- Horarios: solo barbero/admin -->
-      <a *ngIf="isBarbero() || isAdmin()" routerLink="/horarios/manage" class="nav-link">Horarios</a>
+      <a *ngIf="isBarbero() || isAdmin()" routerLink="/horarios/administrar" class="nav-link">Horarios</a>
       
       <!-- Servicios: solo admin -->
-      <a *ngIf="isAdmin()" routerLink="/servicios/gestionar" class="nav-link">Servicios</a>
+      <a *ngIf="isAdmin()" routerLink="/servicios/administrar" class="nav-link">Servicios</a>
       
       <!-- Perfil: solo para autenticados -->
       <a *ngIf="currentUser" routerLink="/users/profile" class="nav-link">Perfil</a>
