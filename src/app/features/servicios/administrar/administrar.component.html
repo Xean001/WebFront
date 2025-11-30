@@ -49,7 +49,7 @@
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Precio ($) <span class="required">*</span></label>
+                <label class="form-label">Precio (S/) <span class="required">*</span></label>
                 <input type="number" class="form-input" formControlName="precio" placeholder="0.00" step="0.01" min="0">
                 <div class="error-message" *ngIf="campoPrecio?.invalid && campoPrecio?.touched">
                   El precio es requerido y debe ser mayor a 0
@@ -138,7 +138,7 @@
             </div>
             <div class="card-detail">
               <span class="detail-label">Precio:</span>
-              <span class="detail-value">${{ servicio.precio | number: '1.2-2' }}</span>
+              <span class="detail-value">S/ {{ servicio.precio | number: '1.2-2' }}</span>
             </div>
             <div class="card-detail">
               <span class="detail-label">Duración:</span>

@@ -1,0 +1,206 @@
+<div class="comprobante-container">
+  <!-- Header -->
+  <div class="comprobante-header">
+    <h1>Cargar Comprobante de Pago</h1>
+    <p>Realiza el pago y sube el comprobante para activar tu suscripción</p>
+  </div>
+
+  <!-- Success Screen -->
+  <div *ngIf="comprobanteExitoso" class="success-screen">
+    <div class="success-icon">✓</div>
+    <h2>¡Comprobante Enviado!</h2>
+    <p>Tu comprobante ha sido recibido correctamente.</p>
+    <p class="status-info">Estado: <strong>PENDIENTE DE APROBACIÓN</strong></p>
+    <p class="redirect-message">El administrador revisará tu pago en breve.</p>
+    <p class="redirect-submessage">Redirigiendo al login...</p>
+  </div>
+
+  <!-- Payment Form -->
+  <div *ngIf="!comprobanteExitoso" class="comprobante-form-container">
+    <!-- Información de la Suscripción -->
+    <div class="info-suscripcion">
+      <div class="info-item">
+        <span class="label">Monto a Pagar:</span>
+        <span class="valor">${{ monto | number: '1.2-2' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Plan:</span>
+        <span class="valor">{{ tipoPlan }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">ID Suscripción:</span>
+        <span class="valor">{{ idSuscripcion }}</span>
+      </div>
+    </div>
+
+    <!-- Payment Methods -->
+    <div class="metodos-pago">
+      <h3>Selecciona Método de Pago</h3>
+      <div class="metodo-selector">
+        <button 
+          type="button"
+          class="metodo-btn"
+          [class.active]="metodoPagoSeleccionado === 'YAPE'"
+          (click)="cambiarMetodoPago('YAPE')"
+        >
+          📱 Yape
+        </button>
+        <button 
+          type="button"
+          class="metodo-btn"
+          [class.active]="metodoPagoSeleccionado === 'PLIN'"
+          (click)="cambiarMetodoPago('PLIN')"
+        >
+          📲 Plin
+        </button>
+        <button 
+          type="button"
+          class="metodo-btn"
+          [class.active]="metodoPagoSeleccionado === 'BANCO'"
+          (click)="cambiarMetodoPago('BANCO')"
+        >
+          🏦 Transferencia Bancaria
+        </button>
+      </div>
+    </div>
+
+    <!-- Instrucciones de Pago -->
+    <div *ngIf="datosParaPagar" class="instrucciones-pago">
+      <h3>Instrucciones de Pago - {{ metodoPagoSeleccionado }}</h3>
+      
+      <!-- Datos de Pago -->
+      <div class="datos-pago">
+        <div *ngIf="datosParaPagar.numeroCuenta" class="dato-item">
+          <label>Número de Cuenta:</label>
+          <div class="dato-valor">
+            <span>{{ datosParaPagar.numeroCuenta }}</span>
+            <button 
+              type="button" 
+              class="btn-copy"
+              (click)="copiarAlPortapapeles(datosParaPagar.numeroCuenta, 'Número de Cuenta')"
+            >
+              📋 Copiar
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="datosParaPagar.nombreBeneficiario" class="dato-item">
+          <label>Beneficiario:</label>
+          <div class="dato-valor">
+            <span>{{ datosParaPagar.nombreBeneficiario }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="datosParaPagar.banco" class="dato-item">
+          <label>Banco:</label>
+          <div class="dato-valor">
+            <span>{{ datosParaPagar.banco }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="datosParaPagar.codigoInterbancario" class="dato-item">
+          <label>Código Interbancario:</label>
+          <div class="dato-valor">
+            <span>{{ datosParaPagar.codigoInterbancario }}</span>
+            <button 
+              type="button" 
+              class="btn-copy"
+              (click)="copiarAlPortapapeles(datosParaPagar.codigoInterbancario, 'Código Interbancario')"
+            >
+              📋 Copiar
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="datosParaPagar.descripcion" class="dato-item">
+          <label>Concepto/Referencia:</label>
+          <div class="dato-valor">
+            <span>{{ datosParaPagar.descripcion }}</span>
+            <button 
+              type="button" 
+              class="btn-copy"
+              (click)="copiarAlPortapapeles(datosParaPagar.descripcion, 'Referencia')"
+            >
+              📋 Copiar
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="datosParaPagar.qr" class="dato-item">
+          <label>Código QR:</label>
+          <img [src]="datosParaPagar.qr" alt="QR para pago" class="qr-code">
+        </div>
+      </div>
+
+      <!-- Pasos de Pago -->
+      <div class="pasos-pago">
+        <h4>Pasos para Pagar:</h4>
+        <ol>
+          <li>Abre tu app de {{ metodoPagoSeleccionado }} o tu banco</li>
+          <li>Selecciona "Enviar Dinero" o "Nueva Transferencia"</li>
+          <li>Copia los datos de arriba (número de cuenta, monto, referencia)</li>
+          <li>Completa el pago por {{ monto | number: '1.2-2' }}</li>
+          <li>Guarda la captura de pantalla del comprobante</li>
+          <li>Regresa aquí y completa el formulario de abajo</li>
+        </ol>
+      </div>
+
+      <div class="monto-recordatorio">
+        <strong>📌 Recuerda:</strong> Debes transferir exactamente <strong>${{ monto | number: '1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <!-- Formulario de Comprobante -->
+    <form [formGroup]="formulario" (ngSubmit)="registrarComprobante()" class="comprobante-form">
+      <h3>Datos del Comprobante</h3>
+
+      <div class="form-group">
+        <label for="numeroOperacion">Número de Operación:</label>
+        <input 
+          id="numeroOperacion" 
+          type="text" 
+          formControlName="numeroOperacion" 
+          placeholder="Ej: 00123456"
+        >
+        <div *ngIf="formulario.get('numeroOperacion')?.invalid && formulario.get('numeroOperacion')?.touched" class="error-message">
+          <span *ngIf="formulario.get('numeroOperacion')?.errors?.['required']">Número de operación requerido.</span>
+          <span *ngIf="formulario.get('numeroOperacion')?.errors?.['minlength']">Mínimo 6 caracteres.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="comprobanteUrl">URL del Comprobante (captura de pantalla):</label>
+        <input 
+          id="comprobanteUrl" 
+          type="text" 
+          formControlName="comprobanteUrl" 
+          placeholder="https://..."
+        >
+        <small>Sube tu captura de pantalla a un servicio como Imgur y pega la URL aquí</small>
+        <div *ngIf="formulario.get('comprobanteUrl')?.invalid && formulario.get('comprobanteUrl')?.touched" class="error-message">
+          <span *ngIf="formulario.get('comprobanteUrl')?.errors?.['required']">URL del comprobante requerida.</span>
+          <span *ngIf="formulario.get('comprobanteUrl')?.errors?.['pattern']">Ingresa una URL válida (comienza con http:// o https://)</span>
+        </div>
+      </div>
+
+      <div *ngIf="errores['general']" class="alert-error">
+        ⚠️ {{ errores['general'] }}
+      </div>
+
+      <div class="button-group">
+        <button type="button" (click)="irAlRegistro()" class="btn-secondary">
+          ← Volver
+        </button>
+        <button type="submit" [disabled]="cargando || formulario.invalid" class="btn-primary">
+          <span *ngIf="!cargando">📤 Enviar Comprobante</span>
+          <span *ngIf="cargando">Procesando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Security Info -->
+  <div class="security-info">
+    🔒 Tu información está protegida y será revisada por nuestro administrador
+  </div>
+</div>

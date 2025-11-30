@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService, AuthResponse } from '../../../shared/services/auth.service';
+import { Observable } from 'rxjs';
 
 interface Barberia {
   id: number;
@@ -31,8 +33,22 @@ interface Barbero {
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
-  constructor() { }
+export class HomeComponent implements OnInit {
+  currentUser$: Observable<AuthResponse | null>;
+  currentUser: AuthResponse | null = null;
+  isAuthenticated: boolean = false;
+
+  constructor(public authService: AuthService) {
+    this.currentUser$ = this.authService.currentUser$;
+  }
+
+  ngOnInit(): void {
+    // Suscribirse al observable de usuario actual
+    this.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.isAuthenticated = !!user;
+    });
+  }
   
   barberias: Barberia[] = [
     {
@@ -43,7 +59,7 @@ export class HomeComponent {
       calificacion: 4.8,
       totalResenas: 156,
       servicios: ['Corte de cabello', 'Barba', 'Afeitado'],
-      precioDesde: 25
+      precioDesde: 85
     },
     {
       id: 2,
@@ -53,7 +69,7 @@ export class HomeComponent {
       calificacion: 4.9,
       totalResenas: 203,
       servicios: ['Corte moderno', 'Barba premium', 'Color'],
-      precioDesde: 30
+      precioDesde: 102
     },
     {
       id: 3,
@@ -63,7 +79,7 @@ export class HomeComponent {
       calificacion: 4.7,
       totalResenas: 98,
       servicios: ['Corte clásico', 'Barba tradicional', 'Afeitado navaja'],
-      precioDesde: 20
+      precioDesde: 68
     },
     {
       id: 4,
@@ -73,7 +89,7 @@ export class HomeComponent {
       calificacion: 4.9,
       totalResenas: 187,
       servicios: ['Corte fade', 'Diseño', 'Perfilado'],
-      precioDesde: 35
+      precioDesde: 119
     },
     {
       id: 5,
@@ -83,7 +99,7 @@ export class HomeComponent {
       calificacion: 4.8,
       totalResenas: 142,
       servicios: ['Corte ejecutivo', 'Barba premium', 'Masaje'],
-      precioDesde: 40
+      precioDesde: 136
     },
     {
       id: 6,
@@ -93,7 +109,7 @@ export class HomeComponent {
       calificacion: 4.6,
       totalResenas: 76,
       servicios: ['Corte juvenil', 'Barba express', 'Tinte'],
-      precioDesde: 22
+      precioDesde: 75
     }
   ];
 
@@ -141,49 +157,49 @@ export class HomeComponent {
       nombre: 'Corte Clásico', 
       descripcion: 'Estilo atemporal y profesional',
       imagen: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=300&fit=crop',
-      precio: '$25'
+      precio: 'S/ 85'
     },
     { 
       nombre: 'Barba Profesional', 
       descripcion: 'Perfilado y cuidado experto',
       imagen: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&h=300&fit=crop',
-      precio: '$15'
+      precio: 'S/ 51'
     },
     { 
       nombre: 'Afeitado Clásico', 
       descripcion: 'Afeitado tradicional con navaja',
       imagen: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400&h=300&fit=crop',
-      precio: '$20'
+      precio: 'S/ 68'
     },
     { 
       nombre: 'Tinte Profesional', 
       descripcion: 'Color vibrante y duradero',
       imagen: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&h=300&fit=crop',
-      precio: '$40'
+      precio: 'S/ 136'
     },
     { 
       nombre: 'Peinado Moderno', 
       descripcion: 'Estilos contemporáneos',
       imagen: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&h=300&fit=crop',
-      precio: '$30'
+      precio: 'S/ 102'
     },
     { 
       nombre: 'Tratamiento Capilar', 
       descripcion: 'Hidratación y recuperación',
       imagen: 'https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?w=400&h=300&fit=crop',
-      precio: '$35'
+      precio: 'S/ 119'
     },
     { 
       nombre: 'Corte Fade', 
       descripcion: 'Degradado perfecto',
       imagen: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&h=300&fit=crop',
-      precio: '$28'
+      precio: 'S/ 95'
     },
     { 
       nombre: 'Diseño de Cejas', 
       descripcion: 'Perfilado profesional',
       imagen: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=300&fit=crop',
-      precio: '$12'
+      precio: 'S/ 41'
     }
   ];
 

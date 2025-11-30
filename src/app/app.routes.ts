@@ -29,6 +29,24 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register-admin/register-admin.component').then(m => m.RegisterAdminComponent)
   },
   {
+    path: 'auth/onboarding',
+    loadComponent: () => import('./features/auth/onboarding/onboarding.component').then(m => m.OnboardingComponent),
+    canActivate: [authGuard]  // Solo para usuarios autenticados recién registrados
+  },
+  {
+    path: 'auth/pago',
+    loadComponent: () => import('./features/auth/pago/pago.component').then(m => m.PagoComponent)
+  },
+  {
+    path: 'auth/cargar-comprobante',
+    loadComponent: () => import('./features/auth/cargar-comprobante/cargar-comprobante.component').then(m => m.CargarComprobanteComponent)
+  },
+  {
+    path: 'auth/pagos-solicitudes',
+    loadComponent: () => import('./features/auth/pagos-solicitudes/pagos-solicitudes.component').then(m => m.PagosSolicitudesComponent),
+    canActivate: [authGuard]  // Solo para super admin
+  },
+  {
     path: 'auth/forgot-password',
     loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
@@ -59,6 +77,11 @@ export const routes: Routes = [
   {
     path: 'barberias/administrar',
     loadComponent: () => import('./features/barberias/administrar/administrar.component').then(m => m.AdministrarBarberiasComponent),
+    canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
+  },
+  {
+    path: 'barberias/:id/detail',
+    loadComponent: () => import('./features/barberias/detail-admin/barbershop-detail.component').then(m => m.BarbershopDetailComponent),
     canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
   },
 
@@ -101,6 +124,13 @@ export const routes: Routes = [
     loadComponent: () => import('./features/servicios/administrar/administrar.component').then(m => m.AdministrarServiciosComponent),
     canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
   },
+
+  // Rutas de planes de suscripción (públicas)
+  {
+    path: 'servicios/planes',
+    loadComponent: () => import('./features/servicios/planes/planes.component').then(m => m.PlanesComponent)
+  },
+
   {
     path: '**',
     redirectTo: '/dashboard'

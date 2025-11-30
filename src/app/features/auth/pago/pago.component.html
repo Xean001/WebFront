@@ -1,0 +1,188 @@
+<div class="pago-container">
+  <!-- Header -->
+  <div class="pago-header">
+    <h1>Procesar Pago</h1>
+    <p>Completa el pago para activar tu suscripción</p>
+  </div>
+
+  <!-- Success Screen -->
+  <div *ngIf="pagoExitoso" class="success-screen">
+    <div class="success-icon">✓</div>
+    <h2>¡Pago Exitoso!</h2>
+    <p>Tu suscripción ha sido activada correctamente.</p>
+    <p class="redirect-message">Redirigiendo al onboarding...</p>
+  </div>
+
+  <!-- Payment Form -->
+  <div *ngIf="!pagoExitoso" class="pago-form-container">
+    <!-- Monto a Pagar -->
+    <div class="pago-info">
+      <div class="info-item">
+        <span class="label">Monto a Pagar:</span>
+        <span class="valor">${{ monto | number: '1.2-2' }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">ID Suscripción:</span>
+        <span class="valor">{{ idSuscripcion }}</span>
+      </div>
+    </div>
+
+    <!-- Payment Methods -->
+    <div class="metodos-pago">
+      <div class="metodo-selector">
+        <button 
+          type="button"
+          class="metodo-btn"
+          [class.active]="metodoPagoSeleccionado === 'TARJETA'"
+          (click)="cambiarMetodoPago('TARJETA')"
+        >
+          💳 Tarjeta de Crédito
+        </button>
+        <button 
+          type="button"
+          class="metodo-btn"
+          [class.active]="metodoPagoSeleccionado === 'PAYPAL'"
+          (click)="cambiarMetodoPago('PAYPAL')"
+        >
+          🅿️ PayPal
+        </button>
+        <button 
+          type="button"
+          class="metodo-btn"
+          [class.active]="metodoPagoSeleccionado === 'STRIPE'"
+          (click)="cambiarMetodoPago('STRIPE')"
+        >
+          💰 Stripe
+        </button>
+      </div>
+    </div>
+
+    <!-- Tarjeta Form -->
+    <form [formGroup]="formularioPago" (ngSubmit)="procesarPago()" *ngIf="metodoPagoSeleccionado === 'TARJETA'">
+      <div class="form-group">
+        <label for="numeroTarjeta">Número de Tarjeta:</label>
+        <input 
+          id="numeroTarjeta" 
+          type="text" 
+          formControlName="numeroTarjeta" 
+          placeholder="1234 5678 9012 3456"
+          inputmode="numeric"
+        >
+        <div *ngIf="formularioPago.get('numeroTarjeta')?.invalid && formularioPago.get('numeroTarjeta')?.touched" class="error-message">
+          <span *ngIf="formularioPago.get('numeroTarjeta')?.errors?.['required']">El número de tarjeta es obligatorio.</span>
+          <span *ngIf="formularioPago.get('numeroTarjeta')?.errors?.['pattern']">Número de tarjeta inválido (13-19 dígitos).</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="nombreTitular">Nombre del Titular:</label>
+        <input 
+          id="nombreTitular" 
+          type="text" 
+          formControlName="nombreTitular" 
+          placeholder="Juan Pérez"
+        >
+        <div *ngIf="formularioPago.get('nombreTitular')?.invalid && formularioPago.get('nombreTitular')?.touched" class="error-message">
+          <span *ngIf="formularioPago.get('nombreTitular')?.errors?.['required']">El nombre del titular es obligatorio.</span>
+          <span *ngIf="formularioPago.get('nombreTitular')?.errors?.['minlength']">Mínimo 3 caracteres.</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mesVencimiento">Mes (MM):</label>
+          <input 
+            id="mesVencimiento" 
+            type="text" 
+            formControlName="mesVencimiento" 
+            placeholder="12"
+            maxlength="2"
+            inputmode="numeric"
+          >
+          <div *ngIf="formularioPago.get('mesVencimiento')?.invalid && formularioPago.get('mesVencimiento')?.touched" class="error-message">
+            <span *ngIf="formularioPago.get('mesVencimiento')?.errors?.['required']">Mes requerido.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="anioVencimiento">Año (YY):</label>
+          <input 
+            id="anioVencimiento" 
+            type="text" 
+            formControlName="anioVencimiento" 
+            placeholder="25"
+            maxlength="2"
+            inputmode="numeric"
+          >
+          <div *ngIf="formularioPago.get('anioVencimiento')?.invalid && formularioPago.get('anioVencimiento')?.touched" class="error-message">
+            <span *ngIf="formularioPago.get('anioVencimiento')?.errors?.['required']">Año requerido.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cvv">CVV:</label>
+          <input 
+            id="cvv" 
+            type="text" 
+            formControlName="cvv" 
+            placeholder="123"
+            maxlength="4"
+            inputmode="numeric"
+          >
+          <div *ngIf="formularioPago.get('cvv')?.invalid && formularioPago.get('cvv')?.touched" class="error-message">
+            <span *ngIf="formularioPago.get('cvv')?.errors?.['required']">CVV requerido.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email (Confirmación):</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          placeholder="tu@email.com"
+        >
+        <div *ngIf="formularioPago.get('email')?.invalid && formularioPago.get('email')?.touched" class="error-message">
+          <span *ngIf="formularioPago.get('email')?.errors?.['required']">El email es obligatorio.</span>
+          <span *ngIf="formularioPago.get('email')?.errors?.['email']">Email inválido.</span>
+        </div>
+      </div>
+
+      <div *ngIf="errores['general']" class="alert-error">
+        ⚠️ {{ errores['general'] }}
+      </div>
+
+      <div class="button-group">
+        <button type="button" (click)="irAlRegistro()" class="btn-secondary">
+          ← Volver
+        </button>
+        <button type="submit" [disabled]="cargando || formularioPago.invalid" class="btn-primary">
+          <span *ngIf="!cargando">Pagar ${{ monto | number: '1.2-2' }}</span>
+          <span *ngIf="cargando">Procesando...</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Otros Métodos (Placeholder) -->
+    <div *ngIf="metodoPagoSeleccionado !== 'TARJETA'" class="other-methods">
+      <div class="info-message">
+        <p>{{ metodoPagoSeleccionado === 'PAYPAL' ? 'Será redirigido a PayPal para completar el pago' : 'Será redirigido a Stripe para completar el pago' }}</p>
+      </div>
+      <div class="button-group">
+        <button type="button" (click)="irAlRegistro()" class="btn-secondary">
+          ← Volver
+        </button>
+        <button type="button" [disabled]="cargando" class="btn-primary">
+          <span *ngIf="!cargando">Continuar con {{ metodoPagoSeleccionado }}</span>
+          <span *ngIf="cargando">Redirigiendo...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Info -->
+  <div class="security-info">
+    🔒 Tu información de pago está protegida y encriptada
+  </div>
+</div>

@@ -93,7 +93,7 @@
 .card-title svg {
   width: 28px;
   height: 28px;
-  color: #3b82f6;
+  color: #ffd700;
 }
 
 /* ============================================
@@ -131,7 +131,7 @@
 }
 
 .contact-value a {
-  color: #3b82f6;
+  color: #ffd700;
   text-decoration: none;
   transition: all 0.3s ease;
 }
@@ -161,7 +161,7 @@
 
 .service-card:hover {
   background: rgba(255, 255, 255, 0.12);
-  border-color: #3b82f6;
+  border-color: #ffd700;
   transform: translateY(-4px);
   box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
 }
@@ -340,7 +340,7 @@
 }
 
 .btn-reserve {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
   color: #ffffff;
   border: none;
   padding: 1rem 2rem;

@@ -120,7 +120,7 @@
               </div>
               
               <div class="barberia-price">
-                Desde <strong>${{ barberia.precioDesde }}</strong>
+                Desde <strong>S/ {{ barberia.precioDesde }}</strong>
               </div>
             </div>
             
@@ -176,7 +176,7 @@
   </section>
 
   <!-- Call to Action -->
-  <section class="cta-section">
+  <section class="cta-section" *ngIf="!isAuthenticated">
     <div class="container">
       <div class="cta-content">
         <h2 class="cta-title">¿Eres barbero o tienes una barbería?</h2>

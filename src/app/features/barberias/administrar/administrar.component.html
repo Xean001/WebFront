@@ -2,8 +2,8 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <h1 class="hero-title">Gestionar Barberías</h1>
-      <p class="hero-subtitle">Administra tus establecimientos de barberías</p>
+      <h1 class="hero-title">Mis Barberías</h1>
+      <p class="hero-subtitle">Administra tus establecimientos</p>
     </div>
   </section>
 
@@ -12,173 +12,13 @@
     <div class="container">
       <!-- Add Button -->
       <div class="admin-header">
-        <button class="btn btn-add" (click)="toggleFormulario()" *ngIf="!mostrarFormulario">
+        <button class="btn btn-add" (click)="crearBarberia()">
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
-          Nueva Barbería
+          + Nueva Barbería
         </button>
-        <button class="btn btn-cancel" (click)="toggleFormulario()" *ngIf="mostrarFormulario">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-          Cancelar
-        </button>
-      </div>
-
-      <!-- Form Section -->
-      <div class="form-section" *ngIf="mostrarFormulario">
-        <div class="form-container">
-          <div class="form-header">
-            <h2 class="form-title">{{ editandoId ? 'Editar Barbería' : 'Crear Nueva Barbería' }}</h2>
-          </div>
-
-          <form [formGroup]="formulario" class="form-content">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Nombre <span class="required">*</span></label>
-                <input type="text" class="form-input" formControlName="nombre" placeholder="Ej: Barbería El Corte">
-                <span class="error-message" *ngIf="campoNombre?.invalid && campoNombre?.touched">
-                  El nombre es requerido y debe tener al menos 3 caracteres
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">RUC <span class="required">*</span></label>
-                <input type="text" class="form-input" formControlName="ruc" placeholder="11 dígitos">
-                <span class="error-message" *ngIf="campoRuc?.invalid && campoRuc?.touched">
-                  RUC debe tener exactamente 11 dígitos
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Dirección <span class="required">*</span></label>
-                <input type="text" class="form-input" formControlName="direccion" placeholder="Ej: Av. Principal 123">
-                <span class="error-message" *ngIf="campoDireccion?.invalid && campoDireccion?.touched">
-                  La dirección es requerida
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Ciudad <span class="required">*</span></label>
-                <input type="text" class="form-input" formControlName="ciudad" placeholder="Ej: Lima">
-                <span class="error-message" *ngIf="campoCiudad?.invalid && campoCiudad?.touched">
-                  La ciudad es requerida
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Código Postal</label>
-                <input type="text" class="form-input" formControlName="codigoPostal" placeholder="Ej: 28001">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Teléfono <span class="required">*</span></label>
-                <input type="tel" class="form-input" formControlName="telefono" placeholder="Ej: +51 987654321">
-                <span class="error-message" *ngIf="campoTelefono?.invalid && campoTelefono?.touched">
-                  El teléfono es requerido
-                </span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Email <span class="required">*</span></label>
-                <input type="email" class="form-input" formControlName="email" placeholder="Ej: info@barberia.com">
-                <span class="error-message" *ngIf="campoEmail?.invalid && campoEmail?.touched">
-                  El email es requerido y debe ser válido
-                </span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Sitio Web</label>
-                <input type="url" class="form-input" formControlName="sitioWeb" placeholder="https://www.barberia.com">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Latitud</label>
-                <input type="text" class="form-input" formControlName="latitud" placeholder="Ej: -12.0464">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Longitud</label>
-                <input type="text" class="form-input" formControlName="longitud" placeholder="Ej: -77.0428">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label class="form-label">Descripción</label>
-                <textarea class="form-textarea" formControlName="descripcion" rows="3" placeholder="Describe tu barbería..."></textarea>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label class="form-label">URL Foto de Portada</label>
-                <input type="url" class="form-input" formControlName="fotoPortadaUrl" placeholder="https://...">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label class="form-label">URL Logo</label>
-                <input type="url" class="form-input" formControlName="logoUrl" placeholder="https://...">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group full-width checkbox">
-                <input type="checkbox" class="form-checkbox" formControlName="aceptaReservasOnline" id="aceptaReservas">
-                <label class="checkbox-label" for="aceptaReservas">
-                  Acepta reservas online
-                </label>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="button" class="btn btn-primary" (click)="guardarBarberia()" [disabled]="cargando || formulario.invalid">
-                {{ editandoId ? 'Actualizar' : 'Crear' }}
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="cancelarEdicion()">
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Search & Filter -->
-      <div class="search-section" *ngIf="!mostrarFormulario">
-        <div class="search-box">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-          </svg>
-          <input 
-            type="text" 
-            placeholder="Buscar por nombre, ciudad o email..."
-            [(ngModel)]="busqueda" 
-            (keyup)="aplicarFiltros()"
-            class="search-input"
-          >
-          <button class="search-button" (click)="aplicarFiltros()">Buscar</button>
-        </div>
-
-        <select class="filter-select" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
-          <option value="">Todos los estados</option>
-          <option value="ACTIVA">Activa</option>
-          <option value="INACTIVA">Inactiva</option>
-          <option value="SUSPENDIDA">Suspendida</option>
-        </select>
       </div>
 
       <!-- Loading State -->
@@ -188,11 +28,11 @@
       </div>
 
       <!-- Barberias Grid -->
-      <div class="items-grid" *ngIf="!cargando && barberiasFiltradas.length > 0">
-        <div *ngFor="let barberia of barberiasFiltradas" class="item-card">
+      <div class="items-grid" *ngIf="!cargando && barberias.length > 0">
+        <div *ngFor="let barberia of barberias" class="item-card">
           <div class="card-header">
             <h3 class="card-title">{{ barberia.nombre }}</h3>
-            <span [class]="'status-badge status-' + barberia.estado?.toLowerCase()">
+            <span [class]="'status-badge ' + getEstadoBadgeClass(barberia.estado || '')">
               {{ barberia.estado }}
             </span>
           </div>
@@ -211,39 +51,34 @@
               <span class="detail-value">{{ barberia.email }}</span>
             </div>
             <div class="card-detail">
-              <span class="detail-label">Reservas Online:</span>
-              <span class="detail-value">{{ barberia.aceptaReservasOnline ? 'Sí' : 'No' }}</span>
+              <span class="detail-label">RUC:</span>
+              <span class="detail-value">{{ barberia.ruc }}</span>
             </div>
           </div>
 
           <div class="card-actions">
-            <button class="action-btn action-edit" (click)="editarBarberia(barberia)" title="Editar">
+            <button 
+              class="action-btn action-edit" 
+              (click)="verDetalles(barberia.idBarberia || 0)"
+              title="Ver detalles y editar"
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
-              Editar
-            </button>
-            <button class="action-btn action-status" (click)="cambiarEstado(barberia.idBarberia, barberia.estado)" title="Cambiar estado">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polyline points="1 4 1 10 7 10"></polyline>
-                <path d="M3.51 15a9 9 0 0 1 14.85-4.95M23 20v-6h-6"></path>
-                <path d="M20.49 9A9 9 0 0 0 5.64 5.05"></path>
-              </svg>
-              Estado
+              Gestionar
             </button>
           </div>
         </div>
       </div>
 
       <!-- No Results -->
-      <div class="no-results" *ngIf="!cargando && barberiasFiltradas.length === 0">
+      <div class="no-results" *ngIf="!cargando && barberias.length === 0">
         <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path>
-          <path d="M12 7v5l4.25 2.52"></path>
         </svg>
         <h3>No hay barberías</h3>
-        <p>{{ mostrarFormulario ? 'Completa el formulario para crear una' : 'Crea una nueva barbería' }}</p>
+        <p>Crea tu primera barbería para comenzar</p>
       </div>
     </div>
   </section>

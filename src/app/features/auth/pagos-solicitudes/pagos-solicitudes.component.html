@@ -1,0 +1,186 @@
+<div class="solicitudes-container">
+  <!-- Header -->
+  <div class="solicitudes-header">
+    <h1>Solicitudes de Pago Pendientes</h1>
+    <p>Revisa y aprueba los comprobantes de pago de los nuevos administradores</p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando solicitudes...</p>
+  </div>
+
+  <!-- Errores Generales -->
+  <div *ngIf="errores['general']" class="alert-error">
+    ⚠️ {{ errores['general'] }}
+  </div>
+
+  <!-- Lista de Solicitudes -->
+  <div *ngIf="!cargando && solicitudesPago.length > 0" class="solicitudes-grid">
+    <div *ngFor="let solicitud of solicitudesPago" class="solicitud-card">
+      <!-- Header Card -->
+      <div class="card-header">
+        <div class="card-title">
+          <h3>{{ solicitud.nombreUsuario }}</h3>
+          <span class="badge-pendiente">⏳ PENDIENTE</span>
+        </div>
+        <div class="card-status">
+          <span class="status-label">{{ solicitud.metodoPago }}</span>
+        </div>
+      </div>
+
+      <!-- User Info -->
+      <div class="card-section">
+        <h4>Información del Usuario</h4>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="label">Email:</span>
+            <span class="valor">{{ solicitud.emailUsuario }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Teléfono:</span>
+            <span class="valor">{{ solicitud.telefonoUsuario || 'No proporcionado' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan Info -->
+      <div class="card-section">
+        <h4>Información del Plan</h4>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="label">Plan:</span>
+            <span class="valor">{{ solicitud.nombrePlan }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Duración:</span>
+            <span class="valor">{{ solicitud.duracionDias }} días</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Monto:</span>
+            <span class="valor precio">${{ solicitud.monto | number: '1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comprobante Info -->
+      <div class="card-section">
+        <h4>Comprobante de Pago</h4>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="label">Método:</span>
+            <span class="valor">{{ solicitud.metodoPago }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Número de Operación:</span>
+            <span class="valor code">{{ solicitud.numeroOperacion }}</span>
+          </div>
+          <div class="info-row-full">
+            <span class="label">Comprobante:</span>
+            <a [href]="solicitud.comprobanteUrl" target="_blank" class="link-comprobante">
+              🔗 Ver imagen
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card-actions">
+        <button 
+          type="button" 
+          class="btn-aprobar"
+          (click)="abrirModalAprobacion(solicitud)"
+        >
+          ✅ Aprobar
+        </button>
+        <button 
+          type="button" 
+          class="btn-rechazar"
+          (click)="rechazarPago(); cerrarModal()"
+        >
+          ❌ Rechazar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin Solicitudes -->
+  <div *ngIf="!cargando && solicitudesPago.length === 0" class="empty-state">
+    <div class="empty-icon">✓</div>
+    <h2>No hay solicitudes pendientes</h2>
+    <p>Todos los pagos han sido procesados</p>
+  </div>
+
+  <!-- Modal de Aprobación -->
+  <div *ngIf="modalVisible" class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Aprobar Pago</h2>
+        <button type="button" class="btn-close" (click)="cerrarModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="solicitud-resumen">
+          <h3>{{ solicitudSeleccionada?.nombreUsuario }}</h3>
+          <p class="email">{{ solicitudSeleccionada?.emailUsuario }}</p>
+          <p class="monto">${{ solicitudSeleccionada?.monto | number: '1.2-2' }} - {{ solicitudSeleccionada?.metodoPago }}</p>
+        </div>
+
+        <form [formGroup]="formularioAprobacion" class="form-aprobacion">
+          <div class="form-group">
+            <label for="tipoPlanAprobado">Plan a Otorgar:</label>
+            <select formControlName="tipoPlanAprobado" id="tipoPlanAprobado" class="select">
+              <option value="">Selecciona un plan...</option>
+              <option value="PRUEBA">PRUEBA (7 días)</option>
+              <option value="MENSUAL">MENSUAL (30 días)</option>
+              <option value="SEMESTRAL">SEMESTRAL (180 días)</option>
+              <option value="ANUAL">ANUAL (365 días)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="duracionDiasPersonalizada">
+              Duración Personalizada (opcional):
+            </label>
+            <div class="input-group">
+              <input 
+                type="number" 
+                formControlName="duracionDiasPersonalizada"
+                id="duracionDiasPersonalizada"
+                placeholder="Ej: 90"
+                min="1"
+              >
+              <span class="unidad">días</span>
+            </div>
+            <small>Si dejas en blanco, se usará la duración del plan seleccionado</small>
+          </div>
+
+          <div *ngIf="errores['general']" class="alert-error">
+            {{ errores['general'] }}
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn-cancel"
+          (click)="cerrarModal()"
+          [disabled]="procesandoAprobacion"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn-confirm"
+          (click)="aprobarPago()"
+          [disabled]="formularioAprobacion.invalid || procesandoAprobacion"
+        >
+          <span *ngIf="!procesandoAprobacion">✅ Confirmar Aprobación</span>
+          <span *ngIf="procesandoAprobacion">Procesando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

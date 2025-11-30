@@ -1,0 +1,124 @@
+<div class="servicios-container">
+  <!-- Button Crear Servicio -->
+  <div class="header-actions">
+    <button class="btn btn-primary" (click)="toggleFormulario()" *ngIf="!mostrarFormulario">
+      + Nuevo Servicio
+    </button>
+  </div>
+
+  <!-- Formulario -->
+  <div *ngIf="mostrarFormulario" class="form-container">
+    <h3>{{ editandoId ? 'Editar Servicio' : 'Crear Nuevo Servicio' }}</h3>
+    <form [formGroup]="formulario" (ngSubmit)="guardarServicio()" class="service-form">
+      <div class="form-group">
+        <label>Nombre del Servicio *</label>
+        <input type="text" formControlName="nombre" placeholder="Ej: Corte Clásico" class="form-input">
+        <span class="error-text" *ngIf="formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched">
+          El nombre es requerido (mín. 3 caracteres)
+        </span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select formControlName="categoria" class="form-select">
+            <option value="">Seleccionar categoría</option>
+            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio *</label>
+          <input type="number" formControlName="precio" placeholder="0.00" class="form-input" step="0.01" min="0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Duración (minutos) *</label>
+          <input type="number" formControlName="duracionMinutos" placeholder="30" class="form-input" min="5">
+        </div>
+        <div class="form-group checkbox">
+          <input type="checkbox" formControlName="destacado" id="destacado">
+          <label for="destacado">Destacado</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea formControlName="descripcion" placeholder="Describe el servicio..." class="form-textarea" rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Servicios Incluidos</label>
+        <input type="text" formControlName="serviciosIncluidos" placeholder="Ej: Lavado, corte, peinado" class="form-input">
+      </div>
+
+      <div class="form-group checkbox">
+        <input type="checkbox" formControlName="activo" id="activo">
+        <label for="activo">Activo</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="cargando || formulario.invalid">
+          {{ editandoId ? 'Actualizar' : 'Crear' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancelarEdicion()">
+          Cancelar
+        </button>
+      </div>
+
+      <div *ngIf="errores['general']" class="alert-error">
+        {{ errores['general'] }}
+      </div>
+    </form>
+  </div>
+
+  <!-- Lista de Servicios -->
+  <div *ngIf="!mostrarFormulario" class="servicios-list">
+    <div *ngIf="cargando" class="loading">
+      <p>Cargando servicios...</p>
+    </div>
+
+    <div *ngIf="!cargando && servicios.length === 0" class="empty-state">
+      <p>No hay servicios registrados. Crea uno nuevo.</p>
+    </div>
+
+    <div *ngIf="!cargando && servicios.length > 0" class="services-grid">
+      <div *ngFor="let servicio of servicios" class="service-card">
+        <div class="card-header">
+          <h4>{{ servicio.nombre }}</h4>
+          <span class="badge" [class.active]="servicio.activo">{{ servicio.activo ? 'Activo' : 'Inactivo' }}</span>
+        </div>
+
+        <div class="card-content">
+          <div class="info-row">
+            <span class="label">Categoría:</span>
+            <span class="value">{{ servicio.categoria }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Precio:</span>
+            <span class="value price">S/. {{ servicio.precio | number: '1.2-2' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Duración:</span>
+            <span class="value">{{ servicio.duracionMinutos }} min</span>
+          </div>
+          <div class="info-row" *ngIf="servicio.descripcion">
+            <span class="label">Descripción:</span>
+            <span class="value">{{ servicio.descripcion }}</span>
+          </div>
+          <div *ngIf="servicio.destacado" class="badge-highlight">⭐ Destacado</div>
+        </div>
+
+        <div class="card-actions">
+          <button class="action-btn edit" (click)="editarServicio(servicio)" title="Editar">
+            ✎ Editar
+          </button>
+          <button class="action-btn delete" (click)="eliminarServicio(servicio.idServicio || 0)" title="Eliminar">
+            🗑️ Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

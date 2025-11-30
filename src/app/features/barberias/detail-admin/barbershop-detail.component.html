@@ -1,0 +1,186 @@
+<div class="detail-container">
+  <!-- Header -->
+  <div class="detail-header">
+    <button class="btn-back" (click)="volver()">
+      ← Volver
+    </button>
+    <h1 *ngIf="barbershop">{{ barbershop.nombre }}</h1>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div *ngIf="!cargando && barbershop" class="tabs-navigation">
+    <button 
+      [class.active]="tabActivo === 'datos'" 
+      (click)="cambiarTab('datos')"
+      class="tab-btn"
+    >
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+      Datos
+    </button>
+    <button 
+      [class.active]="tabActivo === 'servicios'" 
+      (click)="cambiarTab('servicios')"
+      class="tab-btn"
+    >
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
+      Servicios
+    </button>
+    <button 
+      [class.active]="tabActivo === 'barberos'" 
+      (click)="cambiarTab('barberos')"
+      class="tab-btn"
+    >
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+      Barberos
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div *ngIf="!cargando && barbershop" class="tab-content">
+    <!-- Tab: Datos -->
+    <div *ngIf="tabActivo === 'datos'" class="tab-pane">
+      <div class="pane-header">
+        <h2>Información de la Barbería</h2>
+        <button class="btn btn-primary" (click)="toggleEdicion()">
+          {{ editando ? 'Cancelar' : 'Editar' }}
+        </button>
+      </div>
+
+      <div *ngIf="!editando" class="info-grid">
+        <div class="info-item">
+          <label>Nombre</label>
+          <p>{{ barbershop.nombre }}</p>
+        </div>
+        <div class="info-item">
+          <label>RUC</label>
+          <p>{{ barbershop.ruc }}</p>
+        </div>
+        <div class="info-item">
+          <label>Dirección</label>
+          <p>{{ barbershop.direccion }}</p>
+        </div>
+        <div class="info-item">
+          <label>Ciudad</label>
+          <p>{{ barbershop.ciudad }}</p>
+        </div>
+        <div class="info-item">
+          <label>Teléfono</label>
+          <p>{{ barbershop.telefono }}</p>
+        </div>
+        <div class="info-item">
+          <label>Email</label>
+          <p>{{ barbershop.email }}</p>
+        </div>
+        <div class="info-item">
+          <label>Sitio Web</label>
+          <p>{{ barbershop.sitioWeb || 'No especificado' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Estado</label>
+          <p>
+            <span [class]="'status-badge status-' + (barbershop.estado?.toLowerCase() || 'activa')">
+              {{ barbershop.estado }}
+            </span>
+          </p>
+        </div>
+        <div class="info-item full-width">
+          <label>Descripción</label>
+          <p>{{ barbershop.descripcion || 'No especificada' }}</p>
+        </div>
+        <div class="info-item full-width">
+          <label>Acepta Reservas Online</label>
+          <p>{{ barbershop.aceptaReservasOnline ? 'Sí' : 'No' }}</p>
+        </div>
+      </div>
+
+      <form *ngIf="editando" [formGroup]="formulario" class="edit-form">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" formControlName="nombre" class="form-input">
+          <span class="error-text" *ngIf="formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched">
+            El nombre es requerido
+          </span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>RUC *</label>
+            <input type="text" formControlName="ruc" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Ciudad *</label>
+            <input type="text" formControlName="ciudad" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Dirección *</label>
+          <input type="text" formControlName="direccion" class="form-input">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teléfono *</label>
+            <input type="tel" formControlName="telefono" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" formControlName="email" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Sitio Web</label>
+          <input type="url" formControlName="sitioWeb" class="form-input" placeholder="https://...">
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea formControlName="descripcion" class="form-textarea" rows="3"></textarea>
+        </div>
+
+        <div class="form-group checkbox">
+          <input type="checkbox" formControlName="aceptaReservasOnline" id="aceptaReservas">
+          <label for="aceptaReservas">Acepta reservas online</label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-success" (click)="guardarCambios()" [disabled]="cargando || formulario.invalid">
+            Guardar Cambios
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="toggleEdicion()">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab: Servicios -->
+    <div *ngIf="tabActivo === 'servicios'" class="tab-pane">
+      <app-servicios-management [idBarberia]="barbershopId"></app-servicios-management>
+    </div>
+
+    <!-- Tab: Barberos -->
+    <div *ngIf="tabActivo === 'barberos'" class="tab-pane">
+      <app-barberos-management [idBarberia]="barbershopId"></app-barberos-management>
+    </div>
+  </div>
+</div>

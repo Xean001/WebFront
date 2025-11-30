@@ -1,0 +1,211 @@
+﻿<div class="onboarding-container">
+  <!-- Hero Section with Progress Indicator -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Configura tu Barbería</h1>
+      <p *ngIf="currentStep < 6">Paso {{ currentStep }} de 5 - Completa la información de tu negocio</p>
+    </div>
+    
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+      <div class="steps-container">
+        <div class="step-circle" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+          <span *ngIf="currentStep <= 1">1</span>
+          <span *ngIf="currentStep > 1" class="check"></span>
+        </div>
+        <div class="step-line" [class.active]="currentStep > 1"></div>
+        
+        <div class="step-circle" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+          <span *ngIf="currentStep <= 2">2</span>
+          <span *ngIf="currentStep > 2" class="check"></span>
+        </div>
+        <div class="step-line" [class.active]="currentStep > 2"></div>
+        
+        <div class="step-circle" [class.active]="currentStep >= 3" [class.completed]="currentStep > 3">
+          <span *ngIf="currentStep <= 3">3</span>
+          <span *ngIf="currentStep > 3" class="check"></span>
+        </div>
+        <div class="step-line" [class.active]="currentStep > 3"></div>
+        
+        <div class="step-circle" [class.active]="currentStep >= 4" [class.completed]="currentStep > 4">
+          <span *ngIf="currentStep <= 4">4</span>
+          <span *ngIf="currentStep > 4" class="check"></span>
+        </div>
+        <div class="step-line" [class.active]="currentStep > 4"></div>
+        
+        <div class="step-circle" [class.active]="currentStep >= 5" [class.completed]="currentStep > 5">
+          <span *ngIf="currentStep <= 5">5</span>
+          <span *ngIf="currentStep > 5" class="check"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Container -->
+  <form [formGroup]="formulario" class="form-container">
+    <!-- Step 1: Información Básica -->
+    <div class="step-card" *ngIf="currentStep === 1">
+      <div class="step-header">
+        <div class="step-icon">1</div>
+        <div class="step-title">
+          <h2>Información Básica</h2>
+          <p>Nombre y RUC de tu barbería</p>
+        </div>
+      </div>
+
+      <div class="step-content">
+        <div class="form-group">
+          <label for="nombre">Nombre de la Barbería *</label>
+          <input id="nombre" type="text" formControlName="nombre" placeholder="Ej: Barbería Premium">
+          <div *ngIf="formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched" class="error-message">
+            <span *ngIf="formulario.get('nombre')?.errors?.['required']">El nombre es obligatorio</span>
+            <span *ngIf="formulario.get('nombre')?.errors?.['minlength']">Mínimo 3 caracteres</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ruc">RUC *</label>
+          <input id="ruc" type="text" formControlName="ruc" placeholder="11 dígitos">
+          <div *ngIf="formulario.get('ruc')?.invalid && formulario.get('ruc')?.touched" class="error-message">
+            <span *ngIf="formulario.get('ruc')?.errors?.['required']">El RUC es obligatorio</span>
+            <span *ngIf="formulario.get('ruc')?.errors?.['pattern']">RUC debe tener 11 dígitos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Ubicación -->
+    <div class="step-card" *ngIf="currentStep === 2">
+      <div class="step-header">
+        <div class="step-icon">2</div>
+        <div class="step-title">
+          <h2>Ubicación</h2>
+          <p>Dónde se encuentra tu barbería</p>
+        </div>
+      </div>
+
+      <div class="step-content">
+        <div class="form-group">
+          <label for="direccion">Dirección *</label>
+          <input id="direccion" type="text" formControlName="direccion" placeholder="Calle, número y referencia">
+          <div *ngIf="formulario.get('direccion')?.invalid && formulario.get('direccion')?.touched" class="error-message">
+            <span *ngIf="formulario.get('direccion')?.errors?.['required']">La dirección es obligatoria</span>
+            <span *ngIf="formulario.get('direccion')?.errors?.['minlength']">Mínimo 5 caracteres</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ciudad">Ciudad *</label>
+          <input id="ciudad" type="text" formControlName="ciudad" placeholder="Ej: Lima">
+          <div *ngIf="formulario.get('ciudad')?.invalid && formulario.get('ciudad')?.touched" class="error-message">
+            <span *ngIf="formulario.get('ciudad')?.errors?.['required']">La ciudad es obligatoria</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Contacto -->
+    <div class="step-card" *ngIf="currentStep === 3">
+      <div class="step-header">
+        <div class="step-icon">3</div>
+        <div class="step-title">
+          <h2>Información de Contacto</h2>
+          <p>Cómo pueden contactarte tus clientes</p>
+        </div>
+      </div>
+
+      <div class="step-content">
+        <div class="form-group">
+          <label for="telefono">Teléfono *</label>
+          <input id="telefono" type="tel" formControlName="telefono" placeholder="Ej: +51987654321">
+          <div *ngIf="formulario.get('telefono')?.invalid && formulario.get('telefono')?.touched" class="error-message">
+            <span *ngIf="formulario.get('telefono')?.errors?.['required']">El teléfono es obligatorio</span>
+            <span *ngIf="formulario.get('telefono')?.errors?.['pattern']">Formato de teléfono inválido</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input id="email" type="email" formControlName="email" placeholder="info@barberia.com">
+          <div *ngIf="formulario.get('email')?.invalid && formulario.get('email')?.touched" class="error-message">
+            <span *ngIf="formulario.get('email')?.errors?.['required']">El email es obligatorio</span>
+            <span *ngIf="formulario.get('email')?.errors?.['email']">Email inválido</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Información Adicional -->
+    <div class="step-card" *ngIf="currentStep === 4">
+      <div class="step-header">
+        <div class="step-icon">4</div>
+        <div class="step-title">
+          <h2>Información Adicional</h2>
+          <p>Detalles sobre tu barbería</p>
+        </div>
+      </div>
+
+      <div class="step-content">
+        <div class="form-group">
+          <label for="sitioWeb">Sitio Web (Opcional)</label>
+          <input id="sitioWeb" type="url" formControlName="sitioWeb" placeholder="https://www.barberia.com">
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción (Opcional) </label>
+          <textarea id="descripcion" formControlName="descripcion" placeholder="Describe tu barbería, especialidades, estilo, etc..." rows="4"></textarea>
+        </div>
+
+        <div class="form-group checkbox">
+          <label>
+            <input type="checkbox" formControlName="aceptaReservasOnline">
+            <span>Acepto recibir reservas en línea</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Confirmación -->
+    <div class="step-card" *ngIf="currentStep === 5">
+      <div class="step-header">
+        <div class="step-icon"></div>
+        <div class="step-title">
+          <h2>Confirmación</h2>
+          <p>Revisa los datos antes de crear tu barbería</p>
+        </div>
+      </div>
+
+      <div class="step-content">
+        <div class="summary-grid">
+          <div class="summary-item"><span class="label">Nombre:</span><span class="value">{{ formulario.get('nombre')?.value }}</span></div>
+          <div class="summary-item"><span class="label">RUC:</span><span class="value">{{ formulario.get('ruc')?.value }}</span></div>
+          <div class="summary-item"><span class="label">Dirección:</span><span class="value">{{ formulario.get('direccion')?.value }}</span></div>
+          <div class="summary-item"><span class="label">Ciudad:</span><span class="value">{{ formulario.get('ciudad')?.value }}</span></div>
+          <div class="summary-item"><span class="label">Teléfono:</span><span class="value">{{ formulario.get('telefono')?.value }}</span></div>
+          <div class="summary-item"><span class="label">Email:</span><span class="value">{{ formulario.get('email')?.value }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- General Errors -->
+    <div *ngIf="errores['general']" class="alert-error">{{ errores['general'] }}</div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+      <button type="button" class="btn-secondary" (click)="previousStep()" [disabled]="currentStep === 1"> Anterior</button>
+      <button type="button" class="btn-primary" (click)="nextStep()" *ngIf="currentStep < 5">Siguiente </button>
+      <button type="submit" class="btn-success" (click)="crearOrganizacion()" *ngIf="currentStep === 5" [disabled]="cargando || formulario.invalid">
+        <span *ngIf="!cargando"> Crear Barbería</span>
+        <span *ngIf="cargando">Creando...</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Success State -->
+  <div *ngIf="currentStep === 6" class="success-container">
+    <div class="success-icon"></div>
+    <h2>¡Barbería Creada!</h2>
+    <p>Tu barbería ha sido registrada exitosamente.</p>
+    <p class="loading-text">Redirigiendo a tu panel de administración...</p>
+  </div>
+</div>

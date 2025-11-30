@@ -1,18 +1,50 @@
 /* Contenedor Principal */
 .auth-container {
-    max-width: 450px;
-    margin: 80px auto;
-    padding: 3rem 2.5rem;
-    background: rgba(0, 0, 0, 0.85);
+    max-width: 650px;
+    margin: 60px auto;
+    padding: 3rem;
+    background: rgba(15, 15, 15, 0.95);
     backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 
-                0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 
+                0 0 0 1px rgba(255, 215, 0, 0.1);
     font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     position: relative;
     z-index: 10;
     animation: fadeInUp 0.6s ease-out;
+}
+
+/* Banner Administrativo */
+.admin-banner {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 183, 0, 0.1) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: -3rem -2.5rem 2rem -2.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    animation: slideDown 0.6s ease-out;
+}
+
+.banner-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.banner-content h2 {
+    margin: 0 0 0.5rem 0;
+    color: #ffd700;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.banner-content p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 
 @keyframes fadeInUp {
@@ -351,6 +383,539 @@ button:disabled {
     button {
         font-size: 0.8rem;
         padding: 0.7rem 0.8rem;
+    }
+
+    .links a {
+        font-size: 0.8rem;
+    }
+}
+
+/* Progress Steps */
+.progress-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.progress-steps {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+}
+
+.step-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 2;
+}
+
+.step {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+    font-size: 1.25rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+}
+
+.step.active {
+    background: linear-gradient(135deg, #ffd700, #ffb700);
+    border-color: #ffd700;
+    color: #000000;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.step.completed {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    border-color: #34d399;
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+}
+
+.step-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    line-height: 1.3;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+}
+
+.step.active ~ .step-label,
+.step-wrapper:has(.step.active) .step-label {
+    color: #ffd700;
+}
+
+.step.completed ~ .step-label,
+.step-wrapper:has(.step.completed) .step-label {
+    color: #34d399;
+}
+
+.step-connector {
+    width: 80px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    transition: all 0.4s ease;
+    position: relative;
+    margin-top: -35px;
+}
+
+.step-connector.active {
+    background: linear-gradient(90deg, #ffd700, #34d399);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+
+/* Form Section */
+.form-section {
+    animation: slideUp 0.5s ease-out;
+}
+
+.form-section h3 {
+    color: #ffffff;
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+}
+
+.btn-primary {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #ffd700, #ffb700);
+    color: #000000;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-primary:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ffb700, #ffd700);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.15));
+    color: rgba(0, 0, 0, 0.4);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-secondary {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    background: transparent;
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Planes Selector */
+.planes-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin: 2rem 0;
+}
+
+.plan-option {
+    background: rgba(255, 255, 255, 0.04);
+    border: 2px solid rgba(255, 215, 0, 0.15);
+    border-radius: 16px;
+    padding: 1.75rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.plan-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 183, 0, 0.02));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.plan-option:hover {
+    background: rgba(255, 215, 0, 0.08);
+    border-color: rgba(255, 215, 0, 0.3);
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.15);
+}
+
+.plan-option:hover::before {
+    opacity: 1;
+}
+
+.plan-option.selected {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 
+                inset 0 0 20px rgba(255, 215, 0, 0.05);
+    transform: translateY(-8px) scale(1.02);
+}
+
+.plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.plan-header h4 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    flex: 1;
+}
+
+.plan-type {
+    background: rgba(255, 215, 0, 0.25);
+    color: #ffd700;
+    padding: 0.35rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.price {
+    color: #ffd700;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.duration {
+    color: #b0b0b0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.plan-description {
+    color: #b0b0b0;
+    font-size: 0.85rem;
+    margin: 0.5rem 0 1rem 0;
+    line-height: 1.4;
+    position: relative;
+    z-index: 1;
+}
+
+.plan-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
+    flex-grow: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.feature {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-weight: 500;
+}
+
+.plan-indicator {
+    text-align: center;
+    padding: 0.85rem;
+    background: rgba(255, 215, 0, 0.08);
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    border-radius: 8px;
+    color: rgba(255, 215, 0, 0.6);
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-indicator.is-selected {
+    background: #ffd700;
+    border-color: #ffd700;
+    color: #000000;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+/* Loading Message */
+.loading-message {
+    text-align: center;
+    color: #b0b0b0;
+    padding: 2rem;
+    font-size: 0.95rem;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .auth-container {
+        max-width: 100%;
+        margin: 40px 1rem;
+        padding: 2.5rem 1.5rem;
+    }
+
+    .progress-container {
+        margin-bottom: 2.5rem;
+        padding: 1.5rem 0;
+    }
+
+    .progress-steps {
+        gap: 1.5rem;
+    }
+
+    .step {
+        width: 55px;
+        height: 55px;
+        font-size: 1.1rem;
+    }
+
+    .step-connector {
+        width: 60px;
+    }
+
+    .step-label {
+        font-size: 0.7rem;
+    }
+
+    .planes-selector {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .plan-option {
+        padding: 1.5rem;
+    }
+
+    .plan-header h4 {
+        font-size: 1rem;
+    }
+
+    .price {
+        font-size: 1.5rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.9rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        margin: 20px 1rem;
+        padding: 2rem 1.25rem;
+    }
+
+    .admin-banner {
+        margin: -2rem -1.25rem 1.5rem -1.25rem;
+        padding: 1.25rem;
+    }
+
+    .progress-container {
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+    }
+
+    .progress-steps {
+        gap: 1rem;
+    }
+
+    .step {
+        width: 48px;
+        height: 48px;
+        border-width: 2px;
+        font-size: 1rem;
+    }
+
+    .step-connector {
+        width: 50px;
+        height: 3px;
+        margin-top: -28px;
+    }
+
+    .step-label {
+        font-size: 0.65rem;
+    }
+
+    .form-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        font-size: 0.8rem;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: 0.8rem;
+        padding: 0.7rem 0.8rem;
+    }
+
+    .planes-selector {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .plan-option {
+        padding: 1.25rem;
+    }
+
+    .plan-header h4 {
+        font-size: 0.95rem;
+    }
+
+    .plan-type {
+        font-size: 0.65rem;
+        padding: 0.3rem 0.65rem;
+    }
+
+    .price {
+        font-size: 1.35rem;
+    }
+
+    .duration {
+        font-size: 0.8rem;
+    }
+
+    .plan-description {
+        font-size: 0.8rem;
+    }
+
+    .feature {
+        font-size: 0.8rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.8rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .links {
+        margin-top: 1.5rem;
     }
 
     .links a {

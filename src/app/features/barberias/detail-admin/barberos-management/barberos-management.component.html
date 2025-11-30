@@ -1,0 +1,113 @@
+<div class="barberos-container">
+  <!-- Loading State -->
+  <div *ngIf="cargando && staff.length === 0" class="loading">
+    <p>Cargando personal...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!cargando && staff.length === 0" class="empty-state">
+    <p>No hay miembros del staff registrados en esta barbería.</p>
+  </div>
+
+  <!-- Staff List -->
+  <div *ngIf="!cargando && staff.length > 0" class="staff-list">
+    <div *ngFor="let miembro of staff" class="staff-card">
+      <!-- Card Header -->
+      <div class="card-header">
+        <div class="member-info">
+          <h3>{{ miembro.usuario.nombre }} {{ miembro.usuario.apellido }}</h3>
+          <p>{{ miembro.usuario.correo }}</p>
+          <span [class]="'badge ' + getRolBadgeClass(miembro.rol)">{{ miembro.rol }}</span>
+        </div>
+        <div class="card-actions">
+          <button 
+            class="action-btn edit" 
+            (click)="editarPermisos(miembro)"
+            [disabled]="editandoId === miembro.idPermiso"
+            title="Editar permisos"
+          >
+            ✎ Permisos
+          </button>
+          <button 
+            class="action-btn delete" 
+            (click)="eliminarStaff(miembro.usuario.idUsuario)"
+            title="Eliminar staff"
+          >
+            🗑️ Eliminar
+          </button>
+        </div>
+      </div>
+
+      <!-- Permissions Form (when editing this member) -->
+      <div *ngIf="editandoId === miembro.idPermiso" class="permissions-form">
+        <form [formGroup]="formularioPermisos" class="form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Rol</label>
+              <select formControlName="rol" class="form-select">
+                <option *ngFor="let rol of roles" [value]="rol">{{ rol }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="permissions-grid">
+            <div class="permission-item">
+              <input type="checkbox" formControlName="puedeEditarServicios" id="editarServicios">
+              <label for="editarServicios">Editar Servicios</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" formControlName="puedeGestionarCitas" id="gestionarCitas">
+              <label for="gestionarCitas">Gestionar Citas</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" formControlName="puedeVerReportes" id="verReportes">
+              <label for="verReportes">Ver Reportes</label>
+            </div>
+            <div class="permission-item">
+              <input type="checkbox" formControlName="puedeGestionarBarberos" id="gestionarBarberos">
+              <label for="gestionarBarberos">Gestionar Barberos</label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              type="button" 
+              class="btn btn-success" 
+              (click)="guardarPermisos(miembro.usuario.idUsuario)"
+              [disabled]="cargando || formularioPermisos.invalid"
+            >
+              Guardar Permisos
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-secondary" 
+              (click)="cancelarEdicion()"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <div *ngIf="errores['general']" class="alert-error">
+            {{ errores['general'] }}
+          </div>
+        </form>
+      </div>
+
+      <!-- Permissions Display (when not editing) -->
+      <div *ngIf="editandoId !== miembro.idPermiso" class="permissions-display">
+        <div class="permission-badge" [class.active]="miembro.puedeEditarServicios">
+          Editar Servicios
+        </div>
+        <div class="permission-badge" [class.active]="miembro.puedeGestionarCitas">
+          Gestionar Citas
+        </div>
+        <div class="permission-badge" [class.active]="miembro.puedeVerReportes">
+          Ver Reportes
+        </div>
+        <div class="permission-badge" [class.active]="miembro.puedeGestionarBarberos">
+          Gestionar Barberos
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

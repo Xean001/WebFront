@@ -1,0 +1,157 @@
+<div class="planes-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Planes de Suscripción</h1>
+      <p>Elige el plan perfecto para tu barbería</p>
+    </div>
+  </div>
+
+  <!-- Planes Grid -->
+  <div class="planes-grid">
+    <div 
+      *ngFor="let plan of planes" 
+      class="plan-card"
+      [class.featured]="plan.tipo === mejorPlan"
+      [class.free]="plan.tipo === 'PRUEBA'"
+    >
+      <!-- Badge de mejor plan -->
+      <div *ngIf="plan.tipo === mejorPlan" class="badge-mejor">
+        ⭐ Mejor Opción
+      </div>
+
+      <!-- Header del plan -->
+      <div class="plan-header">
+        <h2>{{ plan.nombre }}</h2>
+        <p class="plan-description">{{ plan.descripcion }}</p>
+      </div>
+
+      <!-- Precio principal -->
+      <div class="plan-price">
+        <span class="currency">S/</span>
+        <span class="amount">{{ plan.precio | number: '1.2-2' }}</span>
+        <span class="period">/{{ plan.duracionDias }} días</span>
+      </div>
+
+      <!-- Precio por día -->
+      <div class="price-daily">
+        <small>S/ {{ calcularPrecioDiario(plan) | number: '1.2-2' }} por día</small>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider"></div>
+
+      <!-- Features -->
+      <div class="plan-features">
+        <div class="feature">
+          <span class="feature-icon">👥</span>
+          <div class="feature-content">
+            <strong>Barberos</strong>
+            <p>Hasta {{ plan.limiteBarberos }} barberos</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span class="feature-icon">✂️</span>
+          <div class="feature-content">
+            <strong>Servicios</strong>
+            <p>{{ plan.limiteServicios === null ? 'Servicios ilimitados' : 'Hasta ' + plan.limiteServicios + ' servicios' }}</p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span class="feature-icon">📅</span>
+          <div class="feature-content">
+            <strong>Duración</strong>
+            <p>{{ plan.duracionDias }} días de acceso</p>
+          </div>
+        </div>
+
+        <!-- Características adicionales según el plan -->
+        <div *ngIf="plan.tipo !== 'PRUEBA'" class="feature">
+          <span class="feature-icon">✅</span>
+          <div class="feature-content">
+            <strong>Soporte prioritario</strong>
+            <p>Atención al cliente 24/7</p>
+          </div>
+        </div>
+
+        <div *ngIf="plan.tipo === 'SEMESTRAL' || plan.tipo === 'ANUAL'" class="feature">
+          <span class="feature-icon">🎁</span>
+          <div class="feature-content">
+            <strong>Descuento especial</strong>
+            <p>
+              <span *ngIf="plan.tipo === 'SEMESTRAL'">15% descuento</span>
+              <span *ngIf="plan.tipo === 'ANUAL'">25% descuento</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button 
+        (click)="contratarPlan(plan)"
+        class="btn-plan"
+        [class.btn-free]="plan.tipo === 'PRUEBA'"
+        [class.btn-featured]="plan.tipo === mejorPlan"
+      >
+        <span *ngIf="plan.tipo === 'PRUEBA'">Comenzar Prueba</span>
+        <span *ngIf="plan.tipo !== 'PRUEBA'">Contratar Plan</span>
+      </button>
+
+      <!-- Footer info -->
+      <div *ngIf="plan.tipo === 'PRUEBA'" class="plan-footer">
+        <small>Sin tarjeta de crédito requerida</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="comparison-section">
+    <h2>Comparación Detallada</h2>
+    <div class="comparison-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Características</th>
+            <th *ngFor="let plan of planes">{{ plan.nombre }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Precio</strong></td>
+            <td *ngFor="let plan of planes">S/.{{ plan.precio | number: '1.2-2' }}</td>
+          </tr>
+          <tr>
+            <td><strong>Duración</strong></td>
+            <td *ngFor="let plan of planes">{{ plan.duracionDias }} días</td>
+          </tr>
+          <tr>
+            <td><strong>Barberos</strong></td>
+            <td *ngFor="let plan of planes">{{ plan.limiteBarberos }}</td>
+          </tr>
+          <tr>
+            <td><strong>Servicios</strong></td>
+            <td *ngFor="let plan of planes">
+              {{ plan.limiteServicios === null ? '∞' : plan.limiteServicios }}
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Soporte</strong></td>
+            <td *ngFor="let plan of planes">
+              <span *ngIf="plan.tipo === 'PRUEBA'">Básico</span>
+              <span *ngIf="plan.tipo !== 'PRUEBA'">24/7 Prioritario</span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Cancelación</strong></td>
+            <td *ngFor="let plan of planes">
+              <span *ngIf="plan.tipo === 'PRUEBA'">N/A</span>
+              <span *ngIf="plan.tipo !== 'PRUEBA'">En cualquier momento</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -27,6 +27,7 @@ export interface RegisterAdminRequest {
   fechaNacimiento: string;
   genero: 'MASCULINO' | 'FEMENINO' | 'OTRO';
   fotoPerfilUrl?: string;
+  tipoPlan?: string;
 }
 
 export interface AuthResponse {
@@ -36,6 +37,7 @@ export interface AuthResponse {
   nombre: string;
   correo: string;
   tipoUsuario: string;
+  idBarberia?: number;
 }
 
 export interface ApiResponse<T> {
@@ -83,10 +85,16 @@ export class AuthService {
 
   /**
    * Registrar un nuevo administrador/barbería
+   * POST /api/auth/admin/registro
+   * Sin autenticación - Público
    */
   registrarAdmin(request: RegisterAdminRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/admin/crear`, request).pipe(
+    console.log('📤 Enviando registro admin a: https://api.fadely.me/api/auth/admin/registro');
+    console.log('📦 Body:', JSON.stringify(request, null, 2));
+    
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/admin/registro`, request).pipe(
       tap(response => {
+        console.log('✅ Respuesta de registro:', response);
         if (response.data) {
           this.saveAuthData(response.data);
         }
@@ -144,6 +152,26 @@ export class AuthService {
   hasRole(role: string): boolean {
     const user = this.getCurrentUser();
     return user?.tipoUsuario === role;
+  }
+
+  /**
+   * Obtener el ID de la barbería del usuario actual
+   */
+  getBarberiaId(): number | null {
+    const user = this.getCurrentUser();
+    return user?.idBarberia || null;
+  }
+
+  /**
+   * Actualizar el ID de la barbería en el usuario actual (después de crear organización)
+   */
+  setBarberiaId(idBarberia: number): void {
+    const user = this.getCurrentUser();
+    if (user) {
+      user.idBarberia = idBarberia;
+      localStorage.setItem(this.userKey, JSON.stringify(user));
+      this.currentUserSubject.next(user);
+    }
   }
 
   /**

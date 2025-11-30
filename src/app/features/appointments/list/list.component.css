@@ -333,7 +333,7 @@
 /* Observations */
 .observations {
   background: rgba(59, 130, 246, 0.1);
-  border-left: 3px solid #3b82f6;
+  border-left: 3px solid #ffd700;
   border-radius: 8px;
   padding: 1rem;
   margin-top: 1rem;
@@ -385,7 +385,7 @@
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
   color: #ffffff;
 }
 
