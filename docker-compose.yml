@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  # Aplicación Angular WebFront
+  webfront:
+    image: fadely/webfront:latest
+    container_name: fadely-webfront
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - webfront_cache:/var/cache/nginx
+      - webfront_logs:/var/log/nginx
+    networks:
+      - fadely-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    labels:
+      com.fadely.description: "Angular WebFront - Barbershop Management System"
+      com.fadely.version: "1.0"
+
+  # Nginx reverse proxy (opcional, para SSL/TLS)
+  nginx-ssl:
+    image: nginx:alpine
+    container_name: fadely-nginx-ssl
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx-ssl.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - fadely-network
+    depends_on:
+      - webfront
+    restart: unless-stopped
+    environment:
+      - CERT_FILE=/etc/nginx/certs/cert.pem
+      - KEY_FILE=/etc/nginx/certs/key.pem
+    profiles:
+      - production
+
+volumes:
+  webfront_cache:
+    driver: local
+  webfront_logs:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  fadely-network:
+    driver: bridge

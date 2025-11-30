@@ -190,6 +190,15 @@ export class AuthService {
   }
 
   /**
+   * Refrescar usuario desde localStorage
+   */
+  refreshUserFromStorage(): void {
+    const user = this.getUserFromStorage();
+    console.log('🔄 Refrescando usuario desde localStorage:', user);
+    this.currentUserSubject.next(user);
+  }
+
+  /**
    * Actualizar estado de suscripción de un usuario
    */
   actualizarEstadoSuscripcion(idUsuario: number, nuevoEstado: 'PENDIENTE_PAGO' | 'ACTIVA' | 'PAUSADA' | 'CANCELADA'): void {

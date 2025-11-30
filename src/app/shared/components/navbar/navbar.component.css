@@ -133,6 +133,17 @@
   padding: 5px 0;
 }
 
+.super-admin-label {
+  color: #ffd700;
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: block;
+  padding: 5px 0;
+  text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+}
+
 /* Divider */
 .nav-divider {
   width: 100%;

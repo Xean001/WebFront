@@ -111,7 +111,7 @@ export class PagosService {
   }
 
   /**
-   * Registrar comprobante de pago
+   * Registrar comprobante de pago (URL - Legacy)
    * POST /pagos/registrar-comprobante
    */
   registrarComprobante(datos: {
@@ -121,10 +121,61 @@ export class PagosService {
     numeroOperacion: string;
     comprobanteUrl: string;
   }): Observable<ApiResponse<any>> {
-    console.log('📤 Registrando comprobante...');
+    console.log('📤 Registrando comprobante (URL)...');
     console.log('📦 Datos:', JSON.stringify(datos, null, 2));
     
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/registrar-comprobante`, datos);
+  }
+
+  /**
+   * Registrar comprobante de pago con imagen en Base64
+   * POST /pagos/registrar-comprobante-imagen
+   * 
+   * @param datos Objeto con imagen Base64 (data:image/jpeg;base64,...), numero de operación, etc
+   * 
+   * Body esperado:
+   * {
+   *   idSuscripcion: number,
+   *   metodoPago: 'YAPE' | 'PLIN' | 'BANCO',
+   *   monto: number,
+   *   email: string,
+   *   numeroOperacion: string,
+   *   comprobanteBase64: string (ej: "data:image/jpeg;base64,/9j/4AAQSkZJRg..."),
+   *   comprobanteNombre: string (ej: "comprobante.jpg")
+   * }
+   * 
+   * El servidor:
+   * 1. Decodifica el Base64
+   * 2. Extrae el tipo MIME del header (image/jpeg, image/png, etc)
+   * 3. Almacena en BYTEA column (comprobante_imagen)
+   * 4. Guarda metadatos: numero_operacion, comprobante_tipo, comprobante_nombre
+   * 5. Crea registro en pago_suscripcion con estado PENDIENTE
+   */
+  registrarComprobanteConImagen(datos: {
+    idSuscripcion: number;
+    metodoPago: 'YAPE' | 'PLIN' | 'BANCO';
+    monto: number;
+    email: string;
+    numeroOperacion: string;
+    comprobanteBase64: string; // "data:image/jpeg;base64,..." o "data:image/png;base64,..."
+    comprobanteNombre: string;
+  }): Observable<ApiResponse<any>> {
+    console.log('📸 Registrando comprobante con imagen Base64...');
+    console.log('📦 Datos:', {
+      idSuscripcion: datos.idSuscripcion,
+      metodoPago: datos.metodoPago,
+      monto: datos.monto,
+      email: datos.email,
+      numeroOperacion: datos.numeroOperacion,
+      comprobanteNombre: datos.comprobanteNombre,
+      comprobanteBase64Length: datos.comprobanteBase64.length,
+      comprobanteBase64Prefix: datos.comprobanteBase64.substring(0, 50) + '...'
+    });
+    
+    return this.http.post<ApiResponse<any>>(
+      `${this.apiUrl}/registrar-comprobante-imagen`,
+      datos
+    );
   }
 
   /**

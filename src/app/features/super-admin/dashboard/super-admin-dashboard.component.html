@@ -1,0 +1,381 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>📊 Dashboard SUPER_ADMIN</h1>
+    <p>Panel de control y estadísticas del sistema</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="cargando" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando datos del sistema...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errores['general']" class="alert-error">
+    ❌ {{ errores['general'] }}
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!cargando && !errores['general']" class="dashboard-content">
+    
+    <!-- KPI Cards -->
+    <div class="kpi-section">
+      <h2>Indicadores Clave de Rendimiento</h2>
+      
+      <div class="kpi-grid">
+        <!-- Usuarios -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">👥</span>
+            <span class="kpi-title">Usuarios Totales</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.totalUsuarios || 0 | number }}</div>
+          <div class="kpi-subtitle">Usuarios registrados</div>
+        </div>
+
+        <!-- Admins -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">👨‍💼</span>
+            <span class="kpi-title">Administradores</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.totalAdmins || 0 | number }}</div>
+          <div class="kpi-subtitle">Admins de barberías</div>
+        </div>
+
+        <!-- Barberos -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">💈</span>
+            <span class="kpi-title">Barberos</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.totalBarberos || 0 | number }}</div>
+          <div class="kpi-subtitle">Barberos registrados</div>
+        </div>
+
+        <!-- Clientes -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">👤</span>
+            <span class="kpi-title">Clientes</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.totalClientes || 0 | number }}</div>
+          <div class="kpi-subtitle">Clientes del sistema</div>
+        </div>
+
+        <!-- Nuevos Usuarios Hoy -->
+        <div class="kpi-card accent-green">
+          <div class="kpi-header">
+            <span class="kpi-icon">🆕</span>
+            <span class="kpi-title">Nuevos Hoy</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.nuevosUsuariosHoy || 0 | number }}</div>
+          <div class="kpi-subtitle">Registros de hoy</div>
+        </div>
+
+        <!-- Nuevos Usuarios Mes -->
+        <div class="kpi-card accent-yellow">
+          <div class="kpi-header">
+            <span class="kpi-icon">📈</span>
+            <span class="kpi-title">Nuevos Mes</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.nuevosUsuariosMes || 0 | number }}</div>
+          <div class="kpi-subtitle">Registros del mes</div>
+        </div>
+
+        <!-- Barberías -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">🏪</span>
+            <span class="kpi-title">Barberías Totales</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.totalBarberias || 0 | number }}</div>
+          <div class="kpi-subtitle">Negocios registrados</div>
+        </div>
+
+        <!-- Barberías Activas -->
+        <div class="kpi-card accent-green">
+          <div class="kpi-header">
+            <span class="kpi-icon">✅</span>
+            <span class="kpi-title">Activas</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.barberiasActivas || 0 | number }}</div>
+          <div class="kpi-subtitle">Barberías activas</div>
+        </div>
+
+        <!-- Barberías Inactivas -->
+        <div class="kpi-card accent-red">
+          <div class="kpi-header">
+            <span class="kpi-icon">❌</span>
+            <span class="kpi-title">Inactivas</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.barberiasInactivas || 0 | number }}</div>
+          <div class="kpi-subtitle">Barberías inactivas</div>
+        </div>
+
+        <!-- Suscripciones Activas -->
+        <div class="kpi-card accent-green">
+          <div class="kpi-header">
+            <span class="kpi-icon">🔓</span>
+            <span class="kpi-title">Suscripciones Activas</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.suscripcionesActivas || 0 | number }}</div>
+          <div class="kpi-subtitle">Planes activos</div>
+        </div>
+
+        <!-- Suscripciones por Vencer -->
+        <div class="kpi-card accent-yellow">
+          <div class="kpi-header">
+            <span class="kpi-icon">⏳</span>
+            <span class="kpi-title">Por Vencer</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.suscripcionesPorVencer || 0 | number }}</div>
+          <div class="kpi-subtitle">En próximos 7 días</div>
+        </div>
+
+        <!-- Suscripciones Vencidas -->
+        <div class="kpi-card accent-red">
+          <div class="kpi-header">
+            <span class="kpi-icon">⏰</span>
+            <span class="kpi-title">Vencidas</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.suscripcionesVencidas || 0 | number }}</div>
+          <div class="kpi-subtitle">Necesitan renovación</div>
+        </div>
+
+        <!-- Ingresos Total Mes -->
+        <div class="kpi-card accent-green">
+          <div class="kpi-header">
+            <span class="kpi-icon">💰</span>
+            <span class="kpi-title">Ingresos Mes</span>
+          </div>
+          <div class="kpi-value">S/ {{ dashboardData?.ingresosTotalesMes || 0 | number: '1.2-2' }}</div>
+          <div class="kpi-subtitle">Total este mes</div>
+        </div>
+
+        <!-- Citas Hoy -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">📅</span>
+            <span class="kpi-title">Citas Hoy</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.citasHoy || 0 | number }}</div>
+          <div class="kpi-subtitle">Agendadas para hoy</div>
+        </div>
+
+        <!-- Citas Mes -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">📆</span>
+            <span class="kpi-title">Citas Mes</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.citasMes || 0 | number }}</div>
+          <div class="kpi-subtitle">Total del mes</div>
+        </div>
+
+        <!-- Citas Pendientes -->
+        <div class="kpi-card accent-yellow">
+          <div class="kpi-header">
+            <span class="kpi-icon">⏳</span>
+            <span class="kpi-title">Pendientes</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.citasPendientes || 0 | number }}</div>
+          <div class="kpi-subtitle">Esperando confirmación</div>
+        </div>
+
+        <!-- Citas Completadas -->
+        <div class="kpi-card accent-green">
+          <div class="kpi-header">
+            <span class="kpi-icon">✅</span>
+            <span class="kpi-title">Completadas</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.citasCompletadas || 0 | number }}</div>
+          <div class="kpi-subtitle">Servicios realizados</div>
+        </div>
+
+        <!-- Citas Canceladas -->
+        <div class="kpi-card accent-red">
+          <div class="kpi-header">
+            <span class="kpi-icon">❌</span>
+            <span class="kpi-title">Canceladas</span>
+          </div>
+          <div class="kpi-value">{{ dashboardData?.citasCanceladas || 0 | number }}</div>
+          <div class="kpi-subtitle">Canceladas este mes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suscripciones por Plan -->
+    <div class="suscripciones-section">
+      <h2>Distribución de Suscripciones por Plan</h2>
+      
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-icon">🆓</div>
+          <div class="plan-name">Prueba</div>
+          <div class="plan-count">{{ dashboardData?.suscripcionesPorPlan?.prueba || 0 | number }}</div>
+        </div>
+        
+        <div class="plan-card">
+          <div class="plan-icon">📅</div>
+          <div class="plan-name">Mensual</div>
+          <div class="plan-count">{{ dashboardData?.suscripcionesPorPlan?.mensual || 0 | number }}</div>
+        </div>
+        
+        <div class="plan-card">
+          <div class="plan-icon">📊</div>
+          <div class="plan-name">Semestral</div>
+          <div class="plan-count">{{ dashboardData?.suscripcionesPorPlan?.semestral || 0 | number }}</div>
+        </div>
+        
+        <div class="plan-card">
+          <div class="plan-icon">🎯</div>
+          <div class="plan-name">Anual</div>
+          <div class="plan-count">{{ dashboardData?.suscripcionesPorPlan?.anual || 0 | number }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagos Pendientes -->
+    <div class="pagos-section">
+      <h2>Gestión de Pagos</h2>
+      
+      <div class="pagos-grid">
+        <div class="pago-card">
+          <div class="pago-header">⏳ Pendientes</div>
+          <div class="pago-value">{{ dashboardData?.pagosPendientes || 0 | number }}</div>
+          <a href="/auth/pagos-solicitudes" class="pago-link">Ver Panel →</a>
+        </div>
+        
+        <div class="pago-card">
+          <div class="pago-header">✅ Aprobados Hoy</div>
+          <div class="pago-value">{{ dashboardData?.pagosAprobadosHoy || 0 | number }}</div>
+          <div class="pago-subtitle">Aprobaciones hoy</div>
+        </div>
+        
+        <div class="pago-card">
+          <div class="pago-header">📈 Aprobados Mes</div>
+          <div class="pago-value">{{ dashboardData?.pagosAprobadosMes || 0 | number }}</div>
+          <div class="pago-subtitle">Aprobaciones este mes</div>
+        </div>
+        
+        <div class="pago-card">
+          <div class="pago-header">❌ Rechazados Mes</div>
+          <div class="pago-value">{{ dashboardData?.pagosRechazadosMes || 0 | number }}</div>
+          <div class="pago-subtitle">Rechazadas este mes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <h2>Acciones Rápidas</h2>
+      
+      <div class="actions-grid">
+        <a routerLink="/super-admin/usuarios" class="action-card">
+          <span class="action-icon">👥</span>
+          <span class="action-title">Gestionar Usuarios</span>
+          <span class="action-desc">Ver y administrar todos los usuarios</span>
+          <span class="action-arrow">→</span>
+        </a>
+
+        <a routerLink="/super-admin/barberias" class="action-card">
+          <span class="action-icon">🏪</span>
+          <span class="action-title">Gestionar Barberías</span>
+          <span class="action-desc">Administrar barberías registradas</span>
+          <span class="action-arrow">→</span>
+        </a>
+
+        <a routerLink="/auth/pagos-solicitudes" class="action-card">
+          <span class="action-icon">💳</span>
+          <span class="action-title">Panel de Pagos</span>
+          <span class="action-desc">Aprobar/rechazar comprobantes</span>
+          <span class="action-arrow">→</span>
+        </a>
+
+        <a routerLink="/super-admin/reportes" class="action-card">
+          <span class="action-icon">📈</span>
+          <span class="action-title">Ver Reportes</span>
+          <span class="action-desc">Análisis y reportes del sistema</span>
+          <span class="action-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-section">
+      <h2>Información del Sistema</h2>
+      
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>🔐 Tu Cuenta</h3>
+          <div class="info-content">
+            <div class="info-item">
+              <span class="label">Nombre:</span>
+              <span class="value">{{ currentUser?.nombre }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Email:</span>
+              <span class="value">{{ currentUser?.correo }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Rol:</span>
+              <span class="value role-badge">👑 {{ currentUser?.tipoUsuario }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ID Usuario:</span>
+              <span class="value">{{ currentUser?.idUsuario }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Barberías -->
+        <div class="info-card">
+          <h3>🏆 Top Barberías</h3>
+          <div class="info-content top-barberias">
+            <div *ngIf="topBarberias.length === 0" class="empty-state">
+              No hay datos disponibles
+            </div>
+            <div *ngFor="let barberia of topBarberias" class="barberia-item">
+              <div class="barberia-header">
+                <span class="barberia-nombre">{{ barberia.nombre }}</span>
+                <span class="barberia-citas">📞 {{ barberia.totalCitas }} citas</span>
+              </div>
+              <div class="barberia-info">
+                <span class="ciudad">{{ barberia.ciudad }}</span>
+                <span class="fecha">Vence: {{ barberia.fechaVencimiento | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actividades Recientes -->
+        <div class="info-card">
+          <h3>📋 Actividades Recientes</h3>
+          <div class="info-content actividades">
+            <div *ngIf="actividadesRecientes.length === 0" class="empty-state">
+              No hay actividades registradas
+            </div>
+            <div *ngFor="let actividad of actividadesRecientes" class="actividad-item">
+              <div class="actividad-header">
+                <span class="actividad-tipo">{{ actividad.tipo }}</span>
+                <span class="actividad-fecha">{{ actividad.fecha | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <div class="actividad-desc">{{ actividad.descripcion }}</div>
+              <div class="actividad-usuario">
+                <span class="usuario-nombre">{{ actividad.nombreUsuario }}</span>
+                <span class="usuario-email">{{ actividad.emailUsuario }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Badge -->
+  <div class="security-badge">
+    🔒 Datos protegidos y encriptados
+  </div>
+</div>

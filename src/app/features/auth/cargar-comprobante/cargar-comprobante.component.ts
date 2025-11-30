@@ -22,6 +22,9 @@ export class CargarComprobanteComponent implements OnInit {
   datosParaPagar: any = null;
   comprobanteExitoso: boolean = false;
   archivoSeleccionado: File | null = null;
+  previsualizacionComprobante: string | null = null;
+  comprobanteBase64: string | null = null;
+  email: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -35,6 +38,7 @@ export class CargarComprobanteComponent implements OnInit {
     this.idSuscripcion = sessionStorage.getItem('idSuscripcion');
     const montoStr = sessionStorage.getItem('montoAPagar');
     this.tipoPlan = sessionStorage.getItem('tipoPlan') || '';
+    this.email = sessionStorage.getItem('emailUsuario') || '';
     this.monto = montoStr ? parseFloat(montoStr) : 0;
 
     if (!this.idSuscripcion || this.monto <= 0) {
@@ -46,6 +50,7 @@ export class CargarComprobanteComponent implements OnInit {
     console.log('📊 ID Suscripción:', this.idSuscripcion);
     console.log('💰 Monto:', this.monto);
     console.log('📦 Tipo Plan:', this.tipoPlan);
+    console.log('📧 Email:', this.email);
 
     this.obtenerDatosParaPagar();
   }
@@ -53,7 +58,7 @@ export class CargarComprobanteComponent implements OnInit {
   crearFormulario(): FormGroup {
     return this.fb.group({
       numeroOperacion: ['', [Validators.required, Validators.minLength(6)]],
-      comprobanteUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]]
+      comprobante: ['', [Validators.required]]
     });
   }
 
@@ -82,26 +87,52 @@ export class CargarComprobanteComponent implements OnInit {
   onArchivoSeleccionado(event: any): void {
     const archivo = event.target.files[0];
     if (archivo) {
+      // Validar tipo de archivo
+      if (!archivo.type.startsWith('image/')) {
+        this.errores['comprobante'] = 'Solo se aceptan imágenes (JPG, PNG, etc.)';
+        this.archivoSeleccionado = null;
+        this.previsualizacionComprobante = null;
+        return;
+      }
+
+      // Validar tamaño (máx 5MB)
+      if (archivo.size > 5 * 1024 * 1024) {
+        this.errores['comprobante'] = 'La imagen no puede superar 5MB';
+        this.archivoSeleccionado = null;
+        this.previsualizacionComprobante = null;
+        return;
+      }
+
       this.archivoSeleccionado = archivo;
-      console.log('📸 Archivo seleccionado:', archivo.name);
+      this.errores['comprobante'] = '';
+      console.log('📸 Archivo seleccionado:', archivo.name, 'Tamaño:', archivo.size, 'bytes');
       
-      // Subir archivo y obtener URL (simulado)
-      this.subirArchivo(archivo);
+      // Convertir a Base64 y mostrar previsualización
+      this.convertirArchivoABase64(archivo);
     }
   }
 
-  subirArchivo(archivo: File): void {
-    // En una aplicación real, aquí subirías el archivo a un servidor de almacenamiento
-    // Por ahora, usamos una URL simulada
-    const urlSimulada = URL.createObjectURL(archivo);
-    console.log('📤 URL temporal del comprobante:', urlSimulada);
+  convertirArchivoABase64(archivo: File): void {
+    const reader = new FileReader();
     
-    // Si tienes un endpoint para subir archivos, úsalo aquí
-    // Por ahora, el usuario puede usar la URL directa
+    reader.onload = (event: any) => {
+      const base64 = event.target.result;
+      this.comprobanteBase64 = base64; // Incluye "data:image/...;base64,..."
+      this.previsualizacionComprobante = base64;
+      console.log('✅ Archivo convertido a Base64');
+      console.log('📏 Tamaño Base64:', base64.length, 'caracteres');
+    };
+
+    reader.onerror = (error: any) => {
+      console.error('❌ Error al leer archivo:', error);
+      this.errores['comprobante'] = 'Error al procesar la imagen';
+    };
+
+    reader.readAsDataURL(archivo);
   }
 
   registrarComprobante(): void {
-    if (this.formulario.invalid || !this.idSuscripcion) {
+    if (this.formulario.invalid || !this.idSuscripcion || !this.comprobanteBase64) {
       this.marcarCamposComoTocados();
       this.errores['general'] = 'Por favor completa todos los campos correctamente';
       return;
@@ -114,14 +145,23 @@ export class CargarComprobanteComponent implements OnInit {
       idSuscripcion: parseInt(this.idSuscripcion),
       metodoPago: this.metodoPagoSeleccionado,
       monto: this.monto,
+      email: this.email,
       numeroOperacion: (this.formulario.get('numeroOperacion')?.value || '').trim(),
-      comprobanteUrl: (this.formulario.get('comprobanteUrl')?.value || '').trim()
+      comprobanteBase64: this.comprobanteBase64, // Base64 de la imagen
+      comprobanteNombre: this.archivoSeleccionado?.name || 'comprobante.jpg'
     };
 
-    console.log('📤 Registrando comprobante...');
-    console.log('📦 Datos:', JSON.stringify(datosComprobante, null, 2));
+    console.log('📤 Registrando comprobante con imagen...');
+    console.log('📦 Datos:', {
+      idSuscripcion: datosComprobante.idSuscripcion,
+      metodoPago: datosComprobante.metodoPago,
+      monto: datosComprobante.monto,
+      numeroOperacion: datosComprobante.numeroOperacion,
+      comprobanteNombre: datosComprobante.comprobanteNombre,
+      comprobanteBase64Length: datosComprobante.comprobanteBase64.length
+    });
 
-    this.pagosService.registrarComprobante(datosComprobante).subscribe({
+    this.pagosService.registrarComprobanteConImagen(datosComprobante).subscribe({
       next: (response: any) => {
         this.cargando = false;
         console.log('✅ Respuesta del servidor:', response);
@@ -134,10 +174,11 @@ export class CargarComprobanteComponent implements OnInit {
           sessionStorage.removeItem('idSuscripcion');
           sessionStorage.removeItem('montoAPagar');
           sessionStorage.removeItem('tipoPlan');
+          sessionStorage.removeItem('emailUsuario');
           
           // Mostrar mensaje de éxito y redirigir después de 3 segundos
           setTimeout(() => {
-            this.router.navigate(['/auth/login']);
+            this.router.navigate(['/dashboard']);
           }, 3000);
         } else {
           this.errores['general'] = response.message || 'Error al registrar comprobante';
@@ -163,7 +204,7 @@ export class CargarComprobanteComponent implements OnInit {
             this.errores['general'] = '❌ Ya existe un comprobante pendiente para esta suscripción.';
             break;
           case 422:
-            this.errores['general'] = '❌ Error de validación. Verifica el número de operación y URL del comprobante.';
+            this.errores['general'] = '❌ Error de validación. Verifica el número de operación e imagen.';
             break;
           case 500:
             this.errores['general'] = '❌ Error del servidor. Por favor intenta más tarde.';
@@ -185,6 +226,7 @@ export class CargarComprobanteComponent implements OnInit {
     sessionStorage.removeItem('idSuscripcion');
     sessionStorage.removeItem('montoAPagar');
     sessionStorage.removeItem('tipoPlan');
+    sessionStorage.removeItem('emailUsuario');
     this.router.navigate(['/auth/register-admin']);
   }
 
