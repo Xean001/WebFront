@@ -1,0 +1,122 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="!currentUser" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="currentUser" class="profile-content">
+    <!-- Header Hero -->
+    <section class="profile-hero">
+      <div class="hero-overlay">
+        <div class="container">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <div class="avatar-circle">
+                {{ currentUser.nombre.charAt(0).toUpperCase() }}
+              </div>
+            </div>
+            <div class="profile-info">
+              <h1 class="profile-name">{{ currentUser.nombre }}</h1>
+              <p class="profile-email">{{ currentUser.correo }}</p>
+              <span class="profile-role" [class]="'role-' + (currentUser.tipoUsuario || 'cliente')">
+                {{ currentUser.tipoUsuario === 'CLIENTE' ? 'Cliente' : 
+                   currentUser.tipoUsuario === 'BARBERO' ? 'Barbero' :
+                   currentUser.tipoUsuario === 'ADMIN' ? 'Administrador' : 
+                   'Usuario' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="profile-main">
+      <div class="container">
+        <div class="profile-grid">
+          <!-- Left Column - Personal Info -->
+          <div class="profile-section">
+            <div class="section-card">
+              <div class="section-header">
+                <h2>Información Personal</h2>
+                <button class="edit-btn" (click)="editarPerfil()">Editar</button>
+              </div>
+              
+              <div class="info-group">
+                <div class="info-item">
+                  <span class="info-label">Nombre</span>
+                  <span class="info-value">{{ currentUser.nombre }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Correo Electrónico</span>
+                  <span class="info-value">{{ currentUser.correo }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">ID de Usuario</span>
+                  <span class="info-value">#{{ currentUser.idUsuario }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Tipo de Usuario</span>
+                  <span class="info-value">
+                    {{ currentUser.tipoUsuario === 'CLIENTE' ? 'Cliente' : 
+                       currentUser.tipoUsuario === 'BARBERO' ? 'Barbero' :
+                       currentUser.tipoUsuario === 'ADMIN' ? 'Administrador' : 
+                       currentUser.tipoUsuario }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column - Security & Actions -->
+          <div class="profile-section">
+            <!-- Security Card -->
+            <div class="section-card">
+              <div class="section-header">
+                <h2>Seguridad</h2>
+              </div>
+              
+              <div class="security-actions">
+                <button class="action-btn" (click)="cambiarContrasena()">
+                  <span class="btn-icon">🔐</span>
+                  <div class="btn-content">
+                    <span class="btn-title">Cambiar Contraseña</span>
+                    <span class="btn-desc">Actualiza tu contraseña de forma segura</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Account Actions Card -->
+            <div class="section-card danger">
+              <div class="section-header">
+                <h2>Cuenta</h2>
+              </div>
+              
+              <div class="account-actions">
+                <button class="logout-btn" (click)="logout()">
+                  <span class="btn-icon">🚪</span>
+                  Cerrar Sesión
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Not Authenticated State -->
+  <div *ngIf="currentUser === null" class="not-authenticated">
+    <div class="container">
+      <div class="auth-message">
+        <h2>Acceso Requerido</h2>
+        <p>Debes iniciar sesión para ver tu perfil</p>
+        <a href="/auth/login" class="auth-link">Iniciar Sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+

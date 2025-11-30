@@ -1,0 +1,258 @@
+<div class="container py-5">
+  <!-- Encabezado -->
+  <div class="row mb-5">
+    <div class="col-md-12">
+      <h1 class="display-6 fw-bold">Gestión de Horarios</h1>
+      <p class="lead text-muted">Configura tu disponibilidad y horarios</p>
+    </div>
+  </div>
+
+  <!-- Tabs para cambiar entre horarios y excepciones -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="horarios-tab" data-bs-toggle="tab" data-bs-target="#horarios" 
+              type="button" role="tab" aria-controls="horarios" aria-selected="true">
+        <i class="bi bi-clock"></i> Mis Horarios
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="excepciones-tab" data-bs-toggle="tab" data-bs-target="#excepciones" 
+              type="button" role="tab" aria-controls="excepciones" aria-selected="false">
+        <i class="bi bi-exclamation-circle"></i> Excepciones
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- Tab de Horarios -->
+    <div class="tab-pane fade show active" id="horarios" role="tabpanel" aria-labelledby="horarios-tab">
+      <div class="row">
+        <!-- Formulario para crear horario -->
+        <div class="col-md-5 mb-4">
+          <div class="card border-0 shadow-lg">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">Agregar Horario</h5>
+            </div>
+            <div class="card-body p-4">
+              <form [formGroup]="formularioHorario" (ngSubmit)="guardarHorario()">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Día de la Semana *</label>
+                  <select class="form-select form-select-lg" formControlName="diaSemana">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="LUNES">Lunes</option>
+                    <option value="MARTES">Martes</option>
+                    <option value="MIÉRCOLES">Miércoles</option>
+                    <option value="JUEVES">Jueves</option>
+                    <option value="VIERNES">Viernes</option>
+                    <option value="SÁBADO">Sábado</option>
+                    <option value="DOMINGO">Domingo</option>
+                  </select>
+                  <div class="invalid-feedback d-block" *ngIf="formularioHorario.get('diaSemana')?.touched && formularioHorario.get('diaSemana')?.invalid">
+                    Selecciona un día
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" formControlName="descanso" id="descanso" 
+                           (change)="toggleDescanso()">
+                    <label class="form-check-label" for="descanso">
+                      Es día de descanso
+                    </label>
+                  </div>
+                </div>
+
+                <div *ngIf="!formularioHorario.get('descanso')?.value">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Hora de Apertura *</label>
+                    <input type="time" class="form-control form-control-lg" formControlName="horaApertura">
+                    <div class="invalid-feedback d-block" *ngIf="formularioHorario.get('horaApertura')?.touched && formularioHorario.get('horaApertura')?.invalid">
+                      Ingresa la hora de apertura
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Hora de Cierre *</label>
+                    <input type="time" class="form-control form-control-lg" formControlName="horaCierre">
+                    <div class="invalid-feedback d-block" *ngIf="formularioHorario.get('horaCierre')?.touched && formularioHorario.get('horaCierre')?.invalid">
+                      Ingresa la hora de cierre
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <button type="submit" class="btn btn-primary btn-lg" [disabled]="!formularioHorario.valid || guardando">
+                    <span *ngIf="!guardando">
+                      <i class="bi bi-check-circle"></i> Guardar Horario
+                    </span>
+                    <span *ngIf="guardando">
+                      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Guardando...
+                    </span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de horarios -->
+        <div class="col-md-7">
+          <div class="card border-0 shadow-lg">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0">Horarios Registrados</h5>
+            </div>
+            <div class="card-body p-4">
+              <div *ngIf="cargando" class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+              </div>
+
+              <div *ngIf="!cargando && horarios.length === 0" class="alert alert-info">
+                No hay horarios configurados
+              </div>
+
+              <div class="list-group list-group-flush" *ngIf="!cargando && horarios.length > 0">
+                <div class="list-group-item py-3" *ngFor="let horario of horarios">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                      <h6 class="fw-bold mb-1">{{ horario.diaSemana }}</h6>
+                      <p class="text-muted small mb-0" *ngIf="!horario.descanso">
+                        {{ horario.horaApertura }} - {{ horario.horaCierre }}
+                      </p>
+                      <p class="text-danger small mb-0 fw-bold" *ngIf="horario.descanso">
+                        Día de descanso
+                      </p>
+                    </div>
+                    <button class="btn btn-sm btn-danger" (click)="eliminarHorario(horario.idHorario)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab de Excepciones -->
+    <div class="tab-pane fade" id="excepciones" role="tabpanel" aria-labelledby="excepciones-tab">
+      <div class="row">
+        <!-- Formulario para crear excepción -->
+        <div class="col-md-5 mb-4">
+          <div class="card border-0 shadow-lg">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0">Agregar Excepción</h5>
+            </div>
+            <div class="card-body p-4">
+              <form [formGroup]="formularioExcepcion" (ngSubmit)="guardarExcepcion()">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Fecha *</label>
+                  <input type="date" class="form-control form-control-lg" formControlName="fecha">
+                  <div class="invalid-feedback d-block" *ngIf="formularioExcepcion.get('fecha')?.touched && formularioExcepcion.get('fecha')?.invalid">
+                    Selecciona una fecha
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Hora de Inicio *</label>
+                  <input type="time" class="form-control form-control-lg" formControlName="horaInicio">
+                  <div class="invalid-feedback d-block" *ngIf="formularioExcepcion.get('horaInicio')?.touched && formularioExcepcion.get('horaInicio')?.invalid">
+                    Ingresa la hora
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Hora de Fin *</label>
+                  <input type="time" class="form-control form-control-lg" formControlName="horaFin">
+                  <div class="invalid-feedback d-block" *ngIf="formularioExcepcion.get('horaFin')?.touched && formularioExcepcion.get('horaFin')?.invalid">
+                    Ingresa la hora
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Motivo *</label>
+                  <input type="text" class="form-control form-control-lg" formControlName="motivo" 
+                         placeholder="Ej: Cita médica, Descanso, etc.">
+                  <div class="invalid-feedback d-block" *ngIf="formularioExcepcion.get('motivo')?.touched && formularioExcepcion.get('motivo')?.invalid">
+                    Ingresa el motivo
+                  </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <button type="submit" class="btn btn-warning btn-lg" [disabled]="!formularioExcepcion.valid || guardandoExcepcion">
+                    <span *ngIf="!guardandoExcepcion">
+                      <i class="bi bi-check-circle"></i> Guardar Excepción
+                    </span>
+                    <span *ngIf="guardandoExcepcion">
+                      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Guardando...
+                    </span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de excepciones -->
+        <div class="col-md-7">
+          <div class="card border-0 shadow-lg">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0">Excepciones Registradas</h5>
+            </div>
+            <div class="card-body p-4">
+              <div *ngIf="cargandoExcepciones" class="text-center">
+                <div class="spinner-border text-warning" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+              </div>
+
+              <div *ngIf="!cargandoExcepciones && excepciones.length === 0" class="alert alert-info">
+                No hay excepciones registradas
+              </div>
+
+              <div class="list-group list-group-flush" *ngIf="!cargandoExcepciones && excepciones.length > 0">
+                <div class="list-group-item py-3" *ngFor="let excepcion of excepciones">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <h6 class="fw-bold mb-1">{{ excepcion.fecha | date:'dd/MM/yyyy' }}</h6>
+                      <p class="text-muted small mb-1">
+                        {{ excepcion.horaInicio }} - {{ excepcion.horaFin }}
+                      </p>
+                      <p class="small mb-0">
+                        <span class="badge bg-warning text-dark">{{ excepcion.motivo }}</span>
+                      </p>
+                    </div>
+                    <button class="btn btn-sm btn-danger" (click)="eliminarExcepcion(excepcion.idExcepcion)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.nav-tabs .nav-link {
+  color: #666;
+  border-bottom: 3px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  background-color: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+  border-bottom-color: #007bff;
+}
+</style>

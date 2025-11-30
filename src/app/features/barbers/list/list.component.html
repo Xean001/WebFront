@@ -1,0 +1,80 @@
+<div class="barberos-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Nuestros Barberos</h1>
+      <p class="hero-subtitle">Conoce a nuestros profesionales especializados</p>
+      
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <input 
+            type="text" 
+            placeholder="Buscar por nombre o especialidad..."
+            [(ngModel)]="busqueda"
+            (keyup)="buscarBarberos()"
+            class="search-input"
+          >
+          <button class="search-button" (click)="buscarBarberos()">Buscar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <div *ngIf="cargando" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando barberos...</p>
+  </div>
+
+  <!-- Barberos Grid -->
+  <section class="barberos-section" *ngIf="!cargando">
+    <div class="container">
+      <div class="barberos-grid" *ngIf="barberos.length > 0">
+        <div *ngFor="let barbero of barberos" class="barbero-card">
+          <div class="barbero-image">
+            <img [src]="'https://i.pravatar.cc/300?img=' + (barbero.id || 1)" 
+                 [alt]="barbero.nombre"
+                 class="card-image">
+            <div class="barbero-badge">
+              <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              {{ barbero.calificacion }}
+            </div>
+          </div>
+
+          <div class="barbero-content">
+            <h3 class="barbero-name">{{ barbero.nombre }}</h3>
+            <p class="barbero-especialidad">{{ barbero.especialidad }}</p>
+            
+            <div class="barbero-details">
+              <div class="detail-item">
+                <span class="detail-label">Experiencia:</span>
+                <span class="detail-value">{{ barbero.experiencia }}+ años</span>
+              </div>
+            </div>
+
+            <button class="reserve-btn">Ver Perfil</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Results -->
+      <div class="no-results" *ngIf="barberos.length === 0">
+        <div class="no-results-content">
+          <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <h3>No se encontraron barberos</h3>
+          <p>Intenta con otros criterios de búsqueda</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

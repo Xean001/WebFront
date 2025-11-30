@@ -1,0 +1,139 @@
+<div class="container py-5">
+  <!-- Encabezado -->
+  <div class="row mb-5">
+    <div class="col-md-8">
+      <h1 class="display-6 fw-bold">Gestión de Servicios</h1>
+      <p class="lead text-muted">Administra los servicios que ofreces</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <button class="btn btn-success btn-lg" (click)="abrirFormularioNuevo()">
+        <i class="bi bi-plus-circle"></i> Nuevo Servicio
+      </button>
+    </div>
+  </div>
+
+  <!-- Formulario de creación/edición -->
+  <div class="row mb-4" *ngIf="mostrarFormulario">
+    <div class="col-md-8 offset-md-2">
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ servicioEdicion ? 'Editar Servicio' : 'Nuevo Servicio' }}</h5>
+        </div>
+        <div class="card-body p-4">
+          <form [formGroup]="formularioServicio" (ngSubmit)="guardarServicio()">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Servicio *</label>
+              <select class="form-select form-select-lg" formControlName="idServicio">
+                <option value="">-- Seleccionar servicio --</option>
+                <option *ngFor="let servicio of serviciosDisponibles" [value]="servicio.idServicio">
+                  {{ servicio.nombre }}
+                </option>
+              </select>
+              <div class="invalid-feedback d-block" *ngIf="formularioServicio.get('idServicio')?.touched && formularioServicio.get('idServicio')?.invalid">
+                Debes seleccionar un servicio
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Precio ($) *</label>
+                <input type="number" class="form-control form-control-lg" formControlName="precio" 
+                       placeholder="0.00" step="0.01" min="0">
+                <div class="invalid-feedback d-block" *ngIf="formularioServicio.get('precio')?.touched && formularioServicio.get('precio')?.invalid">
+                  Debes ingresar un precio válido
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Duración (minutos) *</label>
+                <input type="number" class="form-control form-control-lg" formControlName="duracion" 
+                       placeholder="0" min="0">
+                <div class="invalid-feedback d-block" *ngIf="formularioServicio.get('duracion')?.touched && formularioServicio.get('duracion')?.invalid">
+                  Debes ingresar una duración válida
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <button type="button" class="btn btn-outline-secondary btn-lg" (click)="cerrarFormulario()">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary btn-lg" [disabled]="!formularioServicio.valid || guardando">
+                <span *ngIf="!guardando">
+                  <i class="bi bi-check-circle"></i> {{ servicioEdicion ? 'Actualizar' : 'Guardar' }}
+                </span>
+                <span *ngIf="guardando">
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Guardando...
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de servicios -->
+  <div class="row">
+    <div class="col-md-12">
+      <div *ngIf="cargando" class="text-center py-5">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-muted">Cargando servicios...</p>
+      </div>
+
+      <div *ngIf="!cargando && servicios.length === 0" class="alert alert-info text-center py-5">
+        <i class="bi bi-info-circle display-4"></i>
+        <h4 class="mt-3">No hay servicios registrados</h4>
+        <p class="text-muted">Crea tu primer servicio para comenzar</p>
+        <button class="btn btn-primary mt-3" (click)="abrirFormularioNuevo()">
+          <i class="bi bi-plus-circle"></i> Crear Servicio
+        </button>
+      </div>
+
+      <div class="row g-3" *ngIf="!cargando && servicios.length > 0">
+        <div class="col-md-6 col-lg-4" *ngFor="let servicio of servicios">
+          <div class="card h-100 border-0 shadow-sm hover-card">
+            <div class="card-body">
+              <h5 class="card-title fw-bold mb-3">{{ servicio.servicio?.nombre }}</h5>
+              
+              <p class="text-muted small mb-3">{{ servicio.servicio?.descripcion }}</p>
+
+              <div class="row mb-3">
+                <div class="col-6">
+                  <span class="text-muted small d-block">Precio</span>
+                  <h6 class="fw-bold text-success">${{ servicio.precio }}</h6>
+                </div>
+                <div class="col-6">
+                  <span class="text-muted small d-block">Duración</span>
+                  <h6 class="fw-bold">{{ servicio.duracion }} min</h6>
+                </div>
+              </div>
+
+              <div class="d-grid gap-2 d-md-flex">
+                <button class="btn btn-sm btn-warning flex-grow-1" (click)="editarServicio(servicio)">
+                  <i class="bi bi-pencil"></i> Editar
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="eliminarServicio(servicio.idBarberoServicio)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.hover-card {
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+}
+</style>

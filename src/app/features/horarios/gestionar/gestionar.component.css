@@ -1,0 +1,31 @@
+/* Estilos para gestionar horarios */
+
+.nav-tabs .nav-link {
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  background-color: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+  border-bottom-color: #007bff;
+}
+
+.list-group-item {
+  border-left: 3px solid #007bff;
+}
+
+@media (max-width: 768px) {
+  .nav-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .tab-content {
+    margin-top: 1rem;
+  }
+}

@@ -1,0 +1,36 @@
+<div class="auth-container">
+  <h3>Inicio de Sesión</h3>
+  
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label for="correo">Correo Electrónico:</label>
+      <input id="correo" type="email" formControlName="correo">
+      <div *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched" class="error-message">
+        <span *ngIf="loginForm.get('correo')?.errors?.['required']">El correo es obligatorio.</span>
+        <span *ngIf="loginForm.get('correo')?.errors?.['email']">Formato de correo inválido.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Contraseña:</label>
+      <input id="password" type="password" formControlName="password">
+      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
+        <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es obligatoria.</span>
+        <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres.</span>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
+
+    <button type="submit" [disabled]="loginForm.invalid || loading">
+      <span *ngIf="!loading">Acceder</span>
+      <span *ngIf="loading">Cargando...</span>
+    </button>
+  </form>
+
+  <div class="links">
+    <a routerLink="/auth/register">¿No tienes cuenta? Regístrate</a>
+    <a routerLink="/auth/forgot-password">¿Olvidaste tu contraseña?</a>
+  </div>
+</div>

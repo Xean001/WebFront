@@ -1,0 +1,28 @@
+/* Estilos para administrar citas */
+
+.table-success {
+  background-color: #d4edda;
+}
+
+.table-warning {
+  background-color: #fff3cd;
+}
+
+.table-danger {
+  background-color: #f8d7da;
+}
+
+.table-info {
+  background-color: #d1ecf1;
+}
+
+.btn-group-sm .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+}

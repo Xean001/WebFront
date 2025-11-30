@@ -1,0 +1,80 @@
+<div class="auth-container">
+  <h3>Registro de Usuario</h3>
+  
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+        <label for="name">Nombre:</label>
+        <input id="name" type="text" formControlName="name" placeholder="Tu nombre">
+        <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="error-message">
+            <span *ngIf="registerForm.get('name')?.errors?.['required']">El nombre es obligatorio.</span>
+        </div>
+        <div *ngIf="getFieldError('nombre')" class="error-message">
+            <span>{{ getFieldError('nombre') }}</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="apellido">Apellido:</label>
+        <input id="apellido" type="text" formControlName="apellido" placeholder="Tu apellido (opcional)">
+        <div *ngIf="getFieldError('apellido')" class="error-message">
+            <span>{{ getFieldError('apellido') }}</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+      <label for="correo">Correo Electrónico:</label>
+      <input id="correo" type="email" formControlName="correo" placeholder="correo@ejemplo.com">
+      <div *ngIf="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched" class="error-message">
+        <span *ngIf="registerForm.get('correo')?.errors?.['required']">El correo es obligatorio.</span>
+        <span *ngIf="registerForm.get('correo')?.errors?.['email']">Formato de correo inválido.</span>
+      </div>
+      <div *ngIf="getFieldError('correo')" class="error-message">
+        <span>{{ getFieldError('correo') }}</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+        <label for="telefono">Teléfono:</label>
+        <input id="telefono" type="tel" formControlName="telefono" placeholder="(opcional)">
+        <div *ngIf="getFieldError('telefono')" class="error-message">
+            <span>{{ getFieldError('telefono') }}</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Contraseña:</label>
+      <input id="password" type="password" formControlName="password" placeholder="Mínimo 6 caracteres">
+      <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error-message">
+        <span *ngIf="registerForm.get('password')?.errors?.['required']">La contraseña es obligatoria.</span>
+        <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres.</span>
+      </div>
+      <div *ngIf="getFieldError('contrasena')" class="error-message">
+        <span>{{ getFieldError('contrasena') }}</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+        <label for="confirmPassword">Confirmar Contraseña:</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Repite tu contraseña">
+        <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" class="error-message">
+            <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Confirmar la contraseña es obligatorio.</span>
+        </div>
+        <div *ngIf="registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched" class="error-message">
+            Las contraseñas no coinciden.
+        </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="alert-success">{{ successMessage }}</div>
+
+    <button type="submit" [disabled]="registerForm.invalid || loading">
+      <span *ngIf="!loading">Registrarme</span>
+      <span *ngIf="loading">Procesando...</span>
+    </button>
+  </form>
+
+  <div class="links">
+    <a routerLink="/auth/login">¿Ya tienes cuenta? Inicia Sesión</a>
+  </div>
+</div>

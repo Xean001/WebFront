@@ -1,0 +1,188 @@
+<div class="home-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Encuentra tu barbería perfecta</h1>
+      <p class="hero-subtitle">Reserva con los mejores barberos de tu ciudad</p>
+      
+      <!-- Search Bar -->
+      <div class="search-container">
+        <a routerLink="/barberias/list" class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <span class="search-input">Buscar barbería, servicio o barbero...</span>
+          <span class="search-button">Ver barberías</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- Servicios Populares - Carrusel -->
+  <section class="services-section">
+    <div class="container">
+      <h2 class="section-title">Servicios populares</h2>
+      
+      <div class="carousel-container">
+        <button class="carousel-btn prev" (click)="prevSlide()" aria-label="Anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        
+        <div class="carousel-track">
+          <div class="carousel-slides">
+            <div *ngFor="let servicio of getVisibleServices(); let i = index" 
+                 class="service-slide"
+                 [class.active]="i === 1">
+              <div class="service-image-container">
+                <img [src]="servicio.imagen" [alt]="servicio.nombre" class="service-image">
+                <div class="service-overlay">
+                  <div class="service-price">{{ servicio.precio }}</div>
+                </div>
+              </div>
+              <div class="service-info">
+                <h3 class="service-title">{{ servicio.nombre }}</h3>
+                <p class="service-description">{{ servicio.descripcion }}</p>
+                <button class="service-book-btn">Reservar ahora</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button class="carousel-btn next" (click)="nextSlide()" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Indicadores -->
+      <div class="carousel-indicators">
+        <button *ngFor="let servicio of serviciosPopulares; let i = index"
+                class="indicator"
+                [class.active]="i === currentSlide"
+                (click)="goToSlide(i)"
+                [attr.aria-label]="'Ir a servicio ' + (i + 1)">
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Barberías Destacadas -->
+  <section class="barberias-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Barberías destacadas</h2>
+        <a routerLink="/barberias/list" class="view-all">Ver todas →</a>
+      </div>
+      
+      <div class="barberias-grid">
+        <div *ngFor="let barberia of barberias" class="barberia-card">
+          <div class="barberia-image">
+            <img [src]="barberia.imagen" [alt]="barberia.nombre">
+            <div class="barberia-badge">
+              <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              {{ barberia.calificacion }}
+            </div>
+          </div>
+          
+          <div class="barberia-content">
+            <h3 class="barberia-name">{{ barberia.nombre }}</h3>
+            <p class="barberia-location">
+              <svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              {{ barberia.direccion }}
+            </p>
+            
+            <div class="barberia-services">
+              <span *ngFor="let servicio of barberia.servicios.slice(0, 3)" class="service-tag">
+                {{ servicio }}
+              </span>
+            </div>
+            
+            <div class="barberia-footer">
+              <div class="barberia-rating">
+                <span class="stars">
+                  <svg *ngFor="let star of getStars(barberia.calificacion)" 
+                       class="star" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </span>
+                <span class="rating-text">({{ barberia.totalResenas }} reseñas)</span>
+              </div>
+              
+              <div class="barberia-price">
+                Desde <strong>${{ barberia.precioDesde }}</strong>
+              </div>
+            </div>
+            
+            <button class="reserve-button" [routerLink]="['/appointments/create']">
+              Reservar cita
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Barberos Destacados -->
+  <section class="barberos-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Barberos destacados</h2>
+        <a routerLink="/barbers/list" class="view-all">Ver todos →</a>
+      </div>
+      
+      <div class="barberos-grid">
+        <div *ngFor="let barbero of barberoDestacados" class="barbero-card">
+          <img [src]="barbero.imagen" [alt]="barbero.nombre" class="barbero-image">
+          
+          <div class="barbero-info">
+            <h3 class="barbero-name">{{ barbero.nombre }}</h3>
+            <p class="barbero-specialty">{{ barbero.especialidad }}</p>
+            <p class="barbero-shop">{{ barbero.barberia }}</p>
+            
+            <div class="barbero-stats">
+              <div class="stat">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                {{ barbero.calificacion }}
+              </div>
+              <div class="stat">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {{ barbero.totalCortes }} cortes
+              </div>
+            </div>
+            
+            <button class="select-barbero-button" [routerLink]="['/appointments/create']">
+              Agendar con {{ barbero.nombre.split(' ')[0] }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">¿Eres barbero o tienes una barbería?</h2>
+        <p class="cta-text">Únete a nuestra plataforma y aumenta tus reservas</p>
+        <button class="cta-button">Registrar mi barbería</button>
+      </div>
+    </div>
+  </section>
+</div>

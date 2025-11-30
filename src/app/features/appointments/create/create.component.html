@@ -1,0 +1,207 @@
+<div class="create-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">Reserva tu Cita</h1>
+          <p class="hero-subtitle">Sigue estos pasos para agendar tu servicio favorito</p>
+        </div>
+        <div class="progress-indicator">
+          <div class="step-circle" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">1</div>
+          <div class="step-line" [class.active]="currentStep > 1"></div>
+          <div class="step-circle" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">2</div>
+          <div class="step-line" [class.active]="currentStep > 2"></div>
+          <div class="step-circle" [class.active]="currentStep >= 3" [class.completed]="currentStep > 3">3</div>
+          <div class="step-line" [class.active]="currentStep > 3"></div>
+          <div class="step-circle" [class.active]="currentStep >= 4" [class.completed]="currentStep > 4">4</div>
+          <div class="step-line" [class.active]="currentStep > 4"></div>
+          <div class="step-circle" [class.active]="currentStep >= 5">5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Section -->
+  <div class="form-section">
+    <div class="container">
+      <form [formGroup]="formularioCita" (ngSubmit)="guardarCita()" novalidate>
+        
+        <!-- Step 1: Barbería -->
+        <div class="form-step" *ngIf="currentStep === 1">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">1</div>
+              <h2>Selecciona la Barbería</h2>
+            </div>
+            <div class="step-body">
+              <label class="form-label">Barbería *</label>
+              <select class="form-select" formControlName="idBarberia" (change)="onBarberiaChange()">
+                <option value="">-- Seleccionar barbería --</option>
+                <option *ngFor="let barberia of barberias" [value]="barberia.idBarberia">
+                  {{ barberia.nombre }} - {{ barberia.ciudad }}
+                </option>
+              </select>
+              <div class="error-message" *ngIf="formularioCita.get('idBarberia')?.touched && formularioCita.get('idBarberia')?.invalid">
+                Debes seleccionar una barbería
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Servicio -->
+        <div class="form-step" *ngIf="currentStep === 2">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">2</div>
+              <h2>Selecciona el Servicio</h2>
+            </div>
+            <div class="step-body">
+              <label class="form-label">Servicio *</label>
+              <select class="form-select" formControlName="idServicio" (change)="onServicioChange()">
+                <option value="">-- Seleccionar servicio --</option>
+                <option *ngFor="let servicio of servicios" [value]="servicio.idServicio">
+                  {{ servicio.nombre }} - ${{ servicio.precio }} ({{ servicio.duracion }} min)
+                </option>
+              </select>
+              <div class="error-message" *ngIf="formularioCita.get('idServicio')?.touched && formularioCita.get('idServicio')?.invalid">
+                Debes seleccionar un servicio
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Barbero -->
+        <div class="form-step" *ngIf="currentStep === 3">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">3</div>
+              <h2>Selecciona el Barbero (Opcional)</h2>
+              <p class="step-subtitle">O deja que asignemos uno disponible</p>
+            </div>
+            <div class="step-body">
+              <div class="barberos-grid" *ngIf="barberos.length > 0; else noBarberos">
+                <div class="barbero-option" 
+                     *ngFor="let barbero of barberos"
+                     [class.selected]="formularioCita.get('idBarbero')?.value === barbero.idBarbero"
+                     (click)="seleccionarBarbero(barbero.idBarbero)">
+                  <div class="barbero-image-wrapper">
+                    <img [src]="barbero.urlFoto || 'assets/images/avatar-default.jpg'" 
+                         class="barbero-image" 
+                         alt="{{ barbero.usuario.nombre }}">
+                  </div>
+                  <div class="barbero-info">
+                    <h4 class="barbero-name">{{ barbero.usuario.nombre }}</h4>
+                    <div class="barbero-rating">
+                      <span class="star">⭐</span>
+                      <span class="rating-value">{{ barbero.calificacion | number:'1.1-1' }}</span>
+                    </div>
+                    <p class="barbero-citas">{{ barbero.totalCitas }} citas</p>
+                  </div>
+                  <div class="checkmark" *ngIf="formularioCita.get('idBarbero')?.value === barbero.idBarbero">
+                    ✓
+                  </div>
+                </div>
+              </div>
+              <ng-template #noBarberos>
+                <div class="no-data">
+                  <p>No hay barberos disponibles en esta barbería</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Fecha y Hora -->
+        <div class="form-step" *ngIf="currentStep === 4">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">4</div>
+              <h2>Selecciona Fecha y Hora</h2>
+            </div>
+            <div class="step-body">
+              <div class="date-time-grid">
+                <div class="form-group">
+                  <label class="form-label">Fecha *</label>
+                  <input type="date" class="form-control" formControlName="fechaCita">
+                  <div class="error-message" *ngIf="formularioCita.get('fechaCita')?.touched && formularioCita.get('fechaCita')?.invalid">
+                    Debes seleccionar una fecha
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Hora *</label>
+                  <input type="time" class="form-control" formControlName="horaCita">
+                  <div class="error-message" *ngIf="formularioCita.get('horaCita')?.touched && formularioCita.get('horaCita')?.invalid">
+                    Debes seleccionar una hora
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Observaciones -->
+        <div class="form-step" *ngIf="currentStep === 5">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">5</div>
+              <h2>Notas Adicionales (Opcional)</h2>
+            </div>
+            <div class="step-body">
+              <textarea class="form-control" rows="5" formControlName="observaciones" 
+                        placeholder="Cuéntanos algo especial sobre tu cita o preferencias..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-card" *ngIf="currentStep === 5">
+          <h3 class="summary-title">📋 Resumen de tu Cita</h3>
+          <div class="summary-grid">
+            <div class="summary-item" *ngIf="barberiaSeleccionada">
+              <span class="summary-label">🏪 Barbería</span>
+              <p class="summary-value">{{ barberiaSeleccionada.nombre }}</p>
+            </div>
+            <div class="summary-item" *ngIf="servicioSeleccionado">
+              <span class="summary-label">✂️ Servicio</span>
+              <p class="summary-value">{{ servicioSeleccionado.nombre }}</p>
+            </div>
+            <div class="summary-item" *ngIf="servicioSeleccionado">
+              <span class="summary-label">💰 Precio</span>
+              <p class="summary-value price">${{ servicioSeleccionado.precio }}</p>
+            </div>
+            <div class="summary-item" *ngIf="servicioSeleccionado">
+              <span class="summary-label">⏱️ Duración</span>
+              <p class="summary-value">{{ servicioSeleccionado.duracion }} min</p>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">📅 Fecha</span>
+              <p class="summary-value">{{ formularioCita.get('fechaCita')?.value || '--' }}</p>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">🕐 Hora</span>
+              <p class="summary-value">{{ formularioCita.get('horaCita')?.value || '--' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="button-group">
+          <button type="button" class="btn-secondary" (click)="previousStep()" *ngIf="currentStep > 1">
+            ← Anterior
+          </button>
+          <button type="button" class="btn-primary" (click)="nextStep()" *ngIf="currentStep < 5 && isStepValid()">
+            Siguiente →
+          </button>
+          <button type="submit" class="btn-success" *ngIf="currentStep === 5" [disabled]="!formularioCita.valid || guardando">
+            <span *ngIf="!guardando">✓ Confirmar Cita</span>
+            <span *ngIf="guardando">⏳ Guardando...</span>
+          </button>
+          <button type="button" class="btn-cancel" (click)="cancelar()">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

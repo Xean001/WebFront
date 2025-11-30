@@ -1,0 +1,184 @@
+<div class="container py-5">
+  <div *ngIf="!cargando && perfil">
+    <!-- Encabezado del perfil -->
+    <div class="row mb-5">
+      <div class="col-md-12">
+        <div class="card border-0 shadow-lg">
+          <div class="card-body p-5">
+            <div class="row align-items-center">
+              <div class="col-md-3 text-center mb-4 mb-md-0">
+                <img [src]="perfil.urlFoto || 'assets/images/avatar-default.jpg'" 
+                     class="rounded-circle" 
+                     width="200" 
+                     height="200"
+                     style="object-fit: cover; border: 5px solid #007bff;">
+              </div>
+              <div class="col-md-9">
+                <h1 class="display-5 fw-bold mb-2">{{ perfil.usuario.nombre }}</h1>
+                <p class="h5 text-muted mb-3">{{ perfil.especialidad }}</p>
+                
+                <div class="row mb-4">
+                  <div class="col-md-3">
+                    <div class="text-center">
+                      <h3 class="fw-bold text-primary">{{ perfil.calificacion | number:'1.1-1' }}</h3>
+                      <div class="text-warning small mb-2">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
+                      </div>
+                      <p class="text-muted small">Calificación</p>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="text-center">
+                      <h3 class="fw-bold text-success">{{ perfil.totalCitas }}</h3>
+                      <p class="text-muted small">Citas Completadas</p>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="text-center">
+                      <h3 class="fw-bold text-info">{{ perfil.experiencia }}</h3>
+                      <p class="text-muted small">Años de Experiencia</p>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="text-center">
+                      <h3 class="fw-bold text-warning">{{ servicios.length }}</h3>
+                      <p class="text-muted small">Servicios</p>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="lead text-muted mb-0">{{ perfil.descripcion }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Servicios -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-scissors"></i> Mis Servicios</h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="servicios.length === 0" class="alert alert-info">
+              No hay servicios registrados
+            </div>
+
+            <div class="list-group list-group-flush" *ngIf="servicios.length > 0">
+              <div class="list-group-item py-3" *ngFor="let servicio of servicios">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-1">{{ servicio.servicio?.nombre }}</h6>
+                    <p class="text-muted small mb-2">{{ servicio.servicio?.descripcion }}</p>
+                    <div class="d-flex gap-3">
+                      <span class="badge bg-success">${{ servicio.precio }}</span>
+                      <span class="badge bg-info">{{ servicio.duracion }} min</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Galería -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-images"></i> Galería de Trabajos</h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="galeria.length === 0" class="alert alert-info">
+              No hay fotos en la galería
+            </div>
+
+            <div class="row g-3" *ngIf="galeria.length > 0">
+              <div class="col-md-6" *ngFor="let foto of galeria">
+                <div class="card border-0 overflow-hidden cursor-pointer" 
+                     style="cursor: pointer;" 
+                     (click)="abrirFoto(foto)">
+                  <img [src]="foto.urlFoto" class="card-img-top" 
+                       alt="{{ foto.descripcion }}"
+                       style="height: 150px; object-fit: cover;">
+                  <div class="card-body p-2">
+                    <p class="small text-muted mb-0 text-truncate">{{ foto.descripcion }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información Adicional</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small d-block mb-1">Email</label>
+                <p class="h6">{{ perfil.usuario.correo }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small d-block mb-1">Teléfono</label>
+                <p class="h6">{{ perfil.usuario.telefono }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small d-block mb-1">Fecha de Registro</label>
+                <p class="h6">{{ perfil.usuario.fechaRegistro | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small d-block mb-1">Estado</label>
+                <p>
+                  <span class="badge bg-success">Activo</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cargando -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted">Cargando perfil del barbero...</p>
+  </div>
+</div>
+
+<!-- Modal de imagen -->
+<div class="modal fade" id="fotoModal" tabindex="-1" *ngIf="fotoSeleccionada">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ fotoSeleccionada.descripcion }}</h5>
+        <button type="button" class="btn-close" (click)="fotoSeleccionada = null"></button>
+      </div>
+      <div class="modal-body">
+        <img [src]="fotoSeleccionada.urlFoto" class="img-fluid w-100" alt="{{ fotoSeleccionada.descripcion }}">
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.cursor-pointer {
+  cursor: pointer;
+}
+</style>

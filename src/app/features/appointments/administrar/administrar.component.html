@@ -1,0 +1,240 @@
+<div class="container-fluid py-5">
+  <!-- Encabezado -->
+  <div class="row mb-5">
+    <div class="col-md-12">
+      <h1 class="display-6 fw-bold">Gestión de Citas</h1>
+      <p class="lead text-muted">Administra las reservas de tu barbería</p>
+    </div>
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="input-group input-group-lg">
+        <input type="text" class="form-control" placeholder="Buscar por código de reserva o cliente..."
+               [(ngModel)]="busqueda" (keyup)="aplicarFiltros()">
+        <button class="btn btn-primary" type="button" (click)="aplicarFiltros()">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <select class="form-select form-select-lg" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+        <option value="">Todos los estados</option>
+        <option value="PENDIENTE">Pendiente</option>
+        <option value="CONFIRMADA">Confirmada</option>
+        <option value="COMPLETADA">Completada</option>
+        <option value="CANCELADA">Cancelada</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <input type="date" class="form-control form-control-lg" [(ngModel)]="filtroFecha" (change)="aplicarFiltros()">
+    </div>
+  </div>
+
+  <!-- Vista de tabla para desktop -->
+  <div class="d-none d-md-block">
+    <div class="table-responsive">
+      <table class="table table-hover" *ngIf="citasFiltradas.length > 0">
+        <thead class="table-light">
+          <tr>
+            <th>Código</th>
+            <th>Cliente</th>
+            <th>Servicio</th>
+            <th>Barbero</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cita of citasFiltradas" [class]="'table-' + getEstadoClass(cita.estado)">
+            <td class="fw-bold">{{ cita.codigoReserva }}</td>
+            <td>{{ cita.cliente.nombre }}</td>
+            <td>{{ cita.servicio.nombre }}</td>
+            <td>{{ cita.barbero.usuario.nombre }}</td>
+            <td>{{ cita.fechaCita | date:'dd/MM/yyyy' }}</td>
+            <td>{{ cita.horaCita }}</td>
+            <td>
+              <span [class]="'badge ' + getEstadoBadgeClass(cita.estado)">
+                {{ cita.estado }}
+              </span>
+            </td>
+            <td class="fw-bold text-success">${{ cita.precio }}</td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-info" (click)="verDetalles(cita)" title="Ver detalles">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-outline-success" *ngIf="cita.estado === 'PENDIENTE'" 
+                        (click)="confirmarCita(cita.idCita)" title="Confirmar">
+                  <i class="bi bi-check-circle"></i>
+                </button>
+                <button class="btn btn-outline-warning" *ngIf="cita.estado === 'CONFIRMADA'" 
+                        (click)="marcarCompletada(cita.idCita)" title="Marcar como completada">
+                  <i class="bi bi-check2-all"></i>
+                </button>
+                <button class="btn btn-outline-danger" *ngIf="cita.estado !== 'CANCELADA' && cita.estado !== 'COMPLETADA'" 
+                        (click)="cancelarCita(cita.idCita)" title="Cancelar">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Vista de tarjetas para móvil -->
+  <div class="d-md-none">
+    <div class="row g-3" *ngIf="citasFiltradas.length > 0">
+      <div class="col-12" *ngFor="let cita of citasFiltradas">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="card-title fw-bold">{{ cita.codigoReserva }}</h6>
+              <span [class]="'badge ' + getEstadoBadgeClass(cita.estado)">
+                {{ cita.estado }}
+              </span>
+            </div>
+            <p class="text-muted small mb-2">{{ cita.cliente.nombre }}</p>
+            <div class="row text-sm mb-3">
+              <div class="col-6">
+                <span class="text-muted small d-block">Servicio</span>
+                <strong>{{ cita.servicio.nombre }}</strong>
+              </div>
+              <div class="col-6">
+                <span class="text-muted small d-block">Barbero</span>
+                <strong>{{ cita.barbero.usuario.nombre }}</strong>
+              </div>
+              <div class="col-6">
+                <span class="text-muted small d-block">Fecha</span>
+                <strong>{{ cita.fechaCita | date:'dd/MM/yyyy' }}</strong>
+              </div>
+              <div class="col-6">
+                <span class="text-muted small d-block">Hora</span>
+                <strong>{{ cita.horaCita }}</strong>
+              </div>
+            </div>
+            <div class="d-grid gap-2">
+              <button class="btn btn-sm btn-primary" (click)="verDetalles(cita)">
+                Ver detalles
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay resultados -->
+  <div *ngIf="!cargando && citasFiltradas.length === 0" class="alert alert-info text-center py-5">
+    <i class="bi bi-calendar2-x display-4"></i>
+    <h4 class="mt-3">No hay citas para mostrar</h4>
+    <p class="text-muted">Intenta con otros filtros de búsqueda</p>
+  </div>
+
+  <!-- Indicador de carga -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted">Cargando citas...</p>
+  </div>
+</div>
+
+<!-- Modal de detalles -->
+<div class="modal fade" id="detallesModal" tabindex="-1" *ngIf="citaSeleccionada">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Detalles de la Cita</h5>
+        <button type="button" class="btn-close" (click)="citaSeleccionada = null"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Código de Reserva</label>
+            <p class="h6 fw-bold">{{ citaSeleccionada.codigoReserva }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Estado</label>
+            <p>
+              <span [class]="'badge ' + getEstadoBadgeClass(citaSeleccionada.estado)">
+                {{ citaSeleccionada.estado }}
+              </span>
+            </p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Cliente</label>
+            <p class="h6 fw-bold">{{ citaSeleccionada.cliente.nombre }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Teléfono</label>
+            <p class="h6">{{ citaSeleccionada.cliente.telefono }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Servicio</label>
+            <p class="h6 fw-bold">{{ citaSeleccionada.servicio.nombre }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Barbero</label>
+            <p class="h6 fw-bold">{{ citaSeleccionada.barbero.usuario.nombre }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Fecha</label>
+            <p class="h6 fw-bold">{{ citaSeleccionada.fechaCita | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Hora</label>
+            <p class="h6 fw-bold">{{ citaSeleccionada.horaCita }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Duración</label>
+            <p class="h6">{{ citaSeleccionada.servicio.duracion }} minutos</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Precio</label>
+            <p class="h6 fw-bold text-success">${{ citaSeleccionada.precio }}</p>
+          </div>
+          <div class="col-12 mb-3" *ngIf="citaSeleccionada.observaciones">
+            <label class="text-muted small">Observaciones</label>
+            <p class="bg-light p-3 rounded">{{ citaSeleccionada.observaciones }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="citaSeleccionada = null">Cerrar</button>
+        <button type="button" class="btn btn-success" *ngIf="citaSeleccionada.estado === 'PENDIENTE'" 
+                (click)="confirmarCita(citaSeleccionada.idCita)">
+          <i class="bi bi-check-circle"></i> Confirmar
+        </button>
+        <button type="button" class="btn btn-warning" *ngIf="citaSeleccionada.estado === 'CONFIRMADA'" 
+                (click)="marcarCompletada(citaSeleccionada.idCita)">
+          <i class="bi bi-check2-all"></i> Marcar como Completada
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.table-success {
+  background-color: #d4edda;
+}
+
+.table-warning {
+  background-color: #fff3cd;
+}
+
+.table-danger {
+  background-color: #f8d7da;
+}
+
+.table-info {
+  background-color: #d1ecf1;
+}
+</style>
