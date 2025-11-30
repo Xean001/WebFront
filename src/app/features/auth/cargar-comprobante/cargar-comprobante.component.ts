@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PagosService } from '../../../shared/services/pagos.service';
+import { AuthService, AuthResponse } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-cargar-comprobante',
@@ -25,27 +26,61 @@ export class CargarComprobanteComponent implements OnInit {
   previsualizacionComprobante: string | null = null;
   comprobanteBase64: string | null = null;
   email: string = '';
+  currentUser: AuthResponse | null = null;
 
   constructor(
     private fb: FormBuilder,
     private pagosService: PagosService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.formulario = this.crearFormulario();
   }
 
   ngOnInit(): void {
+    // Primero intentar obtener datos del sessionStorage (flujo de registro)
     this.idSuscripcion = sessionStorage.getItem('idSuscripcion');
     const montoStr = sessionStorage.getItem('montoAPagar');
     this.tipoPlan = sessionStorage.getItem('tipoPlan') || '';
     this.email = sessionStorage.getItem('emailUsuario') || '';
     this.monto = montoStr ? parseFloat(montoStr) : 0;
 
+    // Si no hay datos en sessionStorage, obtener del usuario autenticado
     if (!this.idSuscripcion || this.monto <= 0) {
-      this.router.navigate(['/auth/register-admin']);
+      this.authService.currentUser$.subscribe(user => {
+        this.currentUser = user;
+        
+        if (user) {
+          console.log('👤 Usuario autenticado encontrado:', user.nombre);
+          console.log('📊 Estado suscripción:', user.estadoSuscripcion);
+          console.log('🆔 ID Suscripción:', user.idSuscripcion);
+          
+          // Usar datos del usuario autenticado
+          this.idSuscripcion = user.idSuscripcion?.toString() || null;
+          this.email = user.correo || '';
+          this.tipoPlan = user.tipoPlan || 'MENSUAL';
+          
+          // Establecer monto según el plan
+          this.monto = this.obtenerMontoPorPlan(this.tipoPlan);
+          
+          if (!this.idSuscripcion) {
+            console.warn('⚠️ Usuario sin ID de suscripción');
+            this.errores['general'] = 'No se encontró información de suscripción. Por favor contacta soporte.';
+            return;
+          }
+          
+          console.log('✅ Datos cargados desde usuario autenticado');
+          this.obtenerDatosParaPagar();
+        } else {
+          // No hay usuario autenticado ni datos en sessionStorage
+          console.warn('⚠️ No hay usuario autenticado ni datos en sessionStorage');
+          this.router.navigate(['/auth/login']);
+        }
+      });
       return;
     }
 
+    // Flujo normal con datos del sessionStorage
     console.log('📋 Componente Cargar Comprobante inicializado');
     console.log('📊 ID Suscripción:', this.idSuscripcion);
     console.log('💰 Monto:', this.monto);
@@ -53,6 +88,19 @@ export class CargarComprobanteComponent implements OnInit {
     console.log('📧 Email:', this.email);
 
     this.obtenerDatosParaPagar();
+  }
+
+  /**
+   * Obtener monto según el tipo de plan
+   */
+  obtenerMontoPorPlan(tipoPlan: string): number {
+    const planes: { [key: string]: number } = {
+      'PRUEBA': 0,
+      'MENSUAL': 49.90,
+      'SEMESTRAL': 249.90,
+      'ANUAL': 449.90
+    };
+    return planes[tipoPlan] || 49.90; // Por defecto MENSUAL
   }
 
   crearFormulario(): FormGroup {

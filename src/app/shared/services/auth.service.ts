@@ -38,6 +38,8 @@ export interface AuthResponse {
   correo: string;
   tipoUsuario: string;
   idBarberia?: number;
+  idSuscripcion?: number;
+  tipoPlan?: string;
   estadoSuscripcion?: 'PENDIENTE_PAGO' | 'ACTIVA' | 'PAUSADA' | 'CANCELADA';
 }
 
