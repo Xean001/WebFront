@@ -123,8 +123,9 @@ export class ListaBarberiasComponent implements OnInit {
     } catch (error) {
       console.error('Error en ngOnInit:', error);
       // Fallback completo: usar datos de ejemplo
-      this.barberias = this.barberiasEjemplo;
-      this.barberiasOriginales = [...this.barberias];
+      this.barberiasOriginales = [...this.barberiasEjemplo];
+      this.totalPaginas = Math.ceil(this.barberiasOriginales.length / this.tamanioPagina);
+      this.aplicarPaginacion();
       this.ciudades = [...new Set(this.barberiasEjemplo.map(b => b.ciudad))];
       this.conErrorAPI = true;
       this.cargando = false;
@@ -157,14 +158,20 @@ export class ListaBarberiasComponent implements OnInit {
   cargarBarberias(): void {
     try {
       this.cargando = true;
-      this.barberiaService.obtenerBarberiasActivasPaginadas(this.paginaActual, this.tamanioPagina)
+      // Usar endpoint público sin autenticación
+      this.barberiaService.obtenerBarberiasActivas()
         .subscribe({
           next: (response) => {
             try {
               if (response && response.success && response.data) {
-                this.barberias = response.data.content || [];
-                this.barberiasOriginales = [...this.barberias];
-                this.totalPaginas = response.data.totalPages || 1;
+                // Guardar todas las barberías
+                this.barberiasOriginales = response.data || [];
+                
+                // Calcular paginación manualmente en el cliente
+                this.totalPaginas = Math.ceil(this.barberiasOriginales.length / this.tamanioPagina);
+                
+                // Obtener página actual
+                this.aplicarPaginacion();
                 this.conErrorAPI = false;
               } else {
                 // Respuesta no válida, usar ejemplos
@@ -172,9 +179,9 @@ export class ListaBarberiasComponent implements OnInit {
               }
             } catch (error) {
               console.warn('Error procesando respuesta de API:', error);
-              this.barberias = this.barberiasEjemplo;
-              this.barberiasOriginales = [...this.barberias];
-              this.totalPaginas = 1;
+              this.barberiasOriginales = this.barberiasEjemplo;
+              this.totalPaginas = Math.ceil(this.barberiasOriginales.length / this.tamanioPagina);
+              this.aplicarPaginacion();
               this.conErrorAPI = true;
             }
             this.cargando = false;
@@ -182,106 +189,92 @@ export class ListaBarberiasComponent implements OnInit {
           error: (error) => {
             console.warn('Error al cargar barberías desde API, usando datos de ejemplo:', error);
             // Usar datos de ejemplo cuando la API falla
-            this.barberias = this.barberiasEjemplo;
-            this.barberiasOriginales = [...this.barberias];
-            this.totalPaginas = 1;
+            this.barberiasOriginales = this.barberiasEjemplo;
+            this.totalPaginas = Math.ceil(this.barberiasOriginales.length / this.tamanioPagina);
+            this.aplicarPaginacion();
             this.conErrorAPI = true;
             this.cargando = false;
           }
         });
     } catch (error) {
       console.error('Error fatal en cargarBarberias:', error);
-      this.barberias = this.barberiasEjemplo;
-      this.barberiasOriginales = [...this.barberias];
-      this.totalPaginas = 1;
+      this.barberiasOriginales = this.barberiasEjemplo;
+      this.totalPaginas = Math.ceil(this.barberiasOriginales.length / this.tamanioPagina);
+      this.aplicarPaginacion();
       this.conErrorAPI = true;
       this.cargando = false;
     }
   }
 
+  /**
+   * Aplicar paginación manualmente (lado cliente)
+   */
+  aplicarPaginacion(): void {
+    const inicio = this.paginaActual * this.tamanioPagina;
+    const fin = inicio + this.tamanioPagina;
+    this.barberias = this.barberiasOriginales.slice(inicio, fin);
+  }
+
   buscarBarberias(): void {
+    this.paginaActual = 0;
+    
     if (!this.busqueda.trim()) {
-      this.barberias = [...this.barberiasOriginales];
-      this.paginaActual = 0;
+      // Si no hay búsqueda, mostrar todos los datos
+      this.totalPaginas = Math.ceil(this.barberiasOriginales.length / this.tamanioPagina);
+      this.aplicarPaginacion();
       return;
     }
 
-    this.cargando = true;
-    this.paginaActual = 0;
+    // Búsqueda local en datos originales SIN modificarlos
+    const query = this.busqueda.toLowerCase();
+    const resultados = this.barberiasOriginales.filter(b =>
+      b.nombre.toLowerCase().includes(query) ||
+      b.ciudad.toLowerCase().includes(query) ||
+      b.direccion.toLowerCase().includes(query)
+    );
 
-    if (this.conErrorAPI) {
-      // Búsqueda local en datos de ejemplo
-      const query = this.busqueda.toLowerCase();
-      this.barberias = this.barberiasOriginales.filter(b =>
-        b.nombre.toLowerCase().includes(query) ||
-        b.ciudad.toLowerCase().includes(query) ||
-        b.direccion.toLowerCase().includes(query)
-      );
-      this.cargando = false;
-    } else {
-      // Búsqueda en API
-      this.barberiaService.buscarBarberiasPaginadas(this.busqueda, this.paginaActual, this.tamanioPagina)
-        .subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.barberias = response.data.content || [];
-              this.totalPaginas = response.data.totalPages || 1;
-            }
-            this.cargando = false;
-          },
-          error: (error) => {
-            console.warn('Error en búsqueda de API, buscando en datos locales:', error);
-            // Fallback a búsqueda local
-            const query = this.busqueda.toLowerCase();
-            this.barberias = this.barberiasOriginales.filter(b =>
-              b.nombre.toLowerCase().includes(query) ||
-              b.ciudad.toLowerCase().includes(query) ||
-              b.direccion.toLowerCase().includes(query)
-            );
-            this.cargando = false;
-          }
-        });
-    }
+    // Mostrar resultados de búsqueda
+    this.barberias = resultados;
+    this.totalPaginas = resultados.length > 0 ? Math.ceil(resultados.length / this.tamanioPagina) : 1;
   }
 
   filtrarPorCiudad(): void {
     this.paginaActual = 0;
+    
     if (!this.ciudadSeleccionada) {
-      this.barberias = [...this.barberiasOriginales];
+      // Resetear a todos los datos originales (o búsqueda actual si hay)
+      if (this.busqueda.trim()) {
+        this.buscarBarberias();
+      } else {
+        this.totalPaginas = Math.ceil(this.barberiasOriginales.length / this.tamanioPagina);
+        this.aplicarPaginacion();
+      }
       return;
     }
 
-    this.cargando = true;
-
-    if (this.conErrorAPI) {
-      // Filtrado local
-      this.barberias = this.barberiasOriginales.filter(b => b.ciudad === this.ciudadSeleccionada);
-      this.cargando = false;
-    } else {
-      // Filtrado en API
-      this.barberiaService.obtenerPorCiudad(this.ciudadSeleccionada)
-        .subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.barberias = response.data || [];
-              this.totalPaginas = 1;
-            }
-            this.cargando = false;
-          },
-          error: (error) => {
-            console.warn('Error en filtrado de API, filtrando datos locales:', error);
-            // Fallback a filtrado local
-            this.barberias = this.barberiasOriginales.filter(b => b.ciudad === this.ciudadSeleccionada);
-            this.cargando = false;
-          }
-        });
+    // Filtrado local de datos originales
+    const resultados = this.barberiasOriginales.filter(b => b.ciudad === this.ciudadSeleccionada);
+    
+    // Si hay búsqueda activa, aplicar también el filtro de búsqueda
+    let resultadosFinales = resultados;
+    if (this.busqueda.trim()) {
+      const query = this.busqueda.toLowerCase();
+      resultadosFinales = resultados.filter(b =>
+        b.nombre.toLowerCase().includes(query) ||
+        b.ciudad.toLowerCase().includes(query) ||
+        b.direccion.toLowerCase().includes(query)
+      );
     }
+
+    // Actualizar lista mostrada
+    this.barberias = resultadosFinales;
+    this.totalPaginas = resultadosFinales.length > 0 ? Math.ceil(resultadosFinales.length / this.tamanioPagina) : 1;
   }
 
   irAPagina(pagina: number): void {
     if (pagina >= 0 && pagina < this.totalPaginas) {
       this.paginaActual = pagina;
-      this.cargarBarberias();
+      this.aplicarPaginacion();
     }
   }
 

@@ -58,8 +58,8 @@ export class AdministrarHorariosComponent implements OnInit {
     this.cargando = true;
     this.barberiaService.obtenerBarberiasActivas().subscribe({
       next: (response) => {
-        if (response.success || response.data) {
-          this.barberias = Array.isArray(response.data) ? response.data : response.data.content || [];
+        if (response.success && response.data) {
+          this.barberias = response.data || [];
         }
         this.cargando = false;
       },
