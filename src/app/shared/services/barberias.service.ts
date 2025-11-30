@@ -59,7 +59,7 @@ export class BarberiaService {
   constructor(private http: HttpClient) { }
 
   /**
-   * Obtener todas las barberías activas (sin paginación)
+   * Obtener todas las barberías activas 
    * GET /barberias/activas
    */
   obtenerBarberiasActivas(): Observable<ApiResponse<BarberiaDTO[]>> {

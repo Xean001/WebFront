@@ -15,7 +15,18 @@ export interface RegisterRequest {
   telefono?: string;
   contrasena: string;
   fechaNacimiento?: string;
-  genero?: string;
+  genero?: 'MASCULINO' | 'FEMENINO' | 'OTRO' | 'PREFIERO_NO_DECIR';
+}
+
+export interface RegisterAdminRequest {
+  nombre: string;
+  apellido: string;
+  correo: string;
+  telefono: string;
+  contrasena: string;
+  fechaNacimiento: string;
+  genero: 'MASCULINO' | 'FEMENINO' | 'OTRO';
+  fotoPerfilUrl?: string;
 }
 
 export interface AuthResponse {
@@ -62,6 +73,19 @@ export class AuthService {
    */
   register(request: RegisterRequest): Observable<ApiResponse<AuthResponse>> {
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/registro`, request).pipe(
+      tap(response => {
+        if (response.data) {
+          this.saveAuthData(response.data);
+        }
+      })
+    );
+  }
+
+  /**
+   * Registrar un nuevo administrador/barbería
+   */
+  registrarAdmin(request: RegisterAdminRequest): Observable<ApiResponse<AuthResponse>> {
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/admin/crear`, request).pipe(
       tap(response => {
         if (response.data) {
           this.saveAuthData(response.data);

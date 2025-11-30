@@ -29,6 +29,7 @@ export class RegisterComponent implements OnInit {
   successMessage: string = '';
   errorMessage: string = '';
   validationErrors: { [key: string]: string } = {};
+  generosDisponibles: string[] = ['MASCULINO', 'FEMENINO', 'OTRO'];
 
   constructor(
     private fb: FormBuilder,
@@ -36,11 +37,13 @@ export class RegisterComponent implements OnInit {
     private authService: AuthService
   ) {
     this.registerForm = this.fb.group({
-      name: ['', Validators.required],
-      apellido: [''],
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      apellido: ['', [Validators.required, Validators.minLength(2)]],
       correo: ['', [Validators.required, Validators.email]],
-      telefono: [''],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      telefono: ['', Validators.pattern(/^[0-9]{7,15}$/)],
+      fechaNacimiento: [''],
+      genero: ['MASCULINO'],
+      password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required]
     }, { validators: passwordMatchValidator }); // Aplica el validador global
   }
@@ -60,17 +63,19 @@ export class RegisterComponent implements OnInit {
     this.successMessage = '';
     this.validationErrors = {};
 
-    const { name, apellido, correo, telefono, password } = this.registerForm.value;
+    const { nombre, apellido, correo, telefono, fechaNacimiento, genero, password } = this.registerForm.value;
 
     const registerRequest: RegisterRequest = {
-      nombre: name,
+      nombre: nombre,
       apellido: apellido || undefined,
       correo: correo,
       telefono: telefono || undefined,
-      contrasena: password
+      contrasena: password,
+      fechaNacimiento: fechaNacimiento || undefined,
+      genero: genero || undefined
     };
 
-    console.log('Intentando registrar:', name, correo);
+    console.log('Intentando registrar:', nombre, correo);
 
     this.authService.register(registerRequest).subscribe({
       next: (response) => {
