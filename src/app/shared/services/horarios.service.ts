@@ -2,32 +2,66 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+// Interfaces para Request (lo que enviamos a la API)
+export interface HorarioBarberiaRequest {
+  diaSemana: string; // MONDAY, TUESDAY, etc.
+  horaApertura: LocalTime;
+  horaCierre: LocalTime;
+  cerrado?: boolean;
+}
+
+export interface HorarioBarberoRequest {
+  diaSemana: string;
+  horaInicio: LocalTime;
+  horaFin: LocalTime;
+  activo?: boolean;
+}
+
+export interface ExcepcionHorarioRequest {
+  fechaInicio: string; // date format
+  fechaFin: string;
+  motivo: string;
+  esVacaciones?: boolean;
+}
+
+export interface LocalTime {
+  hour: number;
+  minute: number;
+  second: number;
+  nano: number;
+}
+
+// Interfaces para Response (lo que recibimos de la API)
 export interface HorarioBarberia {
   idHorario: number;
-  idBarberia: number;
-  diaSemana: string;
-  horaApertura: string;
-  horaCierre: string;
-  descanso: boolean;
+  barberia: any;
+  diaSemana: number;
+  horaInicio: LocalTime;
+  horaFin: LocalTime;
+  cerrado: boolean;
 }
 
 export interface HorarioBarbero {
   idHorario: number;
-  idBarbero: number;
-  diaSemana: string;
-  horaApertura: string;
-  horaCierre: string;
-  descanso: boolean;
+  barbero: any;
+  diaSemana: number;
+  horaInicio: LocalTime;
+  horaFin: LocalTime;
+  cerrado: boolean;
+  activo: boolean;
 }
 
 export interface ExcepcionHorario {
   idExcepcion: number;
-  idBarbero: number;
-  fecha: string;
-  horaInicio: string;
-  horaFin: string;
+  barbero: any;
+  barberia: any;
+  fechaInicio: string;
+  fechaFin: string;
+  todoElDia: boolean;
+  horaInicio: LocalTime;
+  horaFin: LocalTime;
+  cerrado: boolean;
   motivo: string;
-  tipo: string;
 }
 
 @Injectable({
@@ -39,7 +73,7 @@ export class HorariosService {
   constructor(private http: HttpClient) { }
 
   // Horarios de Barbería
-  crearHorarioBarberia(idBarberia: number, request: HorarioBarberia): Observable<any> {
+  crearHorarioBarberia(idBarberia: number, request: HorarioBarberiaRequest): Observable<any> {
     return this.http.post(`${this.apiUrl}/barberia/${idBarberia}`, request);
   }
 
@@ -47,12 +81,12 @@ export class HorariosService {
     return this.http.get(`${this.apiUrl}/barberia/${idBarberia}`);
   }
 
-  actualizarHorarioBarberia(idHorario: number, request: HorarioBarberia): Observable<any> {
+  actualizarHorarioBarberia(idHorario: number, request: HorarioBarberiaRequest): Observable<any> {
     return this.http.put(`${this.apiUrl}/barberia/${idHorario}`, request);
   }
 
   // Horarios de Barbero
-  crearHorarioBarbero(request: HorarioBarbero): Observable<any> {
+  crearHorarioBarbero(request: HorarioBarberoRequest): Observable<any> {
     return this.http.post(`${this.apiUrl}/barbero`, request);
   }
 
@@ -64,7 +98,7 @@ export class HorariosService {
     return this.http.get(`${this.apiUrl}/barbero/mis-horarios`);
   }
 
-  actualizarHorarioBarbero(idHorario: number, request: HorarioBarbero): Observable<any> {
+  actualizarHorarioBarbero(idHorario: number, request: HorarioBarberoRequest): Observable<any> {
     return this.http.put(`${this.apiUrl}/barbero/${idHorario}`, request);
   }
 
@@ -73,7 +107,7 @@ export class HorariosService {
   }
 
   // Excepciones de Horario
-  crearExcepcion(request: ExcepcionHorario): Observable<any> {
+  crearExcepcion(request: ExcepcionHorarioRequest): Observable<any> {
     return this.http.post(`${this.apiUrl}/excepciones`, request);
   }
 

@@ -18,34 +18,81 @@
     <!-- Navigation Links -->
     <div class="navbar-menu" [class.active]="isMenuOpen" (click)="closeMenu()">
       <ul class="navbar-nav">
+        <!-- Inicio: para todos -->
         <li class="nav-item">
           <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">
             Inicio
           </a>
         </li>
+
+        <!-- Barberías: disponible para todos (público) -->
+        <li class="nav-item">
+          <a routerLink="/barberias/list" routerLinkActive="active" class="nav-link">
+            Barberías
+          </a>
+        </li>
+
+        <!-- Barberos: disponible para todos (público) -->
         <li class="nav-item">
           <a routerLink="/barbers/list" routerLinkActive="active" class="nav-link">
             Barberos
           </a>
         </li>
-        <li class="nav-item">
-          <a routerLink="/appointments/create" routerLinkActive="active" class="nav-link">
-            Agendar Cita
+
+        <!-- Citas: solo clientes autenticados -->
+        <li class="nav-item" *ngIf="isCliente()">
+          <a routerLink="/appointments/list" routerLinkActive="active" class="nav-link">
+            Mis Citas
+          </a>
+        </li>
+
+        <!-- Divider para separar enlaces públicos de administración -->
+        <li class="nav-divider" *ngIf="isAdmin()"></li>
+
+        <!-- Administración: solo para admin/super_admin/recepcionista -->
+        <li class="nav-item admin-section" *ngIf="isAdmin()">
+          <span class="admin-label">Administración</span>
+        </li>
+
+        <!-- Gestionar Barberías: solo admin -->
+        <li class="nav-item" *ngIf="isAdmin()">
+          <a routerLink="/barberias/administrar" routerLinkActive="active" class="nav-link admin-link">
+            📋 Barberías
+          </a>
+        </li>
+
+        <!-- Gestionar Horarios: solo admin/barbero -->
+        <li class="nav-item" *ngIf="isAdmin() || isBarbero()">
+          <a routerLink="/horarios/administrar" routerLinkActive="active" class="nav-link admin-link">
+            ⏰ Horarios
+          </a>
+        </li>
+
+        <!-- Gestionar Servicios: solo admin -->
+        <li class="nav-item" *ngIf="isAdmin()">
+          <a routerLink="/servicios/administrar" routerLinkActive="active" class="nav-link admin-link">
+            ✨ Servicios
           </a>
         </li>
       </ul>
 
       <!-- User Actions -->
       <div class="navbar-actions">
-        <ng-container *ngIf="!(currentUser$ | async)">
+        <ng-container *ngIf="!currentUser">
           <a routerLink="/auth/login" class="btn btn-login">
             Iniciar Sesión
           </a>
+          <a routerLink="/auth/register" class="btn btn-register">
+            Registrarse
+          </a>
         </ng-container>
 
-        <ng-container *ngIf="(currentUser$ | async) as user">
+        <ng-container *ngIf="currentUser">
           <div class="user-profile">
-            <span class="user-name">{{ user.nombre }}</span>
+            <span class="user-name">¡Hola, {{ currentUser.nombre }}!</span>
+            <span class="user-role" [ngClass]="'role-' + currentUser.tipoUsuario.toLowerCase()">
+              {{ currentUser.tipoUsuario }}
+            </span>
             <button (click)="logout()" class="btn btn-logout">
               Salir
             </button>

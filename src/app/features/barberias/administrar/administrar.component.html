@@ -1,0 +1,270 @@
+<div class="container-fluid py-5">
+  <!-- Encabezado -->
+  <div class="row mb-5">
+    <div class="col-md-8">
+      <h1 class="display-6 fw-bold">Gestionar Barberías</h1>
+      <p class="lead text-muted">Administra tus establecimientos de barberías</p>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end align-items-center">
+      <button class="btn btn-primary btn-lg" (click)="toggleFormulario()">
+        <i class="bi bi-plus-circle"></i> {{ mostrarFormulario ? 'Cancelar' : 'Nueva Barbería' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Formulario de crear/editar -->
+  <div class="row mb-5" *ngIf="mostrarFormulario">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ editandoId ? 'Editar Barbería' : 'Crear Nueva Barbería' }}</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="formulario">
+            <div class="row">
+              <!-- Nombre -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="nombre" placeholder="Ej: Barbería El Corte">
+                <small class="text-danger" *ngIf="campoNombre?.invalid && campoNombre?.touched">
+                  El nombre es requerido y debe tener al menos 3 caracteres
+                </small>
+              </div>
+
+              <!-- RUC -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">RUC <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="ruc" placeholder="11 dígitos">
+                <small class="text-danger" *ngIf="campoRuc?.invalid && campoRuc?.touched">
+                  RUC debe tener exactamente 11 dígitos
+                </small>
+              </div>
+
+              <!-- Dirección -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Dirección <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="direccion" placeholder="Ej: Av. Principal 123">
+                <small class="text-danger" *ngIf="campoDireccion?.invalid && campoDireccion?.touched">
+                  La dirección es requerida
+                </small>
+              </div>
+
+              <!-- Ciudad -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ciudad <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="ciudad" placeholder="Ej: Lima">
+                <small class="text-danger" *ngIf="campoCiudad?.invalid && campoCiudad?.touched">
+                  La ciudad es requerida
+                </small>
+              </div>
+
+              <!-- Código Postal -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Código Postal</label>
+                <input type="text" class="form-control" formControlName="codigoPostal" placeholder="Ej: 28001">
+              </div>
+
+              <!-- Teléfono -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Teléfono <span class="text-danger">*</span></label>
+                <input type="tel" class="form-control" formControlName="telefono" placeholder="Ej: +51 987654321">
+                <small class="text-danger" *ngIf="campoTelefono?.invalid && campoTelefono?.touched">
+                  El teléfono es requerido
+                </small>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" formControlName="email" placeholder="Ej: info@barberia.com">
+                <small class="text-danger" *ngIf="campoEmail?.invalid && campoEmail?.touched">
+                  El email es requerido y debe ser válido
+                </small>
+              </div>
+
+              <!-- Latitud -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Latitud</label>
+                <input type="text" class="form-control" formControlName="latitud" placeholder="Ej: -12.0464">
+              </div>
+
+              <!-- Longitud -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Longitud</label>
+                <input type="text" class="form-control" formControlName="longitud" placeholder="Ej: -77.0428">
+              </div>
+
+              <!-- Sitio Web -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Sitio Web</label>
+                <input type="url" class="form-control" formControlName="sitioWeb" placeholder="https://www.barberia.com">
+              </div>
+
+              <!-- Foto Portada URL -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">URL Foto de Portada</label>
+                <input type="url" class="form-control" formControlName="fotoPortadaUrl" placeholder="https://...">
+              </div>
+
+              <!-- Logo URL -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">URL Logo</label>
+                <input type="url" class="form-control" formControlName="logoUrl" placeholder="https://...">
+              </div>
+
+              <!-- Descripción -->
+              <div class="col-12 mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" formControlName="descripcion" rows="3" placeholder="Describe tu barbería..."></textarea>
+              </div>
+
+              <!-- Acepta Reservas Online -->
+              <div class="col-12 mb-3">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="aceptaReservasOnline" id="aceptaReservas">
+                  <label class="form-check-label" for="aceptaReservas">
+                    Acepta reservas online
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="row">
+              <div class="col-12">
+                <button type="button" class="btn btn-success btn-lg me-2" (click)="guardarBarberia()" [disabled]="cargando">
+                  <i class="bi bi-check-circle"></i> {{ editandoId ? 'Actualizar' : 'Crear' }}
+                </button>
+                <button type="button" class="btn btn-secondary btn-lg" (click)="cancelarEdicion()">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="input-group input-group-lg">
+        <input type="text" class="form-control" placeholder="Buscar por nombre, ciudad o email..."
+               [(ngModel)]="busqueda" (keyup)="aplicarFiltros()">
+        <button class="btn btn-primary" type="button" (click)="aplicarFiltros()">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <select class="form-select form-select-lg" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+        <option value="">Todos los estados</option>
+        <option value="ACTIVA">Activa</option>
+        <option value="INACTIVA">Inactiva</option>
+        <option value="SUSPENDIDA">Suspendida</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabla para desktop -->
+  <div class="d-none d-md-block">
+    <div class="table-responsive">
+      <table class="table table-hover" *ngIf="barberiasFiltradas.length > 0">
+        <thead class="table-light">
+          <tr>
+            <th>Nombre</th>
+            <th>Ciudad</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Reservas</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let barberia of barberiasFiltradas">
+            <td class="fw-bold">{{ barberia.nombre }}</td>
+            <td>{{ barberia.ciudad }}</td>
+            <td>{{ barberia.telefono }}</td>
+            <td>{{ barberia.email }}</td>
+            <td>
+              <span [class]="'badge ' + getEstadoBadgeClass(barberia.estado)">
+                {{ barberia.estado }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-info" *ngIf="barberia.aceptaReservasOnline">Sí</span>
+              <span class="badge bg-secondary" *ngIf="!barberia.aceptaReservasOnline">No</span>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-primary" (click)="editarBarberia(barberia)" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-warning" (click)="cambiarEstado(barberia.idBarberia, barberia.estado)" title="Cambiar estado">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tarjetas para móvil -->
+  <div class="d-md-none">
+    <div class="row g-3" *ngIf="barberiasFiltradas.length > 0">
+      <div class="col-12" *ngFor="let barberia of barberiasFiltradas">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="card-title fw-bold">{{ barberia.nombre }}</h6>
+              <span [class]="'badge ' + getEstadoBadgeClass(barberia.estado)">
+                {{ barberia.estado }}
+              </span>
+            </div>
+            <div class="row text-sm mb-3">
+              <div class="col-6">
+                <span class="text-muted small d-block">Ciudad</span>
+                <strong>{{ barberia.ciudad }}</strong>
+              </div>
+              <div class="col-6">
+                <span class="text-muted small d-block">Teléfono</span>
+                <strong>{{ barberia.telefono }}</strong>
+              </div>
+              <div class="col-12">
+                <span class="text-muted small d-block">Email</span>
+                <strong>{{ barberia.email }}</strong>
+              </div>
+            </div>
+            <div class="d-grid gap-2">
+              <button class="btn btn-sm btn-primary" (click)="editarBarberia(barberia)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button class="btn btn-sm btn-warning" (click)="cambiarEstado(barberia.idBarberia, barberia.estado)">
+                <i class="bi bi-arrow-repeat"></i> Cambiar Estado
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay resultados -->
+  <div *ngIf="!cargando && barberiasFiltradas.length === 0" class="alert alert-info text-center py-5">
+    <i class="bi bi-shop display-4"></i>
+    <h4 class="mt-3">No hay barberías para mostrar</h4>
+    <p class="text-muted">{{ mostrarFormulario ? 'Completa el formulario para crear una' : 'Crea una nueva barbería' }}</p>
+  </div>
+
+  <!-- Indicador de carga -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted">Cargando barberías...</p>
+  </div>
+</div>

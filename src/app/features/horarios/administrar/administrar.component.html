@@ -1,0 +1,192 @@
+<div class="container-fluid py-5">
+  <!-- Encabezado -->
+  <div class="row mb-5">
+    <div class="col-md-8">
+      <h1 class="display-6 fw-bold">Gestionar Horarios</h1>
+      <p class="lead text-muted">Administra los horarios de apertura y cierre de tus barberías</p>
+    </div>
+  </div>
+
+  <!-- Selección de Barbería -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <label class="form-label fw-bold">Selecciona una Barbería <span class="text-danger">*</span></label>
+          <select class="form-select form-select-lg" [(ngModel)]="barberiaSeleccionada" (change)="onBarberiaChange()">
+            <option [value]="null">-- Selecciona una barbería --</option>
+            <option *ngFor="let barberia of barberias" [value]="barberia.idBarberia">
+              {{ barberia.nombre }} ({{ barberia.ciudad }})
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de crear/editar -->
+  <div class="row mb-5" *ngIf="barberiaSeleccionada && mostrarFormulario">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ editandoId ? 'Editar Horario' : 'Crear Nuevo Horario' }}</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="formulario">
+            <div class="row">
+              <!-- Día de la Semana -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Día de la Semana <span class="text-danger">*</span></label>
+                <select class="form-select form-select-lg" formControlName="diaSemana">
+                  <option value="">-- Selecciona un día --</option>
+                  <option *ngFor="let dia of dias" [value]="dia.valor">
+                    {{ dia.nombre }}
+                  </option>
+                </select>
+                <small class="text-danger" *ngIf="campoDia?.invalid && campoDia?.touched">
+                  Debes seleccionar un día
+                </small>
+              </div>
+
+              <!-- Hora de Apertura -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Hora de Apertura <span class="text-danger">*</span></label>
+                <input type="time" class="form-control form-control-lg" formControlName="horaApertura">
+                <small class="text-danger" *ngIf="campoHoraApertura?.invalid && campoHoraApertura?.touched">
+                  La hora de apertura es requerida
+                </small>
+              </div>
+
+              <!-- Hora de Cierre -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Hora de Cierre <span class="text-danger">*</span></label>
+                <input type="time" class="form-control form-control-lg" formControlName="horaCierre">
+                <small class="text-danger" *ngIf="campoHoraCierre?.invalid && campoHoraCierre?.touched">
+                  La hora de cierre es requerida
+                </small>
+              </div>
+
+              <!-- Cerrado -->
+              <div class="col-12 mb-3">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="cerrado" id="cerrado">
+                  <label class="form-check-label" for="cerrado">
+                    La barbería está cerrada este día
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="row">
+              <div class="col-12">
+                <button type="button" class="btn btn-success btn-lg me-2" (click)="guardarHorario()" [disabled]="cargando">
+                  <i class="bi bi-check-circle"></i> {{ editandoId ? 'Actualizar' : 'Crear' }}
+                </button>
+                <button type="button" class="btn btn-secondary btn-lg" (click)="cancelarEdicion()">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón para agregar nuevo horario -->
+  <div class="row mb-4" *ngIf="barberiaSeleccionada && !mostrarFormulario">
+    <div class="col-12">
+      <button class="btn btn-primary btn-lg" (click)="toggleFormulario()">
+        <i class="bi bi-plus-circle"></i> Nuevo Horario
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla para desktop -->
+  <div class="d-none d-md-block" *ngIf="barberiaSeleccionada && horariosFiltrados.length > 0">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Día</th>
+            <th>Hora de Apertura</th>
+            <th>Hora de Cierre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let horario of horariosFiltrados">
+            <td class="fw-bold">{{ getNombreDia(horario.diaSemana) }}</td>
+            <td>{{ String(horario.horaInicio?.hour || 0).padStart(2, '0') }}:{{ String(horario.horaInicio?.minute || 0).padStart(2, '0') }}</td>
+            <td>{{ String(horario.horaFin?.hour || 0).padStart(2, '0') }}:{{ String(horario.horaFin?.minute || 0).padStart(2, '0') }}</td>
+            <td>
+              <span class="badge bg-danger" *ngIf="horario.cerrado">Cerrado</span>
+              <span class="badge bg-success" *ngIf="!horario.cerrado">Abierto</span>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-primary" (click)="editarHorario(horario)" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tarjetas para móvil -->
+  <div class="d-md-none" *ngIf="barberiaSeleccionada && horariosFiltrados.length > 0">
+    <div class="row g-3">
+      <div class="col-12" *ngFor="let horario of horariosFiltrados">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="card-title fw-bold">{{ getNombreDia(horario.diaSemana) }}</h6>
+              <span class="badge bg-danger" *ngIf="horario.cerrado">Cerrado</span>
+              <span class="badge bg-success" *ngIf="!horario.cerrado">Abierto</span>
+            </div>
+            <div class="row text-sm mb-3">
+              <div class="col-6">
+                <span class="text-muted small d-block">Apertura</span>
+                <strong>{{ String(horario.horaInicio?.hour || 0).padStart(2, '0') }}:{{ String(horario.horaInicio?.minute || 0).padStart(2, '0') }}</strong>
+              </div>
+              <div class="col-6">
+                <span class="text-muted small d-block">Cierre</span>
+                <strong>{{ String(horario.horaFin?.hour || 0).padStart(2, '0') }}:{{ String(horario.horaFin?.minute || 0).padStart(2, '0') }}</strong>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-primary w-100" (click)="editarHorario(horario)">
+              <i class="bi bi-pencil"></i> Editar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay resultados -->
+  <div *ngIf="barberiaSeleccionada && !cargando && horariosFiltrados.length === 0" class="alert alert-info text-center py-5">
+    <i class="bi bi-clock display-4"></i>
+    <h4 class="mt-3">No hay horarios configurados</h4>
+    <p class="text-muted">Crea los horarios de tu barbería</p>
+  </div>
+
+  <!-- Indicador de carga -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted">Cargando horarios...</p>
+  </div>
+
+  <!-- Mensaje cuando no hay barbería seleccionada -->
+  <div *ngIf="!barberiaSeleccionada && !cargando" class="alert alert-warning text-center py-5">
+    <i class="bi bi-info-circle display-4"></i>
+    <h4 class="mt-3">Selecciona una barbería</h4>
+    <p class="text-muted">Para gestionar horarios, debes seleccionar una barbería primero</p>
+  </div>
+</div>

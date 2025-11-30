@@ -1,0 +1,49 @@
+/* Estilos para el componente de administración de servicios */
+
+:host {
+  display: block;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.btn-group-sm .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.table-responsive {
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #333;
+}
+
+.text-danger {
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.text-success {
+  color: #198754;
+}
+
+.h5 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}

@@ -48,7 +48,7 @@ export const routes: Routes = [
     ]
   },
   
-  // Rutas de barberías (públicas - clientes ven barberías)
+  // Rutas de barberías (públicas - clientes ven barberías + admin)
   {
     path: 'barberias',
     children: [
@@ -59,6 +59,11 @@ export const routes: Routes = [
       {
         path: 'detail/:id',
         loadComponent: () => import('./features/barberias/detail/detail.component').then(m => m.DetalleBarberiasComponent)
+      },
+      {
+        path: 'administrar',
+        loadComponent: () => import('./features/barberias/administrar/administrar.component').then(m => m.AdministrarBarberiasComponent),
+        canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
       }
     ]
   },
@@ -99,7 +104,29 @@ export const routes: Routes = [
     ]
   },
   
-  // Ruta 404 - Not Found
+  // Rutas de horarios (admin)
+  {
+    path: 'horarios',
+    children: [
+      {
+        path: 'administrar',
+        loadComponent: () => import('./features/horarios/administrar/administrar.component').then(m => m.AdministrarHorariosComponent),
+        canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
+      }
+    ]
+  },
+
+  // Rutas de servicios (admin)
+  {
+    path: 'servicios',
+    children: [
+      {
+        path: 'administrar',
+        loadComponent: () => import('./features/servicios/administrar/administrar.component').then(m => m.AdministrarServiciosComponent),
+        canActivate: [authGuard]  // Solo para usuarios autenticados como ADMIN
+      }
+    ]
+  },
   {
     path: '**',
     redirectTo: '/dashboard'

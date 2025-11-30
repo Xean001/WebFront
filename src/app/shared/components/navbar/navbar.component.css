@@ -87,6 +87,46 @@
   background-color: #e74c3c;
 }
 
+/* Admin Links */
+.admin-link {
+  color: #f39c12;
+}
+
+.admin-link:hover,
+.admin-link.active {
+  color: #e67e22;
+}
+
+.admin-link.active::after {
+  background-color: #e67e22;
+}
+
+/* Admin Section Label */
+.admin-section {
+  border-top: 1px solid #444;
+  padding-top: 15px;
+  margin-top: 15px;
+}
+
+.admin-label {
+  color: #f39c12;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
+  padding: 5px 0;
+}
+
+/* Divider */
+.nav-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #444;
+  margin: 10px 0;
+  display: none;
+}
+
 /* User Actions */
 .navbar-actions {
   display: flex;
@@ -114,10 +154,20 @@
   background-color: #c0392b;
 }
 
+.btn-register {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-register:hover {
+  background-color: #2980b9;
+}
+
 .btn-logout {
   background-color: transparent;
   color: #e74c3c;
   border: 2px solid #e74c3c;
+  padding: 6px 14px;
 }
 
 .btn-logout:hover {
@@ -128,12 +178,45 @@
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .user-name {
   color: #fff;
   font-size: 14px;
+  font-weight: 600;
+}
+
+.user-role {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-admin,
+.role-super_admin {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.role-cliente {
+  background-color: #3498db;
+  color: white;
+}
+
+.role-barbero {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.role-recepcionista {
+  background-color: #f39c12;
+  color: white;
 }
 
 /* Mobile Menu Toggle */
@@ -187,14 +270,15 @@
   }
 
   .navbar-menu.active {
-    max-height: 500px;
+    max-height: 800px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
 
   .navbar-nav {
     flex-direction: column;
     width: 100%;
     gap: 0;
-    padding: 20px 0;
+    padding: 10px 0;
   }
 
   .nav-item {
@@ -215,6 +299,37 @@
     background-color: #e74c3c;
   }
 
+  .admin-link {
+    background-color: rgba(243, 156, 18, 0.15);
+    color: #f39c12;
+    padding-left: 30px;
+  }
+
+  .admin-link:hover {
+    background-color: rgba(243, 156, 18, 0.25);
+  }
+
+  .admin-link.active {
+    background-color: #f39c12;
+    color: white;
+  }
+
+  .admin-section {
+    background-color: rgba(244, 208, 63, 0.1);
+    margin: 10px 0;
+    padding: 12px 20px;
+    border: none;
+  }
+
+  .admin-label {
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-divider {
+    display: block;
+  }
+
   .navbar-toggle {
     display: flex;
   }
@@ -222,13 +337,36 @@
   .navbar-actions {
     flex-direction: column;
     width: 100%;
-    padding: 20px;
-    gap: 10px;
+    padding: 15px 20px;
+    gap: 8px;
+    border-top: 1px solid #333;
   }
 
   .btn {
     width: 100%;
     text-align: center;
+    padding: 10px 16px;
+  }
+
+  .user-profile {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .user-name {
+    width: 100%;
+  }
+
+  .user-role {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-logout {
+    width: 100%;
   }
 
   .brand-name {
@@ -253,5 +391,23 @@
 
   .navbar-menu {
     top: 50px;
+  }
+
+  .navbar-menu.active {
+    max-height: 600px;
+  }
+
+  .nav-link {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+
+  .admin-link {
+    padding-left: 25px;
+    font-size: 13px;
+  }
+
+  .btn {
+    font-size: 13px;
   }
 }
