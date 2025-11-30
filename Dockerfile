@@ -30,7 +30,8 @@ LABEL version="1.0"
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copiar los archivos compilados del stage anterior
-COPY --from=builder /app/dist/web-front /usr/share/nginx/html
+# El nombre del proyecto es "proyecto-final-web" según angular.json/package.json
+COPY --from=builder /app/dist/proyecto-final-web/browser /usr/share/nginx/html
 
 # Exponer puerto
 EXPOSE 80

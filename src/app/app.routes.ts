@@ -56,27 +56,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/pagos-solicitudes/pagos-solicitudes.component').then(m => m.PagosSolicitudesComponent),
     canActivate: [superAdminGuard]  // Solo para SUPER_ADMIN
   },
-  // Rutas SUPER_ADMIN - Comentadas temporalmente hasta crear los componentes
-  // {
-  //   path: 'super-admin/dashboard',
-  //   loadComponent: () => import('./features/super-admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
-  //   canActivate: [superAdminGuard]
-  // },
-  // {
-  //   path: 'super-admin/usuarios',
-  //   loadComponent: () => import('./features/super-admin/usuarios/usuarios.component').then(m => m.UsuariosComponent),
-  //   canActivate: [superAdminGuard]
-  // },
-  // {
-  //   path: 'super-admin/barberias',
-  //   loadComponent: () => import('./features/super-admin/barberias/barberias.component').then(m => m.BarberiasListComponent),
-  //   canActivate: [superAdminGuard]
-  // },
-  // {
-  //   path: 'super-admin/reportes',
-  //   loadComponent: () => import('./features/super-admin/reportes/reportes.component').then(m => m.ReportesComponent),
-  //   canActivate: [superAdminGuard]
-  // },
+  // Rutas SUPER_ADMIN - Dashboard del sistema
+  {
+    path: 'super-admin/dashboard',
+    loadComponent: () => import('./features/super-admin/dashboard/super-admin-dashboard.component').then(m => m.SuperAdminDashboardComponent),
+    canActivate: [superAdminGuard]
+  },
   {
     path: 'auth/forgot-password',
     loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)

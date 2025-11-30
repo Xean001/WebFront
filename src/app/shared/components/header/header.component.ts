@@ -68,4 +68,11 @@ export class HeaderComponent implements OnInit {
   isAdmin(): boolean {
     return this.hasRole(this.ROLES.ADMIN) || this.hasRole(this.ROLES.SUPER_ADMIN) || this.hasRole(this.ROLES.RECEPCIONISTA);
   }
+
+  /**
+   * Verificar si es SUPER_ADMIN (rol exclusivo del sistema)
+   */
+  isSuperAdmin(): boolean {
+    return this.hasRole(this.ROLES.SUPER_ADMIN);
+  }
 }

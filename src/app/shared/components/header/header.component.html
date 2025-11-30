@@ -33,6 +33,12 @@
       <!-- Servicios: solo admin -->
       <a *ngIf="isAdmin()" routerLink="/servicios/administrar" class="nav-link">Servicios</a>
       
+      <!-- 👑 SUPER_ADMIN: Panel exclusivo del sistema -->
+      <a *ngIf="isSuperAdmin()" routerLink="/super-admin/dashboard" class="nav-link super-admin-link">👑 Panel Admin</a>
+      
+      <!-- 👑 SUPER_ADMIN: Solicitudes de pago -->
+      <a *ngIf="isSuperAdmin()" routerLink="/auth/pagos-solicitudes" class="nav-link super-admin-link">💳 Pagos</a>
+      
       <!-- Perfil: solo para autenticados -->
       <a *ngIf="currentUser" routerLink="/users/profile" class="nav-link">Perfil</a>
     </nav>

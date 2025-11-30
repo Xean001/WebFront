@@ -274,6 +274,29 @@
   transform: translateY(0);
 }
 
+/* 👑 SUPER_ADMIN - Enlaces especiales dorados */
+.super-admin-link {
+  color: #ffd700 !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 193, 7, 0.1) 100%);
+  padding: 0.4rem 0.8rem !important;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.super-admin-link:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 193, 7, 0.25) 100%);
+  border-color: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  color: #fff8dc !important;
+}
+
+.super-admin-link::after {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
