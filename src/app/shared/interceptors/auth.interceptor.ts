@@ -6,6 +6,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
+  console.log('🔐 AuthInterceptor - URL:', req.url);
+  console.log('🔑 Token disponible:', token ? 'SÍ' : 'NO');
+
   // Endpoints que NO requieren autenticación (públicos)
   // Solo incluir endpoints que definitivamente son públicos
   const endpointsPublicos = [
@@ -19,9 +22,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Verificar si es un endpoint público
   const esPublico = endpointsPublicos.some(endpoint => req.url.includes(endpoint));
+  console.log('🌍 Es público?', esPublico);
 
   // Si tiene token y no es un endpoint público, agregar el token
   if (token && !esPublico) {
+    console.log('✅ Agregando token Authorization a la petición');
     const clonedRequest = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -30,5 +35,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(clonedRequest);
   }
 
+  console.log('⚠️ NO se agregó token (público o sin token)');
   return next(req);
 };
