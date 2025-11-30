@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { HorariosService, HorarioBarberiaRequest, LocalTime } from '../../../shared/services/horarios.service';
 import { BarberiaService } from '../../../shared/services/barberias.service';
 
 @Component({
   selector: 'app-administrar-horarios',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './administrar.component.html',
   styleUrl: './administrar.component.css'
 })
@@ -225,5 +226,11 @@ export class AdministrarHorariosComponent implements OnInit {
 
   get campoHoraCierre() {
     return this.formulario.get('horaCierre');
+  }
+
+  // Método para formatear hora desde LocalTime
+  formatearHora(hora: any): string {
+    if (!hora) return '--:--';
+    return `${String(hora.hour || 0).padStart(2, '0')}:${String(hora.minute || 0).padStart(2, '0')}`;
   }
 }

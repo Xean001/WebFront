@@ -119,8 +119,8 @@
         <tbody>
           <tr *ngFor="let horario of horariosFiltrados">
             <td class="fw-bold">{{ getNombreDia(horario.diaSemana) }}</td>
-            <td>{{ String(horario.horaInicio?.hour || 0).padStart(2, '0') }}:{{ String(horario.horaInicio?.minute || 0).padStart(2, '0') }}</td>
-            <td>{{ String(horario.horaFin?.hour || 0).padStart(2, '0') }}:{{ String(horario.horaFin?.minute || 0).padStart(2, '0') }}</td>
+            <td>{{ formatearHora(horario.horaInicio) }}</td>
+            <td>{{ formatearHora(horario.horaFin) }}</td>
             <td>
               <span class="badge bg-danger" *ngIf="horario.cerrado">Cerrado</span>
               <span class="badge bg-success" *ngIf="!horario.cerrado">Abierto</span>
@@ -152,11 +152,11 @@
             <div class="row text-sm mb-3">
               <div class="col-6">
                 <span class="text-muted small d-block">Apertura</span>
-                <strong>{{ String(horario.horaInicio?.hour || 0).padStart(2, '0') }}:{{ String(horario.horaInicio?.minute || 0).padStart(2, '0') }}</strong>
+                <strong>{{ formatearHora(horario.horaInicio) }}</strong>
               </div>
               <div class="col-6">
                 <span class="text-muted small d-block">Cierre</span>
-                <strong>{{ String(horario.horaFin?.hour || 0).padStart(2, '0') }}:{{ String(horario.horaFin?.minute || 0).padStart(2, '0') }}</strong>
+                <strong>{{ formatearHora(horario.horaFin) }}</strong>
               </div>
             </div>
             <button class="btn btn-sm btn-primary w-100" (click)="editarHorario(horario)">

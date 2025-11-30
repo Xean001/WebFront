@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ServiciosService, Servicio } from '../../../shared/services/servicios.service';
 import { BarberiaService } from '../../../shared/services/barberias.service';
 
 @Component({
   selector: 'app-administrar-servicios',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './administrar.component.html',
   styleUrl: './administrar.component.css'
 })
@@ -262,4 +263,7 @@ export class AdministrarServiciosComponent implements OnInit {
   get campoCategoria() {
     return this.formulario.get('categoria');
   }
+
+  // Getter para String en el template
+  String = String;
 }
