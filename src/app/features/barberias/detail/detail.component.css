@@ -393,6 +393,131 @@
   border-color: rgba(255, 255, 255, 0.3);
 }
 
+.btn-favorite.is-favorite {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
+.btn-favorite.is-favorite:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
+.btn-favorite:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   VALORACIONES / REVIEWS
+   ============================================ */
+
+.no-reviews {
+  padding: 2rem;
+  text-align: center;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.review-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.review-user-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.review-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.review-user-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+}
+
+.review-stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.review-star {
+  font-size: 1rem;
+  filter: grayscale(100%);
+  opacity: 0.3;
+  transition: all 0.2s ease;
+}
+
+.review-star.filled {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+.review-date {
+  font-size: 0.85rem;
+  color: #b0b0b0;
+}
+
+.review-comment {
+  color: #e0e0e0;
+  line-height: 1.6;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.review-response {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+
+.response-header {
+  margin-bottom: 0.5rem;
+}
+
+.response-header strong {
+  color: #3b82f6;
+  font-size: 0.9rem;
+}
+
+.review-response p {
+  color: #d0d0d0;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 /* ============================================
    LOADING STATE
    ============================================ */

@@ -264,6 +264,62 @@
   font-weight: 600;
 }
 
+.status-badge.with-favorite {
+  left: 60px; /* Mover a la derecha cuando hay botón de favorito */
+}
+
+/* Favorite Button */
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #ffffff;
+  z-index: 10;
+}
+
+.favorite-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+.favorite-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.favorite-btn.is-favorite {
+  background: rgba(239, 68, 68, 0.9);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
+.favorite-btn.is-favorite:hover {
+  background: rgba(239, 68, 68, 1);
+  border-color: rgba(239, 68, 68, 0.8);
+}
+
+.favorite-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.favorite-btn:disabled:hover {
+  transform: none;
+}
+
 /* Content */
 .barberia-content {
   flex: 1;

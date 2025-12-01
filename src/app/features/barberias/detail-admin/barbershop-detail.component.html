@@ -157,6 +157,52 @@
           <textarea formControlName="descripcion" class="form-textarea" rows="3"></textarea>
         </div>
 
+        <!-- Foto de Portada -->
+        <div class="form-group">
+          <label>Foto de Portada</label>
+          <div class="image-upload-container">
+            <div class="image-preview" *ngIf="fotoPortadaPreview || barbershop.fotoPortadaUrl">
+              <img [src]="fotoPortadaPreview || barbershop.fotoPortadaUrl" alt="Portada">
+              <button type="button" class="btn-remove-image" (click)="eliminarImagen('portada')">
+                ✕
+              </button>
+            </div>
+            <div class="upload-placeholder" *ngIf="!fotoPortadaPreview && !barbershop.fotoPortadaUrl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <p>Foto de portada</p>
+            </div>
+            <input type="file" accept="image/*" (change)="onFileSelected($event, 'portada')" class="file-input">
+          </div>
+          <small class="form-help">Tamaño recomendado: 1200x400px. Máximo 5MB</small>
+        </div>
+
+        <!-- Logo -->
+        <div class="form-group">
+          <label>Logo</label>
+          <div class="image-upload-container logo-upload">
+            <div class="image-preview logo-preview" *ngIf="logoPreview || barbershop.logoUrl">
+              <img [src]="logoPreview || barbershop.logoUrl" alt="Logo">
+              <button type="button" class="btn-remove-image" (click)="eliminarImagen('logo')">
+                ✕
+              </button>
+            </div>
+            <div class="upload-placeholder logo-placeholder" *ngIf="!logoPreview && !barbershop.logoUrl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <p>Logo</p>
+            </div>
+            <input type="file" accept="image/*" (change)="onFileSelected($event, 'logo')" class="file-input">
+          </div>
+          <small class="form-help">Tamaño recomendado: 200x200px. Máximo 5MB</small>
+        </div>
+
         <div class="form-group checkbox">
           <input type="checkbox" formControlName="aceptaReservasOnline" id="aceptaReservas">
           <label for="aceptaReservas">Acepta reservas online</label>
