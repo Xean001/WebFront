@@ -119,16 +119,21 @@
           </div>
 
           <div *ngFor="let barbero of barberos" class="barber-item">
-            <img [src]="barbero.urlFoto || 'assets/images/avatar-default.jpg'" 
-                 alt="{{ barbero.usuario.nombre }}"
-                 class="barber-image">
+            <img [src]="barbero.usuario?.fotoUrl || 'assets/images/avatar-default.jpg'" 
+                 alt="{{ barbero.usuario?.nombre || 'Barbero' }}"
+                 class="barber-image"
+                 onerror="this.src='https://via.placeholder.com/60?text=👤'">
             <div class="barber-info">
-              <p class="barber-name">{{ barbero.usuario.nombre }}</p>
-              <div class="barber-rating">
+              <p class="barber-name">{{ barbero.usuario?.nombre }} {{ barbero.usuario?.apellido }}</p>
+              <p class="barber-specialty" *ngIf="barbero.especialidad">{{ barbero.especialidad }}</p>
+              <div class="barber-rating" *ngIf="barbero.valoracionPromedio && barbero.valoracionPromedio > 0">
                 <span>⭐</span>
-                <span>{{ barbero.calificacion | number:'1.1-1' }}</span>
+                <span>{{ barbero.valoracionPromedio | number:'1.1-1' }}</span>
+                <span class="barber-reviews">({{ barbero.totalValoraciones }} opiniones)</span>
               </div>
-              <span class="barber-citas">{{ barbero.totalCitas }} citas</span>
+              <span class="barber-citas" *ngIf="barbero.totalServiciosCompletados">
+                {{ barbero.totalServiciosCompletados }} servicios completados
+              </span>
             </div>
           </div>
         </div>

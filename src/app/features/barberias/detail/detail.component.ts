@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BarberiaService } from '../../../shared/services/barberias.service';
 import { ServiciosService } from '../../../shared/services/servicios.service';
-import { BarberoPerfilService } from '../../../shared/services/barbero-perfil.service';
+import { PersonalService } from '../../../shared/services/personal.service';
 
 @Component({
   selector: 'app-detalle-barberia',
@@ -24,7 +24,7 @@ export class DetalleBarberiasComponent implements OnInit {
     private router: Router,
     private barberiaService: BarberiaService,
     private serviciosService: ServiciosService,
-    private barberoPerfilService: BarberoPerfilService
+    private personalService: PersonalService
   ) { }
 
   ngOnInit(): void {
@@ -65,13 +65,22 @@ export class DetalleBarberiasComponent implements OnInit {
   }
 
   cargarBarberos(): void {
-    // Este endpoint necesitaría ser creado en el backend
-    // Por ahora dejamos un array vacío
-    this.cargando = false;
-    this.barberos = [];
+    this.personalService.obtenerBarberosPorBarberia(this.idBarberia).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.barberos = response.data.filter((b: any) => b.activo);
+          console.log('Barberos cargados:', this.barberos);
+        }
+        this.cargando = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar barberos:', error);
+        this.cargando = false;
+      }
+    });
   }
 
   irAReservar(): void {
-    this.router.navigate(['/citas/crear'], { queryParams: { barberia: this.idBarberia } });
+    this.router.navigate(['/appointments/create'], { queryParams: { barberia: this.idBarberia } });
   }
 }

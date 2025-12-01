@@ -41,12 +41,12 @@ export class PersonalService {
     return this.http.post(`${this.apiUrl}/barbero`, request);
   }
 
-  listarPersonalBarberia(idBarberia: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/barberia/${idBarberia}`);
-  }
-
   obtenerBarberosPorBarberia(idBarberia: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/barberos/${idBarberia}`);
+  }
+
+  listarPersonalBarberia(idBarberia: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/barberia/${idBarberia}`);
   }
 
   eliminarPersonal(idPermiso: number): Observable<any> {

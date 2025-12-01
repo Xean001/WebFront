@@ -294,7 +294,15 @@
   font-size: 1rem;
   font-weight: 700;
   color: #ffffff;
-  margin: 0.5rem 0;
+  margin: 0.5rem 0 0.25rem 0;
+}
+
+.barbero-specialty {
+  font-size: 0.85rem;
+  color: #a3a3a3;
+  margin: 0 0 0.5rem 0;
+  font-style: italic;
+  text-align: center;
 }
 
 .barbero-rating {
@@ -313,6 +321,11 @@
   color: #fde047;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.rating-count {
+  color: #a3a3a3;
+  font-size: 0.8rem;
 }
 
 .barbero-citas {
@@ -342,6 +355,89 @@
   text-align: center;
   padding: 2rem;
   color: #b0b0b0;
+}
+
+/* ============================================
+   HORARIOS DISPONIBLES
+   ============================================ */
+
+.horarios-section {
+  margin-top: 2rem;
+}
+
+.loading-horarios {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: #a3a3a3;
+}
+
+.spinner-small {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.no-horarios {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 200, 0, 0.1);
+  border: 1px solid rgba(255, 200, 0, 0.3);
+  border-radius: 12px;
+  color: #fbbf24;
+}
+
+.no-horarios p {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.no-horarios small {
+  color: #a3a3a3;
+}
+
+.horarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.horario-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.horario-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+}
+
+.horario-btn.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.horario-icon {
+  font-size: 1.5rem;
 }
 
 /* ============================================

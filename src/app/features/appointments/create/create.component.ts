@@ -5,7 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CitasService } from '../../../shared/services/citas.service';
 import { BarberiaService } from '../../../shared/services/barberias.service';
 import { ServiciosService } from '../../../shared/services/servicios.service';
-import { BarberoPerfilService } from '../../../shared/services/barbero-perfil.service';
+import { PersonalService } from '../../../shared/services/personal.service';
+import { HorariosService } from '../../../shared/services/horarios.service';
 
 @Component({
   selector: 'app-create',
@@ -19,9 +20,12 @@ export class CreateComponent implements OnInit {
   barberias: any[] = [];
   servicios: any[] = [];
   barberos: any[] = [];
+  horariosDisponibles: string[] = [];
   barberiaSeleccionada: any = null;
   servicioSeleccionado: any = null;
+  barberoSeleccionado: any = null;
   guardando: boolean = false;
+  cargandoHorarios: boolean = false;
   currentStep: number = 1;
 
   constructor(
@@ -29,7 +33,8 @@ export class CreateComponent implements OnInit {
     private citasService: CitasService,
     private barberiaService: BarberiaService,
     private serviciosService: ServiciosService,
-    private barberoPerfilService: BarberoPerfilService,
+    private personalService: PersonalService,
+    private horariosService: HorariosService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -92,6 +97,19 @@ export class CreateComponent implements OnInit {
       }
     });
 
+    // Cargar barberos de la barbería
+    this.personalService.obtenerBarberosPorBarberia(idBarberia).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.barberos = response.data.filter((b: any) => b.activo && b.aceptaReservas);
+          console.log('Barberos cargados:', this.barberos);
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar barberos:', error);
+      }
+    });
+
     // Limpiar selecciones previas
     this.formularioCita.patchValue({
       idServicio: '',
@@ -111,6 +129,55 @@ export class CreateComponent implements OnInit {
 
   seleccionarBarbero(idBarbero: number): void {
     this.formularioCita.patchValue({ idBarbero: idBarbero });
+    this.barberoSeleccionado = this.barberos.find(b => b.idBarbero === idBarbero);
+  }
+
+  onFechaChange(): void {
+    const fecha = this.formularioCita.get('fechaCita')?.value;
+    const idBarbero = this.formularioCita.get('idBarbero')?.value;
+
+    if (fecha && idBarbero) {
+      this.cargarHorariosDisponibles(idBarbero, fecha);
+    }
+  }
+
+  cargarHorariosDisponibles(idBarbero: number, fecha: string): void {
+    this.cargandoHorarios = true;
+    this.horariosDisponibles = [];
+
+    this.horariosService.verificarDisponibilidad(idBarbero, fecha).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          // Generar slots de horarios disponibles
+          this.generarSlotsHorarios(response.data);
+        }
+        this.cargandoHorarios = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar horarios:', error);
+        this.cargandoHorarios = false;
+      }
+    });
+  }
+
+  generarSlotsHorarios(disponibilidad: any): void {
+    // Aquí deberías procesar la respuesta del backend
+    // Por ahora genero horarios de ejemplo cada 30 minutos
+    const horarios: string[] = [];
+    const horaInicio = 9;
+    const horaFin = 20;
+    
+    for (let hora = horaInicio; hora < horaFin; hora++) {
+      horarios.push(`${hora.toString().padStart(2, '0')}:00`);
+      horarios.push(`${hora.toString().padStart(2, '0')}:30`);
+    }
+    
+    this.horariosDisponibles = horarios;
+  }
+
+  getMinDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   }
 
   guardarCita(): void {

@@ -301,7 +301,14 @@
   font-size: 1rem;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 0.25rem;
+  margin: 0 0 0.25rem 0;
+}
+
+.barber-specialty {
+  font-size: 0.85rem;
+  color: #a3a3a3;
+  margin: 0 0 0.5rem 0;
+  font-style: italic;
 }
 
 .barber-rating {
@@ -311,6 +318,11 @@
   font-size: 0.9rem;
   color: #fde047;
   margin-bottom: 0.5rem;
+}
+
+.barber-reviews {
+  color: #a3a3a3;
+  font-size: 0.85rem;
 }
 
 .barber-citas {
