@@ -50,7 +50,7 @@
               <div class="service-info">
                 <h3 class="service-title">{{ servicio?.nombre }}</h3>
                 <p class="service-description">{{ servicio?.descripcion }}</p>
-                <button class="service-book-btn">Reservar ahora</button>
+                <button class="service-book-btn" routerLink="/appointments/create">Reservar ahora</button>
               </div>
             </div>
           </div>
@@ -86,7 +86,7 @@
       <div class="barberias-grid">
         <div *ngFor="let barberia of barberias" class="barberia-card">
           <div class="barberia-image">
-            <img [src]="barberia.imagen" [alt]="barberia.nombre">
+            <img [src]="barberia.imagen" [alt]="barberia.nombre" (error)="onImageError($event)">
             <div class="barberia-badge">
               <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -146,7 +146,7 @@
       
       <div class="barberos-grid">
         <div *ngFor="let barbero of barberoDestacados" class="barbero-card">
-          <img [src]="barbero.imagen" [alt]="barbero.nombre" class="barbero-image">
+          <img [src]="barbero.imagen" [alt]="barbero.nombre" class="barbero-image" (error)="onImageError($event)">
           
           <div class="barbero-info">
             <h3 class="barbero-name">{{ barbero.nombre }}</h3>

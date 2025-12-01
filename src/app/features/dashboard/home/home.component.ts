@@ -4,6 +4,8 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, AuthResponse } from '../../../shared/services/auth.service';
 import { ServiciosService } from '../../../shared/services/servicios.service';
+import { BarberiaService, BarberiaDTO } from '../../../shared/services/barberias.service';
+import { PersonalService } from '../../../shared/services/personal.service';
 import { Observable } from 'rxjs';
 
 interface Barberia {
@@ -40,10 +42,16 @@ export class HomeComponent implements OnInit {
   isAuthenticated: boolean = false;
   serviciosPopulares: any[] = [];
   cargandoServicios: boolean = false;
+  barberias: any[] = [];
+  barberoDestacados: any[] = [];
+  cargandoBarberias: boolean = false;
+  cargandoBarberos: boolean = false;
 
   constructor(
     public authService: AuthService,
-    private serviciosService: ServiciosService
+    private serviciosService: ServiciosService,
+    private barberíasService: BarberiaService,
+    private personalService: PersonalService
   ) {
     this.currentUser$ = this.authService.currentUser$;
   }
@@ -55,111 +63,69 @@ export class HomeComponent implements OnInit {
       this.isAuthenticated = !!user;
     });
     
-    // Cargar servicios más populares
+    // Cargar datos
     this.cargarServiciosPopulares();
+    this.cargarBarberias();
+    this.cargarBarberos();
   }
   
-  barberias: Barberia[] = [
-    {
-      id: 1,
-      nombre: 'Barbería Los Patrones',
-      direccion: 'Av. Central 123, Centro',
-      imagen: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400',
-      calificacion: 4.8,
-      totalResenas: 156,
-      servicios: ['Corte de cabello', 'Barba', 'Afeitado'],
-      precioDesde: 85
-    },
-    {
-      id: 2,
-      nombre: 'Elite Barber Shop',
-      direccion: 'Calle Los Olivos 456',
-      imagen: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400',
-      calificacion: 4.9,
-      totalResenas: 203,
-      servicios: ['Corte moderno', 'Barba premium', 'Color'],
-      precioDesde: 102
-    },
-    {
-      id: 3,
-      nombre: 'Classic Style Barber',
-      direccion: 'Jr. Independencia 789',
-      imagen: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400',
-      calificacion: 4.7,
-      totalResenas: 98,
-      servicios: ['Corte clásico', 'Barba tradicional', 'Afeitado navaja'],
-      precioDesde: 68
-    },
-    {
-      id: 4,
-      nombre: 'Urban Cuts Studio',
-      direccion: 'Av. Principal 321',
-      imagen: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400',
-      calificacion: 4.9,
-      totalResenas: 187,
-      servicios: ['Corte fade', 'Diseño', 'Perfilado'],
-      precioDesde: 119
-    },
-    {
-      id: 5,
-      nombre: 'Gentleman\'s Cut',
-      direccion: 'Calle Real 567',
-      imagen: 'https://images.unsplash.com/photo-1622296089863-eb7fc530daa8?w=400',
-      calificacion: 4.8,
-      totalResenas: 142,
-      servicios: ['Corte ejecutivo', 'Barba premium', 'Masaje'],
-      precioDesde: 136
-    },
-    {
-      id: 6,
-      nombre: 'Fresh Cuts Barber',
-      direccion: 'Av. Los Pinos 890',
-      imagen: 'https://images.unsplash.com/photo-1620331311520-246422fd82f9?w=400',
-      calificacion: 4.6,
-      totalResenas: 76,
-      servicios: ['Corte juvenil', 'Barba express', 'Tinte'],
-      precioDesde: 75
-    }
-  ];
+  cargarBarberias(): void {
+    this.cargandoBarberias = true;
+    console.log('🏪 Cargando barberías...');
+    this.barberíasService.obtenerBarberiasActivas().subscribe({
+      next: (response: any) => {
+        console.log('📦 Respuesta barberías:', response);
+        if (response.success && response.data && response.data.length > 0) {
+          this.barberias = response.data.map((barberia: BarberiaDTO) => ({
+            id: barberia.idBarberia,
+            nombre: barberia.nombre,
+            direccion: barberia.direccion + (barberia.ciudad ? ', ' + barberia.ciudad : ''),
+            imagen: this.obtenerUrlImagenBarberia(barberia.fotoPortadaUrl),
+            calificacion: 4.5, // Por ahora fijo, luego desde backend
+            totalResenas: 0,
+            servicios: [],
+            precioDesde: 50
+          }));
+          console.log('✨ Barberías cargadas:', this.barberias.length);
+        }
+        this.cargandoBarberias = false;
+      },
+      error: (error: any) => {
+        console.error('❌ Error al cargar barberías:', error);
+        this.barberias = [];
+        this.cargandoBarberias = false;
+      }
+    });
+  }
 
-  barberoDestacados: Barbero[] = [
-    {
-      id: 1,
-      nombre: 'Carlos Rodríguez',
-      especialidad: 'Cortes modernos y fade',
-      barberia: 'Barbería Los Patrones',
-      imagen: 'https://i.pravatar.cc/300?img=12',
-      calificacion: 4.9,
-      totalCortes: 1250
-    },
-    {
-      id: 2,
-      nombre: 'Miguel Sánchez',
-      especialidad: 'Barba y diseño',
-      barberia: 'Elite Barber Shop',
-      imagen: 'https://i.pravatar.cc/300?img=13',
-      calificacion: 4.8,
-      totalCortes: 980
-    },
-    {
-      id: 3,
-      nombre: 'David López',
-      especialidad: 'Cortes clásicos',
-      barberia: 'Classic Style Barber',
-      imagen: 'https://i.pravatar.cc/300?img=15',
-      calificacion: 4.9,
-      totalCortes: 1150
-    },
-    {
-      id: 4,
-      nombre: 'Luis Torres',
-      especialidad: 'Fade y degradado',
-      barberia: 'Urban Cuts Studio',
-      imagen: 'https://i.pravatar.cc/300?img=33',
-      calificacion: 4.7,
-      totalCortes: 890
-    }
-  ];
+  cargarBarberos(): void {
+    this.cargandoBarberos = true;
+    console.log('💈 Cargando barberos...');
+    this.personalService.obtenerTodosBarberos().subscribe({
+      next: (response: any) => {
+        console.log('📦 Respuesta barberos:', response);
+        if (response.success && response.data && response.data.length > 0) {
+          // Limitar a los primeros 4 barberos
+          this.barberoDestacados = response.data.slice(0, 4).map((barbero: any) => ({
+            id: barbero.idPerfil,
+            nombre: barbero.usuario?.nombre || 'Barbero',
+            especialidad: barbero.especialidad || 'Especialista',
+            barberia: '', // Se puede cargar después
+            imagen: this.obtenerUrlImagenBarbero(barbero.idPerfil),
+            calificacion: barbero.calificacionPromedio || 4.5,
+            totalCortes: 0
+          }));
+          console.log('✨ Barberos destacados cargados:', this.barberoDestacados.length);
+        }
+        this.cargandoBarberos = false;
+      },
+      error: (error: any) => {
+        console.error('❌ Error al cargar barberos:', error);
+        this.barberoDestacados = [];
+        this.cargandoBarberos = false;
+      }
+    });
+  }
 
   cargarServiciosPopulares(): void {
     this.cargandoServicios = true;
@@ -302,6 +268,23 @@ export class HomeComponent implements OnInit {
     if (fotoUrl.startsWith('/api/')) return baseUrl + fotoUrl;
     
     return defaultImage;
+  }
+
+  obtenerUrlImagenBarberia(fotoUrl: string | null | undefined): string {
+    const baseUrl = 'https://api.fadely.me';
+    const defaultImage = 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400';
+    
+    if (!fotoUrl) return defaultImage;
+    if (fotoUrl.startsWith('http')) return fotoUrl;
+    if (fotoUrl.startsWith('data:')) return fotoUrl;
+    if (fotoUrl.startsWith('/api/')) return baseUrl + fotoUrl;
+    
+    return defaultImage;
+  }
+
+  obtenerUrlImagenBarbero(idBarbero: number): string {
+    const baseUrl = 'https://api.fadely.me';
+    return `${baseUrl}/api/uploads/barberos/${idBarbero}.jpg`;
   }
 
   onImageError(event: any): void {

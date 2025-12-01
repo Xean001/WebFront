@@ -1,72 +1,100 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { PersonalService } from '../../../shared/services/personal.service';
+import { BarberiaService } from '../../../shared/services/barberias.service';
 
 @Component({
   selector: 'app-list-barbers',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css'
 })
 export class ListBarbersComponent implements OnInit {
   barberos: any[] = [];
+  barberosFiltrados: any[] = [];
+  barberias: any[] = [];
   cargando: boolean = false;
   busqueda: string = '';
+  barberiaFiltro: string = '';
 
-  constructor() { }
+  constructor(
+    private personalService: PersonalService,
+    private barberiaService: BarberiaService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
+    this.cargarBarberias();
     this.cargarBarberos();
+  }
+
+  cargarBarberias(): void {
+    this.barberiaService.obtenerBarberiasDisponibles().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.barberias = response.data || [];
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar barberías:', error);
+      }
+    });
   }
 
   cargarBarberos(): void {
     this.cargando = true;
-    // Datos de prueba
-    setTimeout(() => {
-      this.barberos = [
-        {
-          id: 1,
-          nombre: 'Juan García',
-          especialidad: 'Barbería Clásica',
-          experiencia: 5,
-          calificacion: 4.8,
-          imagen: 'assets/barber1.jpg'
-        },
-        {
-          id: 2,
-          nombre: 'Carlos López',
-          especialidad: 'Cortes Modernos',
-          experiencia: 3,
-          calificacion: 4.5,
-          imagen: 'assets/barber2.jpg'
-        },
-        {
-          id: 3,
-          nombre: 'Miguel Rodríguez',
-          especialidad: 'Diseño y Barba',
-          experiencia: 7,
-          calificacion: 4.9,
-          imagen: 'assets/barber3.jpg'
+    this.personalService.obtenerTodosBarberos().subscribe({
+      next: (response) => {
+        console.log('Barberos recibidos:', response);
+        if (response.success) {
+          this.barberos = response.data || [];
+          this.aplicarFiltros();
         }
-      ];
-      this.cargando = false;
-    }, 500);
+        this.cargando = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar barberos:', error);
+        this.cargando = false;
+      }
+    });
+  }
+
+  aplicarFiltros(): void {
+    let resultado = [...this.barberos];
+
+    // Filtro por búsqueda de texto
+    if (this.busqueda.trim()) {
+      resultado = resultado.filter(b => 
+        b.usuario?.nombre?.toLowerCase().includes(this.busqueda.toLowerCase()) ||
+        b.especialidad?.toLowerCase().includes(this.busqueda.toLowerCase())
+      );
+    }
+
+    // Filtro por barbería
+    if (this.barberiaFiltro) {
+      resultado = resultado.filter(b => b.idBarberia?.toString() === this.barberiaFiltro);
+    }
+
+    this.barberosFiltrados = resultado;
   }
 
   buscarBarberos(): void {
-    if (!this.busqueda.trim()) {
-      this.cargarBarberos();
-      return;
-    }
+    this.aplicarFiltros();
+  }
 
-    this.cargando = true;
-    setTimeout(() => {
-      this.barberos = this.barberos.filter(b => 
-        b.nombre.toLowerCase().includes(this.busqueda.toLowerCase()) ||
-        b.especialidad.toLowerCase().includes(this.busqueda.toLowerCase())
-      );
-      this.cargando = false;
-    }, 300);
+  filtrarPorBarberia(): void {
+    this.aplicarFiltros();
+  }
+
+  verPerfil(idBarbero: number): void {
+    this.router.navigate(['/barbers/detail', idBarbero]);
+  }
+
+  getNombreBarberia(idBarberia: number): string {
+    const barberia = this.barberias.find(b => b.idBarberia === idBarberia);
+    return barberia?.nombre || 'Barbería';
   }
 }

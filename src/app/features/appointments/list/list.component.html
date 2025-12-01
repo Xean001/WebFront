@@ -78,7 +78,7 @@
 
           <!-- Card Header -->
           <div class="card-header">
-            <h3 class="barberia-name">{{ cita.barberia.nombre }}</h3>
+            <h3 class="barberia-name">{{ cita.nombreBarberia }}</h3>
             <div class="reservation-code">ID: {{ cita.codigoReserva }}</div>
           </div>
 
@@ -95,7 +95,7 @@
                 </svg>
                 <div>
                   <div class="detail-label">Fecha</div>
-                  <div class="detail-value">{{ cita.fechaCita | date:'dd MMMM' }}</div>
+                  <div class="detail-value">{{ cita.fecha | date:'dd/MM/yyyy' }}</div>
                 </div>
               </div>
               <div class="detail-item">
@@ -104,8 +104,8 @@
                   <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
                 <div>
-                  <div class="detail-label">Hora</div>
-                  <div class="detail-value">{{ cita.horaCita }}</div>
+                  <div class="detail-label">Horario</div>
+                  <div class="detail-value">{{ cita.horaInicio }} - {{ cita.horaFin }}</div>
                 </div>
               </div>
             </div>
@@ -119,7 +119,8 @@
                 </svg>
                 <div>
                   <div class="detail-label">Servicio</div>
-                  <div class="detail-value">{{ cita.servicio.nombre }}</div>
+                  <div class="detail-value">{{ cita.nombreServicio }}</div>
+                  <small style="color: #999; font-size: 0.85rem;" *ngIf="cita.duracionMinutos">({{ cita.duracionMinutos }} min)</small>
                 </div>
               </div>
               <div class="detail-item">
@@ -129,27 +130,36 @@
                 </svg>
                 <div>
                   <div class="detail-label">Barbero</div>
-                  <div class="detail-value">{{ cita.barbero.usuario.nombre }}</div>
+                  <div class="detail-value">{{ cita.nombreBarbero }}</div>
                 </div>
               </div>
             </div>
 
-            <!-- Location -->
-            <div class="detail-item full-width">
-              <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-              <div>
-                <div class="detail-label">Ubicación</div>
-                <div class="detail-value">{{ cita.barberia.direccion }}</div>
+            <!-- Price & Payment -->
+            <div class="detail-row" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #333;">
+              <div class="detail-item">
+                <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <div>
+                  <div class="detail-label">Precio</div>
+                  <div class="detail-value" style="color: #d4a574; font-weight: 700; font-size: 1.2rem;">S/ {{ cita.precio }}</div>
+                </div>
               </div>
-            </div>
-
-            <!-- Price -->
-            <div class="price-section">
-              <span class="price-label">Precio:</span>
-              <span class="price-value">${{ cita.precio }}</span>
+              <div class="detail-item" *ngIf="cita.depositoRequerido">
+                <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                  <line x1="2" y1="10" x2="22" y2="10"></line>
+                </svg>
+                <div>
+                  <div class="detail-label">Depósito</div>
+                  <div class="detail-value">S/ {{ cita.depositoRequerido }}</div>
+                  <small style="color: {{ cita.depositoPagado ? '#4caf50' : '#ff9800' }}; font-size: 0.85rem;">
+                    {{ cita.depositoPagado ? '✓ Pagado' : '⚠ Pendiente' }}
+                  </small>
+                </div>
+              </div>
             </div>
 
             <!-- Observations -->

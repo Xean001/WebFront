@@ -45,6 +45,10 @@ export class PersonalService {
     return this.http.get(`${this.apiUrl}/barberos/${idBarberia}`);
   }
 
+  obtenerTodosBarberos(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/barberos`);
+  }
+
   listarPersonalBarberia(idBarberia: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/barberia/${idBarberia}`);
   }

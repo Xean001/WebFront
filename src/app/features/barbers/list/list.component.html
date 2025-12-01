@@ -21,6 +21,22 @@
           >
           <button class="search-button" (click)="buscarBarberos()">Buscar</button>
         </div>
+        
+        <!-- Filtro por Barbería -->
+        <div class="filter-box">
+          <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <select 
+            [(ngModel)]="barberiaFiltro"
+            (change)="filtrarPorBarberia()"
+            class="filter-select">
+            <option value="">Todas las barberías</option>
+            <option *ngFor="let barberia of barberias" [value]="barberia.idBarberia">
+              {{ barberia.nombre }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
   </section>
@@ -34,38 +50,39 @@
   <!-- Barberos Grid -->
   <section class="barberos-section" *ngIf="!cargando">
     <div class="container">
-      <div class="barberos-grid" *ngIf="barberos.length > 0">
-        <div *ngFor="let barbero of barberos" class="barbero-card">
+      <div class="barberos-grid" *ngIf="barberosFiltrados.length > 0">
+        <div *ngFor="let barbero of barberosFiltrados" class="barbero-card">
           <div class="barbero-image">
-            <img [src]="'https://i.pravatar.cc/300?img=' + (barbero.id || 1)" 
-                 [alt]="barbero.nombre"
+            <img [src]="'https://i.pravatar.cc/300?img=' + (barbero.idPerfil || 1)" 
+                 [alt]="barbero.usuario?.nombre"
                  class="card-image">
-            <div class="barbero-badge">
+            <div class="barbero-badge" *ngIf="barbero.calificacionPromedio">
               <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
-              {{ barbero.calificacion }}
+              {{ barbero.calificacionPromedio || 4.8 }}
             </div>
           </div>
 
           <div class="barbero-content">
-            <h3 class="barbero-name">{{ barbero.nombre }}</h3>
-            <p class="barbero-especialidad">{{ barbero.especialidad }}</p>
+            <h3 class="barbero-name">{{ barbero.usuario?.nombre }}</h3>
+            <p class="barbero-especialidad">{{ barbero.especialidad || 'Barbero Profesional' }}</p>
+            <p class="barbero-barberia">{{ getNombreBarberia(barbero.idBarberia) }}</p>
             
             <div class="barbero-details">
-              <div class="detail-item">
+              <div class="detail-item" *ngIf="barbero.anosExperiencia">
                 <span class="detail-label">Experiencia:</span>
-                <span class="detail-value">{{ barbero.experiencia }}+ años</span>
+                <span class="detail-value">{{ barbero.anosExperiencia }}+ años</span>
               </div>
             </div>
 
-            <button class="reserve-btn">Ver Perfil</button>
+            <button class="reserve-btn" (click)="verPerfil(barbero.idPerfil)">Ver Perfil</button>
           </div>
         </div>
       </div>
 
       <!-- No Results -->
-      <div class="no-results" *ngIf="barberos.length === 0">
+      <div class="no-results" *ngIf="barberosFiltrados.length === 0">
         <div class="no-results-content">
           <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <circle cx="11" cy="11" r="8"/>
