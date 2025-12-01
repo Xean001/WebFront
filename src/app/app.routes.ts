@@ -83,6 +83,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/appointments/detail/detail.component').then(m => m.DetailComponent),
     canActivate: [authGuard]  // Solo para usuarios autenticados
   },
+  {
+    path: 'appointments/barbero-citas',
+    loadComponent: () => import('./features/appointments/barbero-citas/barbero-citas.component').then(m => m.BarberoCitasComponent),
+    canActivate: [authGuard]  // Solo para barberos autenticados
+  },
+
 
   // Rutas de barberías (públicas - clientes ven barberías + admin)
   {

@@ -71,4 +71,17 @@ export class CitasService {
   marcarComoCompletada(idCita: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${idCita}/completar`, {});
   }
+
+  // Métodos para barberos
+  obtenerMisCitasBarbero(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/mis-citas-barbero`);
+  }
+
+  obtenerMisCitasHoy(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/mis-citas-barbero/hoy`);
+  }
+
+  obtenerMisCitasPendientesBarbero(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/mis-citas-barbero/pendientes`);
+  }
 }

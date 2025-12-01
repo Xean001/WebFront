@@ -15,38 +15,38 @@
     </div>
 
     <nav class="navigation">
-      <!-- Enlaces disponibles para todos -->
-      <a routerLink="/dashboard" class="nav-link">Inicio</a>
+      <!-- Enlaces disponibles para todos EXCEPTO SUPER_ADMIN -->
+      <a *ngIf="!isSuperAdmin()" routerLink="/dashboard" class="nav-link">Inicio</a>
 
-      <!-- Barberías: disponible para todos (público) -->
-      <a *ngIf="!isBarbero()" routerLink="/barberias/list" class="nav-link">Barberías</a>
+      <!-- Barberías: disponible para todos (público) EXCEPTO SUPER_ADMIN -->
+      <a *ngIf="!isBarbero() && !isSuperAdmin()" routerLink="/barberias/list" class="nav-link">Barberías</a>
 
-      <!-- Barberos: disponible para todos (público) -->
-      <a *ngIf="!isBarbero()" routerLink="/barbers/list" class="nav-link">Barberos</a>
+      <!-- Barberos: disponible para todos (público) EXCEPTO SUPER_ADMIN -->
+      <a *ngIf="!isBarbero() && !isSuperAdmin()" routerLink="/barbers/list" class="nav-link">Barberos</a>
 
       <!-- Citas: solo clientes autenticados -->
       <a *ngIf="isCliente()" routerLink="/appointments/list" class="nav-link">Mis Citas</a>
 
-      <!-- Gestión de Barbería: solo admin/super_admin/recepcionista -->
-      <a *ngIf="isAdmin()" routerLink="/barberias/administrar" class="nav-link">Gestionar Barbería</a>
+      <!-- Gestión de Barbería: solo admin/recepcionista (NO SUPER_ADMIN) -->
+      <a *ngIf="isAdminSinSuperAdmin()" routerLink="/barberias/administrar" class="nav-link">Gestionar Barbería</a>
 
       <!-- Horarios: barberos gestionan sus propios horarios -->
       <a *ngIf="isBarbero()" routerLink="/horarios/gestionar" class="nav-link">Mis Horarios</a>
 
-      <!-- Horarios: admin administra horarios de barbería -->
-      <a *ngIf="isAdmin()" routerLink="/horarios/administrar" class="nav-link">Horarios</a>
+      <!-- Citas: barberos ven sus citas -->
+      <a *ngIf="isBarbero()" routerLink="/appointments/barbero-citas" class="nav-link">Mis Citas</a>
+      
+      <!-- Horarios: admin administra horarios de barbería (NO SUPER_ADMIN) -->
+      <a *ngIf="isAdminSinSuperAdmin()" routerLink="/horarios/administrar" class="nav-link">Horarios</a>
 
-      <!-- Servicios: solo admin -->
-      <a *ngIf="isAdmin()" routerLink="/servicios/administrar" class="nav-link">Servicios</a>
+      <!-- Servicios: solo admin (NO SUPER_ADMIN) -->
+      <a *ngIf="isAdminSinSuperAdmin()" routerLink="/servicios/administrar" class="nav-link">Servicios</a>
 
-      <!-- 👑 SUPER_ADMIN: Panel exclusivo del sistema -->
-      <a *ngIf="isSuperAdmin()" routerLink="/super-admin/dashboard" class="nav-link super-admin-link">👑 Panel Admin</a>
-
-      <!-- 👑 SUPER_ADMIN: Solicitudes de pago -->
+      <!-- 👑 SUPER_ADMIN: Solo Pagos -->
       <a *ngIf="isSuperAdmin()" routerLink="/auth/pagos-solicitudes" class="nav-link super-admin-link">💳 Pagos</a>
 
       <!-- Perfil: solo para autenticados -->
-      <a *ngIf="currentUser" routerLink="/users/profile" class="nav-link">Perfil</a>
+      <a *ngIf="currentUser && !isSuperAdmin()" routerLink="/users/profile" class="nav-link">Perfil</a>
     </nav>
 
     <div class="auth-section">

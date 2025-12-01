@@ -70,6 +70,13 @@ export class HeaderComponent implements OnInit {
   }
 
   /**
+   * Verificar si es admin/recepcionista pero NO super_admin
+   */
+  isAdminSinSuperAdmin(): boolean {
+    return this.hasRole(this.ROLES.ADMIN) || this.hasRole(this.ROLES.RECEPCIONISTA);
+  }
+
+  /**
    * Verificar si es SUPER_ADMIN (rol exclusivo del sistema)
    */
   isSuperAdmin(): boolean {
