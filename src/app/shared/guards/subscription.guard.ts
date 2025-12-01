@@ -22,6 +22,12 @@ export const subscriptionGuard: CanActivateFn = (route, state) => {
   const user = authService.getCurrentUser();
   console.log('subscriptionGuard - Usuario actual (localStorage):', user);
 
+  // Si es un empleado con barbería asignada, permitir acceso inmediato
+  if (user?.tipoUsuario === 'BARBERO') {
+    console.log('subscriptionGuard - Empleado con barbería asignada, permitiendo acceso');
+    return true;
+  }
+
   // Si ya tiene suscripción activa en localStorage, permitir acceso inmediato
   if (user?.estadoSuscripcion === 'ACTIVA') {
     console.log('subscriptionGuard - Suscripción activa en localStorage, permitiendo acceso');
@@ -36,7 +42,7 @@ export const subscriptionGuard: CanActivateFn = (route, state) => {
         console.log('subscriptionGuard - ✅ Suscripción aprobada en backend, permitiendo acceso');
         return true;
       }
-      
+
       console.log('subscriptionGuard - ❌ Suscripción no activa. Estado:', response.data?.estadoSuscripcion);
       router.navigate(['/auth/suscripcion-requerida']);
       return false;

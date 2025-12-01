@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HorariosService } from '../../../shared/services/horarios.service';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-gestionar-horarios',
@@ -19,11 +20,23 @@ export class GestionarHorariosComponent implements OnInit {
   cargandoExcepciones: boolean = false;
   guardando: boolean = false;
   guardandoExcepcion: boolean = false;
-  idBarbero: number = 0; // Se obtendría del usuario autenticado
+  idBarbero: number = 0;
+  tabActivo: number = 1; // Control de tabs
+
+  dias = [
+    { valor: 'MONDAY', nombre: 'Lunes' },
+    { valor: 'TUESDAY', nombre: 'Martes' },
+    { valor: 'WEDNESDAY', nombre: 'Miércoles' },
+    { valor: 'THURSDAY', nombre: 'Jueves' },
+    { valor: 'FRIDAY', nombre: 'Viernes' },
+    { valor: 'SATURDAY', nombre: 'Sábado' },
+    { valor: 'SUNDAY', nombre: 'Domingo' }
+  ];
 
   constructor(
     private fb: FormBuilder,
-    private horariosService: HorariosService
+    private horariosService: HorariosService,
+    private authService: AuthService
   ) {
     this.formularioHorario = this.fb.group({
       diaSemana: ['', Validators.required],
@@ -34,8 +47,8 @@ export class GestionarHorariosComponent implements OnInit {
 
     this.formularioExcepcion = this.fb.group({
       fecha: ['', Validators.required],
-      horaInicio: ['', Validators.required],
-      horaFin: ['', Validators.required],
+      horaInicio: [''], // Opcional - no se envía al backend
+      horaFin: [''],    // Opcional - no se envía al backend
       motivo: ['', Validators.required]
     });
   }
@@ -47,10 +60,12 @@ export class GestionarHorariosComponent implements OnInit {
 
   cargarHorarios(): void {
     this.cargando = true;
-    this.horariosService.listarHorariosBarbero(this.idBarbero).subscribe({
+    // Usar el endpoint que obtiene los horarios del barbero autenticado
+    this.horariosService.listarMisHorarios().subscribe({
       next: (response) => {
+        console.log('📅 Respuesta de mis horarios:', response);
         if (response.success) {
-          this.horarios = response.data || [];
+          this.horarios = Array.isArray(response.data) ? response.data : [response.data];
         }
         this.cargando = false;
       },
@@ -96,15 +111,26 @@ export class GestionarHorariosComponent implements OnInit {
     }
 
     this.guardando = true;
+
+    // Obtener valores del formulario
+    const horaApertura = this.formularioHorario.get('horaApertura')?.value;
+    const horaCierre = this.formularioHorario.get('horaCierre')?.value;
+    const descanso = this.formularioHorario.get('descanso')?.value;
+
+    // Formato correcto esperado por el backend
     const datos = {
       diaSemana: this.formularioHorario.get('diaSemana')?.value,
-      horaApertura: this.formularioHorario.get('horaApertura')?.value,
-      horaCierre: this.formularioHorario.get('horaCierre')?.value,
-      descanso: this.formularioHorario.get('descanso')?.value
+      horaInicio: horaApertura || '00:00', // String en formato HH:mm
+      horaFin: horaCierre || '00:00',      // String en formato HH:mm
+      disponible: !descanso                 // true = disponible, false = no disponible (descanso)
     };
+
+    console.log('📤 Enviando datos de horario:', datos);
+    console.log('👤 Usuario actual:', this.authService.getCurrentUser());
 
     this.horariosService.crearHorarioBarbero(datos).subscribe({
       next: (response) => {
+        console.log('✅ Respuesta exitosa:', response);
         if (response.success) {
           alert('Horario guardado exitosamente');
           this.formularioHorario.reset();
@@ -113,8 +139,10 @@ export class GestionarHorariosComponent implements OnInit {
         this.guardando = false;
       },
       error: (error) => {
-        console.error('Error al guardar horario:', error);
-        alert('Error al guardar el horario');
+        console.error('❌ Error completo:', error);
+        console.error('❌ Status:', error.status);
+        console.error('❌ Mensaje:', error.error);
+        alert(`Error al guardar el horario: ${error.status} - ${error.error?.message || error.message}`);
         this.guardando = false;
       }
     });
@@ -126,13 +154,13 @@ export class GestionarHorariosComponent implements OnInit {
     }
 
     this.guardandoExcepcion = true;
+    const fechaSeleccionada = this.formularioExcepcion.get('fecha')?.value;
+
     const datos = {
-      idBarbero: this.idBarbero,
-      fecha: this.formularioExcepcion.get('fecha')?.value,
-      horaInicio: this.formularioExcepcion.get('horaInicio')?.value,
-      horaFin: this.formularioExcepcion.get('horaFin')?.value,
+      fechaInicio: fechaSeleccionada,
+      fechaFin: fechaSeleccionada, // Mismo día para excepciones de un solo día
       motivo: this.formularioExcepcion.get('motivo')?.value,
-      tipo: 'NO_DISPONIBLE'
+      esVacaciones: false // false = NO_DISPONIBLE, true = VACACIONES
     };
 
     this.horariosService.crearExcepcion(datos).subscribe({
@@ -184,5 +212,63 @@ export class GestionarHorariosComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Método para obtener el nombre del día desde el número
+  getNombreDia(dia: string | number): string {
+    // La API retorna un número, convertir a string
+    const diaMap: { [key: number]: string } = {
+      0: 'MONDAY',
+      1: 'TUESDAY',
+      2: 'WEDNESDAY',
+      3: 'THURSDAY',
+      4: 'FRIDAY',
+      5: 'SATURDAY',
+      6: 'SUNDAY'
+    };
+
+    const diaStr = typeof dia === 'number' ? diaMap[dia] : dia as string;
+    return this.dias.find(d => d.valor === diaStr)?.nombre || diaStr || 'Desconocido';
+  }
+
+  // Método para formatear hora desde LocalTime o String
+  formatearHora(hora: any): string {
+    if (!hora) return '--:--';
+
+    // Si es un string (formato "HH:mm:ss" o "HH:mm")
+    if (typeof hora === 'string') {
+      const partes = hora.split(':');
+      if (partes.length >= 2) {
+        return `${partes[0]}:${partes[1]}`; // Retorna HH:mm
+      }
+      return hora;
+    }
+
+    // Si es un objeto LocalTime
+    if (hora.hour !== undefined && hora.minute !== undefined) {
+      return `${String(hora.hour).padStart(2, '0')}:${String(hora.minute).padStart(2, '0')}`;
+    }
+
+    return '--:--';
+  }
+
+  // Método para convertir string de hora (HH:mm) a LocalTime
+  convertirALocalTime(horaStr: string): any {
+    if (!horaStr) {
+      return { hour: 0, minute: 0, second: 0, nano: 0 };
+    }
+
+    const [hour, minute] = horaStr.split(':').map(Number);
+    return {
+      hour: hour || 0,
+      minute: minute || 0,
+      second: 0,
+      nano: 0
+    };
+  }
+
+  // Método para cambiar de tab
+  cambiarTab(tab: number): void {
+    this.tabActivo = tab;
   }
 }

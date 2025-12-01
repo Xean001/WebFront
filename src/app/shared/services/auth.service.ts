@@ -37,7 +37,7 @@ export interface AuthResponse {
   nombre: string;
   correo: string;
   tipoUsuario: string;
-  idBarberia?: number;
+  idBarberia: number;
   idSuscripcion?: number;
   tipoPlan?: string;
   estadoSuscripcion?: 'PENDIENTE_PAGO' | 'ACTIVA' | 'PAUSADA' | 'CANCELADA';
@@ -64,14 +64,14 @@ export class AuthService {
   private apiUrl = 'https://api.fadely.me/api/auth';
   private tokenKey = 'auth_token';
   private userKey = 'auth_user';
-  
+
   private currentUserSubject = new BehaviorSubject<AuthResponse | null>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) { }
 
   /**
    * Registrar un nuevo usuario
@@ -94,7 +94,7 @@ export class AuthService {
   registrarAdmin(request: RegisterAdminRequest): Observable<ApiResponse<AuthResponse>> {
     console.log('📤 Enviando registro admin a: https://api.fadely.me/api/auth/admin/registro');
     console.log('📦 Body:', JSON.stringify(request, null, 2));
-    
+
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/admin/registro`, request).pipe(
       tap(response => {
         console.log('✅ Respuesta de registro:', response);
@@ -185,7 +185,7 @@ export class AuthService {
     if (!response.estadoSuscripcion) {
       response.estadoSuscripcion = 'PENDIENTE_PAGO';
     }
-    
+
     localStorage.setItem(this.tokenKey, response.token);
     localStorage.setItem(this.userKey, JSON.stringify(response));
     this.currentUserSubject.next(response);
@@ -210,21 +210,21 @@ export class AuthService {
       switchMap(response => {
         if (response.success && response.data) {
           console.log('✅ Estado actualizado desde backend:', response.data);
-          
+
           // Si estadoSuscripcion viene undefined/null, usar fallback
           if (!response.data.estadoSuscripcion) {
             console.warn('⚠️ estadoSuscripcion es undefined, usando fallback /api/suscripciones/mi-suscripcion');
-            
+
             return this.http.get<ApiResponse<any>>('https://api.fadely.me/api/suscripciones/mi-suscripcion').pipe(
               tap(suscripcionResp => {
                 if (suscripcionResp.success && suscripcionResp.data) {
                   console.log('✅ Suscripción obtenida desde /mi-suscripcion:', suscripcionResp.data);
-                  
+
                   // Actualizar response.data con datos de suscripción
                   response.data.estadoSuscripcion = suscripcionResp.data.estado;
                   response.data.idSuscripcion = suscripcionResp.data.idSuscripcion;
                   response.data.tipoPlan = suscripcionResp.data.tipoPlan;
-                  
+
                   // Actualizar localStorage
                   const currentUser = this.getCurrentUser();
                   if (currentUser) {
@@ -244,7 +244,7 @@ export class AuthService {
               switchMap(() => of(response)) // Devolver response original ya actualizado
             );
           }
-          
+
           // Si estadoSuscripcion SÍ viene, actualizar localStorage normalmente
           const currentUser = this.getCurrentUser();
           if (currentUser) {
@@ -258,7 +258,7 @@ export class AuthService {
             this.currentUserSubject.next(updatedUser);
           }
         }
-        
+
         return of(response);
       })
     );
