@@ -922,3 +922,35 @@ button:disabled {
         font-size: 0.8rem;
     }
 }
+
+/* Info Banner (Usuario ya autenticado) */
+.info-banner {
+    background: linear-gradient(135deg, rgba(52, 168, 124, 0.15) 0%, rgba(45, 153, 112, 0.1) 100%);
+    border: 1px solid rgba(52, 168, 124, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    animation: slideDown 0.6s ease-out;
+}
+
+.info-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.info-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: #34a87c;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.info-content p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}

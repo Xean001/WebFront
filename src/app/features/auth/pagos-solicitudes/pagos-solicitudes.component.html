@@ -116,10 +116,14 @@
             <span class="valor code">{{ solicitud.numeroOperacion }}</span>
           </div>
           <div class="info-row-full">
-            <span class="label">Comprobante:</span>
-            <a [href]="solicitud.comprobanteUrl" target="_blank" class="link-comprobante">
-              🔗 Ver imagen
-            </a>
+            <span class="label">Imagen del Comprobante:</span>
+            <button 
+              type="button" 
+              class="btn-ver-imagen"
+              (click)="verComprobanteImagen(solicitud)"
+            >
+              🖼️ Ver Imagen
+            </button>
           </div>
         </div>
       </div>
@@ -136,7 +140,7 @@
         <button 
           type="button" 
           class="btn-rechazar"
-          (click)="rechazarPago(); cerrarModal()"
+          (click)="solicitudSeleccionada = solicitud; rechazarPago()"
         >
           ❌ Rechazar
         </button>

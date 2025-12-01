@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PagosService } from '../../../shared/services/pagos.service';
 import { AuthService, AuthResponse } from '../../../shared/services/auth.service';
+import { SuscripcionService } from '../../../shared/services/suscripcion.service';
 
 @Component({
   selector: 'app-cargar-comprobante',
@@ -19,7 +20,7 @@ export class CargarComprobanteComponent implements OnInit {
   idSuscripcion: string | null = null;
   monto: number = 0;
   tipoPlan: string = '';
-  metodoPagoSeleccionado: 'YAPE' | 'PLIN' | 'BANCO' = 'YAPE';
+  metodoPagoSeleccionado: 'YAPE' | 'PLIN' = 'YAPE';
   datosParaPagar: any = null;
   comprobanteExitoso: boolean = false;
   archivoSeleccionado: File | null = null;
@@ -32,56 +33,103 @@ export class CargarComprobanteComponent implements OnInit {
     private fb: FormBuilder,
     private pagosService: PagosService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private suscripcionService: SuscripcionService
   ) {
     this.formulario = this.crearFormulario();
   }
 
   ngOnInit(): void {
-    // Primero intentar obtener datos del sessionStorage (flujo de registro)
+    console.log('🚀 CargarComprobante - Inicializando...');
+    
+    // IMPORTANTE: Si el usuario está autenticado, SIEMPRE obtener el ID desde el backend
+    // El sessionStorage puede tener IDs incorrectos (idUsuario en lugar de idSuscripcion)
+    const user = this.authService.getCurrentUser();
+    
+    if (user) {
+      // Usuario autenticado: obtener datos del backend
+      console.log('👤 Usuario autenticado detectado:', user.nombre);
+      console.log('🔍 Obteniendo ID de suscripción desde el backend (IGNORANDO sessionStorage)...');
+      
+      this.currentUser = user;
+      this.email = user.correo || '';
+      this.tipoPlan = user.tipoPlan || sessionStorage.getItem('tipoPlanSeleccionado') || 'MENSUAL';
+      this.monto = this.obtenerMontoPorPlan(this.tipoPlan);
+      
+      // Usar /mis-suscripciones (plural) para obtener TODAS las suscripciones
+      // Esto funciona incluso con suscripciones PENDIENTE_PAGO
+      console.log('📡 Llamando a /mis-suscripciones...');
+      
+      this.suscripcionService.obtenerMisSuscripciones().subscribe({
+        next: (response) => {
+          console.log('📥 Respuesta de /mis-suscripciones:', response);
+          
+          if (response.success && response.data && response.data.length > 0) {
+            // Tomar la primera suscripción (o buscar la más reciente)
+            const suscripcion = response.data[0];
+            this.idSuscripcion = suscripcion.idSuscripcion.toString();
+            
+            console.log('✅ Suscripción obtenida desde backend:');
+            console.log('   - idSuscripcion:', suscripcion.idSuscripcion, '← ID CORRECTO de tabla suscripcion');
+            console.log('   - idUsuario:', suscripcion.idUsuario);
+            console.log('   - tipoPlan:', suscripcion.tipoPlan);
+            console.log('   - precio:', suscripcion.precio);
+            console.log('   - estado:', suscripcion.estado);
+            
+            // Actualizar monto con el precio real de la suscripción
+            this.monto = suscripcion.precio;
+            this.tipoPlan = suscripcion.tipoPlan;
+            
+            console.log('✅ Datos preparados para pago:');
+            console.log('   - idSuscripcion:', this.idSuscripcion);
+            console.log('   - email:', this.email);
+            console.log('   - tipoPlan:', this.tipoPlan);
+            console.log('   - monto:', this.monto);
+            
+            this.obtenerDatosParaPagar();
+          } else {
+            console.error('❌ No se encontraron suscripciones:', response);
+            this.errores['general'] = '❌ No tienes ninguna suscripción. Por favor completa el registro primero.';
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error obteniendo suscripciones:', error);
+          console.error('Detalles completos:', error);
+          
+          const mensaje = error.error?.message || error.message || 'Error desconocido';
+          this.errores['general'] = `❌ No se pudieron obtener tus suscripciones.\n\nError: ${mensaje}\n\nContacta con soporte técnico.`;
+        }
+      });
+      return;
+    }
+    
+    // Si NO está autenticado, intentar sessionStorage (flujo de registro)
+    console.log('⚠️ No hay usuario autenticado, verificando sessionStorage...');
+    
     this.idSuscripcion = sessionStorage.getItem('idSuscripcion');
     const montoStr = sessionStorage.getItem('montoAPagar');
     this.tipoPlan = sessionStorage.getItem('tipoPlan') || '';
     this.email = sessionStorage.getItem('emailUsuario') || '';
     this.monto = montoStr ? parseFloat(montoStr) : 0;
 
-    // Si no hay datos en sessionStorage, obtener del usuario autenticado
+    console.log('📦 SessionStorage:');
+    console.log('   - idSuscripcion:', this.idSuscripcion);
+    console.log('   - monto:', this.monto);
+    console.log('   - tipoPlan:', this.tipoPlan);
+    console.log('   - email:', this.email);
+
+    // Si tampoco hay datos en sessionStorage, mostrar error
     if (!this.idSuscripcion || this.monto <= 0) {
-      this.authService.currentUser$.subscribe(user => {
-        this.currentUser = user;
-        
-        if (user) {
-          console.log('👤 Usuario autenticado encontrado:', user.nombre);
-          console.log('📊 Estado suscripción:', user.estadoSuscripcion);
-          console.log('🆔 ID Suscripción:', user.idSuscripcion);
-          
-          // Usar datos del usuario autenticado
-          this.idSuscripcion = user.idSuscripcion?.toString() || null;
-          this.email = user.correo || '';
-          this.tipoPlan = user.tipoPlan || 'MENSUAL';
-          
-          // Establecer monto según el plan
-          this.monto = this.obtenerMontoPorPlan(this.tipoPlan);
-          
-          if (!this.idSuscripcion) {
-            console.warn('⚠️ Usuario sin ID de suscripción');
-            this.errores['general'] = 'No se encontró información de suscripción. Por favor contacta soporte.';
-            return;
-          }
-          
-          console.log('✅ Datos cargados desde usuario autenticado');
-          this.obtenerDatosParaPagar();
-        } else {
-          // No hay usuario autenticado ni datos en sessionStorage
-          console.warn('⚠️ No hay usuario autenticado ni datos en sessionStorage');
-          this.router.navigate(['/auth/login']);
-        }
-      });
+      console.error('❌ No hay datos en sessionStorage ni usuario autenticado');
+      this.errores['general'] = '❌ Debes iniciar sesión para cargar el comprobante';
+      setTimeout(() => {
+        this.router.navigate(['/auth/login']);
+      }, 2000);
       return;
     }
 
-    // Flujo normal con datos del sessionStorage
-    console.log('📋 Componente Cargar Comprobante inicializado');
+    // Flujo normal con datos del sessionStorage (usuario NO autenticado, recién registrado)
+    console.log('📋 Usando datos de sessionStorage (registro nuevo)');
     console.log('📊 ID Suscripción:', this.idSuscripcion);
     console.log('💰 Monto:', this.monto);
     console.log('📦 Tipo Plan:', this.tipoPlan);
@@ -127,7 +175,7 @@ export class CargarComprobanteComponent implements OnInit {
     });
   }
 
-  cambiarMetodoPago(metodo: 'YAPE' | 'PLIN' | 'BANCO'): void {
+  cambiarMetodoPago(metodo: 'YAPE' | 'PLIN'): void {
     this.metodoPagoSeleccionado = metodo;
     this.obtenerDatosParaPagar();
   }
@@ -200,10 +248,11 @@ export class CargarComprobanteComponent implements OnInit {
     };
 
     console.log('📤 Registrando comprobante con imagen...');
-    console.log('📦 Datos:', {
+    console.log('📦 Datos enviados al backend:', {
       idSuscripcion: datosComprobante.idSuscripcion,
       metodoPago: datosComprobante.metodoPago,
       monto: datosComprobante.monto,
+      email: datosComprobante.email,  // ← IMPORTANTE: Verificar que el email se envíe
       numeroOperacion: datosComprobante.numeroOperacion,
       comprobanteNombre: datosComprobante.comprobanteNombre,
       comprobanteBase64Length: datosComprobante.comprobanteBase64.length
@@ -236,20 +285,43 @@ export class CargarComprobanteComponent implements OnInit {
         this.cargando = false;
         console.error('❌ Error al registrar comprobante');
         console.error('Status:', error.status);
-        console.error('Respuesta:', error.error);
+        console.error('Respuesta completa:', error);
+        console.error('Error body:', error.error);
+        
+        // Mostrar datos que se intentaron enviar
+        console.error('📦 Datos enviados que causaron error:');
+        console.error('   - idSuscripcion:', datosComprobante.idSuscripcion);
+        console.error('   - metodoPago:', datosComprobante.metodoPago);
+        console.error('   - monto:', datosComprobante.monto);
+        console.error('   - email:', datosComprobante.email);
         
         switch(error.status) {
           case 400:
-            this.errores['general'] = `❌ Datos inválidos: ${error.error?.message || 'Verifica los datos ingresados'}`;
+            const mensaje400 = error.error?.message || 'Datos inválidos';
+            console.error('❌ Error 400 - Mensaje:', mensaje400);
+            
+            if (mensaje400.includes('Suscripción no encontrada') || mensaje400.includes('suscripcion')) {
+              this.errores['general'] = `❌ La suscripción con ID ${datosComprobante.idSuscripcion} no existe en el sistema. 
+              
+              Posibles soluciones:
+              1. Cierra sesión y vuelve a registrarte
+              2. Contacta con soporte técnico
+              3. Tu registro puede no haberse completado correctamente
+              
+              ID que intentamos usar: ${datosComprobante.idSuscripcion}`;
+            } else {
+              this.errores['general'] = `❌ Datos inválidos: ${mensaje400}`;
+            }
             break;
           case 401:
-            this.errores['general'] = '❌ No autenticado. Por favor regresa al registro.';
+            this.errores['general'] = '❌ No autenticado. Por favor inicia sesión nuevamente.';
+            setTimeout(() => this.router.navigate(['/auth/login']), 2000);
             break;
           case 403:
             this.errores['general'] = '❌ Acceso denegado. Verifica tu suscripción.';
             break;
           case 409:
-            this.errores['general'] = '❌ Ya existe un comprobante pendiente para esta suscripción.';
+            this.errores['general'] = '❌ Ya existe un comprobante pendiente para esta suscripción. Por favor espera la aprobación.';
             break;
           case 422:
             this.errores['general'] = '❌ Error de validación. Verifica el número de operación e imagen.';
@@ -285,5 +357,11 @@ export class CargarComprobanteComponent implements OnInit {
     }).catch(() => {
       console.error(`❌ Error copiando ${campo}`);
     });
+  }
+
+  // Método para manejar error de carga de imagen QR
+  onQRError(event: any): void {
+    console.warn('⚠️ No se pudo cargar la imagen QR');
+    event.target.style.display = 'none';
   }
 }

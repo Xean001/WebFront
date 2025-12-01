@@ -178,16 +178,23 @@ export class PagosSolicitudesComponent implements OnInit {
   rechazarPago(): void {
     if (!this.solicitudSeleccionada) return;
 
+    if (!confirm(`¿Estás seguro de rechazar el pago de ${this.solicitudSeleccionada.nombreUsuario}?`)) {
+      return;
+    }
+
     this.procesandoAprobacion = true;
     console.log('❌ Rechazando pago...');
 
-    this.pagosService.rechazarPago(this.solicitudSeleccionada.idPago, 'Rechazado por administrador').subscribe({
+    this.pagosService.rechazarPago(
+      this.solicitudSeleccionada.idPago, 
+      'Comprobante rechazado por SUPER_ADMIN'
+    ).subscribe({
       next: (response: any) => {
         this.procesandoAprobacion = false;
         console.log('✅ Pago rechazado:', response);
         
         if (response.success) {
-          console.log('✅ ¡Pago rechazado!');
+          console.log('✅ ¡Pago rechazado exitosamente!');
           this.cerrarModal();
           this.cargarSolicitudesPago(); // Recargar lista
         } else {
@@ -198,6 +205,41 @@ export class PagosSolicitudesComponent implements OnInit {
         this.procesandoAprobacion = false;
         console.error('❌ Error al rechazar pago:', error);
         this.errores['general'] = error.error?.message || 'Error al rechazar pago';
+      }
+    });
+  }
+
+  /**
+   * Ver imagen del comprobante
+   */
+  verComprobanteImagen(solicitud: any): void {
+    console.log('🖼️ Abriendo imagen del comprobante...');
+    
+    // Si tiene comprobanteBase64, mostrarlo directamente
+    if (solicitud.comprobanteBase64) {
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head><title>Comprobante - ${solicitud.nombreUsuario}</title></head>
+            <body style="margin:0;display:flex;justify-content:center;align-items:center;background:#000;">
+              <img src="${solicitud.comprobanteBase64}" style="max-width:100%;max-height:100vh;" />
+            </body>
+          </html>
+        `);
+      }
+      return;
+    }
+    
+    // Si no tiene Base64, intentar cargar desde API
+    this.pagosService.verComprobanteImagen(solicitud.idPago).subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: (error: any) => {
+        console.error('❌ Error cargando imagen:', error);
+        alert('No se pudo cargar la imagen del comprobante');
       }
     });
   }

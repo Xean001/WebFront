@@ -10,21 +10,21 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   console.log('🔑 Token disponible:', token ? 'SÍ' : 'NO');
 
   // Endpoints que NO requieren autenticación (públicos)
-  // Solo incluir endpoints que definitivamente son públicos
   const endpointsPublicos = [
     '/api/auth/login',
-    '/api/auth/register',
+    '/api/auth/registro',
+    '/api/auth/admin/registro',
     '/api/barberias/activas',           // Público - sin paginación
     '/api/barberias/disponibles',       // Público
     '/api/barberias/ciudades',          // Público - lista de ciudades
-    '/api/barberias/',                  // Detalle público (por ID)
   ];
 
   // Verificar si es un endpoint público
   const esPublico = endpointsPublicos.some(endpoint => req.url.includes(endpoint));
   console.log('🌍 Es público?', esPublico);
 
-  // Si tiene token y no es un endpoint público, agregar el token
+  // SIEMPRE agregar token si existe y no es público
+  // Para /api/pagos/* endpoints, el token es requerido (incluso datos-pago)
   if (token && !esPublico) {
     console.log('✅ Agregando token Authorization a la petición');
     const clonedRequest = req.clone({
@@ -33,6 +33,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       }
     });
     return next(clonedRequest);
+  }
+
+  if (!token && !esPublico) {
+    console.warn('⚠️ Endpoint protegido sin token - Puede resultar en 401/403');
   }
 
   console.log('⚠️ NO se agregó token (público o sin token)');

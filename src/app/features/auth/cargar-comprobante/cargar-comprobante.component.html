@@ -53,20 +53,32 @@
         >
           📲 Plin
         </button>
-        <button 
-          type="button"
-          class="metodo-btn"
-          [class.active]="metodoPagoSeleccionado === 'BANCO'"
-          (click)="cambiarMetodoPago('BANCO')"
-        >
-          🏦 Transferencia Bancaria
-        </button>
       </div>
     </div>
 
     <!-- Instrucciones de Pago -->
     <div *ngIf="datosParaPagar" class="instrucciones-pago">
       <h3>Instrucciones de Pago - {{ metodoPagoSeleccionado }}</h3>
+      
+      <!-- Código QR -->
+      <div class="qr-container">
+        <div class="qr-image">
+          <img 
+            *ngIf="metodoPagoSeleccionado === 'YAPE'" 
+            src="/images/qr-yape.jpg" 
+            alt="Código QR Yape"
+            (error)="onQRError($event)"
+          >
+          <img 
+            *ngIf="metodoPagoSeleccionado === 'PLIN'" 
+            src="/images/qr-plin.jpg" 
+            alt="Código QR Plin"
+            (error)="onQRError($event)"
+          >
+        </div>
+        <p class="qr-instruccion">Escanea este código QR con tu app de {{ metodoPagoSeleccionado }}</p>
+        <p class="qr-monto">Monto: <strong>${{ monto | number: '1.2-2' }}</strong></p>
+      </div>
       
       <!-- Datos de Pago -->
       <div class="datos-pago">
@@ -205,7 +217,7 @@
       </div>
 
       <div *ngIf="errores['general']" class="alert-error">
-        ⚠️ {{ errores['general'] }}
+        <div style="white-space: pre-line;">{{ errores['general'] }}</div>
       </div>
 
       <div class="button-group">

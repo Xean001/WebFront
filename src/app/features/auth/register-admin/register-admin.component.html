@@ -150,7 +150,16 @@
 
   <!-- PASO 2: Seleccionar Plan -->
   <div *ngIf="paso === 2" class="form-section">
-    <h3>Paso 2: Elige tu Plan de Suscripción</h3>
+    <!-- Mensaje especial si ya está autenticado -->
+    <div *ngIf="yaAutenticado" class="info-banner">
+      <div class="info-icon">👤</div>
+      <div class="info-content">
+        <h4>¡Hola, {{ usuarioActual?.nombre }}!</h4>
+        <p>Ya tienes una cuenta. Selecciona un nuevo plan para cambiar tu suscripción.</p>
+      </div>
+    </div>
+
+    <h3>{{ yaAutenticado ? 'Cambiar Plan de Suscripción' : 'Paso 2: Elige tu Plan de Suscripción' }}</h3>
     
     <div *ngIf="planesLoading" class="loading-message">
       Cargando planes de suscripción...
@@ -191,16 +200,18 @@
 
     <div class="button-group">
       <button type="button" (click)="pasoAnterior()" class="btn-secondary">
-        ← Anterior
+        <span *ngIf="!yaAutenticado">← Anterior</span>
+        <span *ngIf="yaAutenticado">✕ Cancelar</span>
       </button>
       <button type="button" (click)="registrar()" [disabled]="cargando || !planSeleccionado" class="btn-primary">
-        <span *ngIf="!cargando">Registrarse y Continuar</span>
-        <span *ngIf="cargando">Registrando...</span>
+        <span *ngIf="!cargando && !yaAutenticado">Registrarse y Continuar</span>
+        <span *ngIf="!cargando && yaAutenticado">Continuar con {{ planSeleccionado?.nombre }}</span>
+        <span *ngIf="cargando">Procesando...</span>
       </button>
     </div>
   </div>
 
-  <div class="links">
+  <div *ngIf="!yaAutenticado" class="links">
     <a routerLink="/auth/login">¿Ya tienes cuenta? Inicia Sesión</a>
   </div>
 </div>

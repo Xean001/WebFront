@@ -358,6 +358,31 @@
   transform: translateX(3px);
 }
 
+/* Image Viewer Button */
+.btn-ver-imagen {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-ver-imagen:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-ver-imagen:active {
+  transform: translateY(0);
+}
+
 /* Card Actions */
 .card-actions {
   padding: 15px 20px;

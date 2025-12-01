@@ -100,7 +100,7 @@ export class PagosService {
    * Obtener datos para realizar pago manual
    * GET /pagos/datos-pago?metodoPago=YAPE&monto=99
    */
-  obtenerDatosParaPagar(metodoPago: 'YAPE' | 'PLIN' | 'BANCO', monto: number): Observable<ApiResponse<any>> {
+  obtenerDatosParaPagar(metodoPago: 'YAPE' | 'PLIN', monto: number): Observable<ApiResponse<any>> {
     console.log('📊 Obteniendo datos para pagar...');
     console.log(`📤 Método: ${metodoPago}, Monto: ${monto}`);
     
@@ -116,7 +116,7 @@ export class PagosService {
    */
   registrarComprobante(datos: {
     idSuscripcion: number;
-    metodoPago: 'YAPE' | 'PLIN' | 'BANCO';
+    metodoPago: 'YAPE' | 'PLIN';
     monto: number;
     numeroOperacion: string;
     comprobanteUrl: string;
@@ -129,14 +129,14 @@ export class PagosService {
 
   /**
    * Registrar comprobante de pago con imagen en Base64
-   * POST /pagos/registrar-comprobante-imagen
+   * POST /pagos/registrar-comprobante
    * 
    * @param datos Objeto con imagen Base64 (data:image/jpeg;base64,...), numero de operación, etc
    * 
-   * Body esperado:
+   * Body esperado según Swagger:
    * {
    *   idSuscripcion: number,
-   *   metodoPago: 'YAPE' | 'PLIN' | 'BANCO',
+   *   metodoPago: string,
    *   monto: number,
    *   email: string,
    *   numeroOperacion: string,
@@ -153,7 +153,7 @@ export class PagosService {
    */
   registrarComprobanteConImagen(datos: {
     idSuscripcion: number;
-    metodoPago: 'YAPE' | 'PLIN' | 'BANCO';
+    metodoPago: string;
     monto: number;
     email: string;
     numeroOperacion: string;
@@ -173,7 +173,7 @@ export class PagosService {
     });
     
     return this.http.post<ApiResponse<any>>(
-      `${this.apiUrl}/registrar-comprobante-imagen`,
+      `${this.apiUrl}/registrar-comprobante`,
       datos
     );
   }
@@ -207,15 +207,43 @@ export class PagosService {
 
   /**
    * Rechazar pago
-   * POST /pagos/{idPago}/rechazar
+   * POST /pagos/{idPago}/rechazar?motivo=xxx
    * Requiere: Autenticación y rol SUPER_ADMIN
    */
-  rechazarPago(idPago: number, razon?: string): Observable<ApiResponse<any>> {
+  rechazarPago(idPago: number, motivo?: string): Observable<ApiResponse<any>> {
     console.log('❌ Rechazando pago...');
     
     return this.http.post<ApiResponse<any>>(
       `${this.apiUrl}/${idPago}/rechazar`,
-      { razon: razon || 'Rechazado por admin' }
+      null,
+      { params: { motivo: motivo || 'Rechazado por administrador' } }
+    );
+  }
+
+  /**
+   * Ver imagen del comprobante de pago
+   * GET /pagos/{idPago}/comprobante/imagen
+   * Requiere: Autenticación y rol SUPER_ADMIN
+   * Retorna: Blob de la imagen
+   */
+  verComprobanteImagen(idPago: number): Observable<Blob> {
+    console.log('🖼️ Obteniendo imagen del comprobante...');
+    
+    return this.http.get(
+      `${this.apiUrl}/${idPago}/comprobante/imagen`,
+      { responseType: 'blob' }
+    );
+  }
+
+  /**
+   * Verificar estado de pago
+   * GET /pagos/{idPago}/verificar
+   */
+  verificarEstadoPago(idPago: number): Observable<ApiResponse<any>> {
+    console.log('🔍 Verificando estado del pago...');
+    
+    return this.http.get<ApiResponse<any>>(
+      `${this.apiUrl}/${idPago}/verificar`
     );
   }
 }
