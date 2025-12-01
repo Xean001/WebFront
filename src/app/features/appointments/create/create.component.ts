@@ -50,7 +50,7 @@ export class CreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarBarberias();
-    
+
     // Verificar si hay una barbería preseleccionada
     this.route.queryParams.subscribe(params => {
       if (params['barberia']) {
@@ -145,11 +145,14 @@ export class CreateComponent implements OnInit {
     this.cargandoHorarios = true;
     this.horariosDisponibles = [];
 
-    this.horariosService.verificarDisponibilidad(idBarbero, fecha).subscribe({
+    // Obtener duración del servicio seleccionado
+    const duracionMinutos = this.servicioSeleccionado?.duracionMinutos || 30;
+
+    this.horariosService.obtenerSlotsDisponibles(idBarbero, fecha, duracionMinutos).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          // Generar slots de horarios disponibles
-          this.generarSlotsHorarios(response.data);
+          // El backend ya devuelve los slots formateados
+          this.horariosDisponibles = response.data.map((slot: any) => slot.horaInicio);
         }
         this.cargandoHorarios = false;
       },
@@ -160,20 +163,20 @@ export class CreateComponent implements OnInit {
     });
   }
 
-  generarSlotsHorarios(disponibilidad: any): void {
-    // Aquí deberías procesar la respuesta del backend
-    // Por ahora genero horarios de ejemplo cada 30 minutos
-    const horarios: string[] = [];
-    const horaInicio = 9;
-    const horaFin = 20;
-    
-    for (let hora = horaInicio; hora < horaFin; hora++) {
-      horarios.push(`${hora.toString().padStart(2, '0')}:00`);
-      horarios.push(`${hora.toString().padStart(2, '0')}:30`);
-    }
-    
-    this.horariosDisponibles = horarios;
-  }
+  // generarSlotsHorarios(disponibilidad: any): void {
+  //   // Aquí deberías procesar la respuesta del backend
+  //   // Por ahora genero horarios de ejemplo cada 30 minutos
+  //   const horarios: string[] = [];
+  //   const horaInicio = 9;
+  //   const horaFin = 20;
+
+  //   for (let hora = horaInicio; hora < horaFin; hora++) {
+  //     horarios.push(`${hora.toString().padStart(2, '0')}:00`);
+  //     horarios.push(`${hora.toString().padStart(2, '0')}:30`);
+  //   }
+
+  //   this.horariosDisponibles = horarios;
+  // }
 
   getMinDate(): string {
     const today = new Date();
@@ -194,7 +197,7 @@ export class CreateComponent implements OnInit {
     }
 
     this.guardando = true;
-    
+
     // Convertir datos al formato que espera el backend
     const datos = {
       idBarberia: parseInt(this.formularioCita.get('idBarberia')?.value),
@@ -249,13 +252,51 @@ export class CreateComponent implements OnInit {
       case 3:
         return true; // Optional step
       case 4:
-        return (this.formularioCita.get('fechaCita')?.valid ?? false) && 
-               (this.formularioCita.get('horaCita')?.valid ?? false);
+        return (this.formularioCita.get('fechaCita')?.valid ?? false) &&
+          (this.formularioCita.get('horaCita')?.valid ?? false);
       case 5:
         return true;
       default:
         return false;
     }
+  }
+
+  seleccionarHorario(horario: string): void {
+    this.formularioCita.patchValue({ horaCita: horario });
+  }
+
+  /**
+   * Determina si un horario es por la mañana (antes de 12:00)
+   */
+  esManana(horario: string): boolean {
+    const hora = parseInt(horario.split(':')[0]);
+    return hora >= 6 && hora < 12;
+  }
+
+  /**
+   * Determina si un horario es por la tarde (12:00 - 18:00)
+   */
+  esTarde(horario: string): boolean {
+    const hora = parseInt(horario.split(':')[0]);
+    return hora >= 12 && hora < 18;
+  }
+
+  /**
+   * Determina si un horario es por la noche (después de 18:00)
+   */
+  esNoche(horario: string): boolean {
+    const hora = parseInt(horario.split(':')[0]);
+    return hora >= 18;
+  }
+
+  /**
+   * Obtiene el periodo del día para mostrar
+   */
+  obtenerPeriodo(horario: string): string {
+    if (this.esManana(horario)) return 'Mañana';
+    if (this.esTarde(horario)) return 'Tarde';
+    if (this.esNoche(horario)) return 'Noche';
+    return '';
   }
 }
 

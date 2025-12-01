@@ -68,7 +68,7 @@ export interface ExcepcionHorario {
   providedIn: 'root'
 })
 export class HorariosService {
-  private apiUrl = 'http://localhost:8080/api/horarios';
+  private apiUrl = 'https://api.fadely.me/api/horarios';
 
   constructor(private http: HttpClient) { }
 
@@ -126,5 +126,14 @@ export class HorariosService {
   // Consultas Públicas
   verificarDisponibilidad(idBarbero: number, fecha: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/barbero/${idBarbero}/disponibilidad/${fecha}`);
+  }
+
+  obtenerSlotsDisponibles(idBarbero: number, fecha: string, duracionMinutos: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/barbero/${idBarbero}/slots-disponibles`, {
+      params: {
+        fecha: fecha,
+        duracionMinutos: duracionMinutos.toString()
+      }
+    });
   }
 }
