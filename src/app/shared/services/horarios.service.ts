@@ -68,7 +68,7 @@ export interface ExcepcionHorario {
   providedIn: 'root'
 })
 export class HorariosService {
-  private apiUrl = 'http://localhost:8080/api/horarios';
+  private apiUrl = 'http://api.fadely.me/api/horarios';
 
   constructor(private http: HttpClient) { }
 
