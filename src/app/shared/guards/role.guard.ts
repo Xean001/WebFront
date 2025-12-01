@@ -12,15 +12,11 @@ export const roleGuard = (options: { role: string }): CanActivateFn => {
     const router = inject(Router);
 
     const user = authService.getCurrentUser();
-    console.log('roleGuard - Verificando rol para:', state.url);
-    console.log('roleGuard - User role:', user?.tipoUsuario);
 
     if (user && user.tipoUsuario === options.role) {
-      console.log(`roleGuard - Usuario tiene rol ${options.role}, permitiendo acceso`);
       return true;
     }
 
-    console.log(`roleGuard - Usuario no tiene rol ${options.role}, denegando acceso`);
     router.navigate(['/dashboard']);
     return false;
   };

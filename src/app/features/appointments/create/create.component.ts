@@ -68,7 +68,6 @@ export class CreateComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al cargar barberías:', error);
       }
     });
   }
@@ -93,7 +92,6 @@ export class CreateComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al cargar servicios:', error);
       }
     });
 
@@ -102,11 +100,9 @@ export class CreateComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.barberos = response.data.filter((b: any) => b.activo && b.aceptaReservas);
-          console.log('Barberos cargados:', this.barberos);
         }
       },
       error: (error) => {
-        console.error('Error al cargar barberos:', error);
       }
     });
 
@@ -157,7 +153,6 @@ export class CreateComponent implements OnInit {
         this.cargandoHorarios = false;
       },
       error: (error) => {
-        console.error('Error al cargar horarios:', error);
         this.cargandoHorarios = false;
       }
     });
@@ -208,8 +203,6 @@ export class CreateComponent implements OnInit {
       observaciones: this.formularioCita.get('observaciones')?.value || null
     };
 
-    console.log('📤 Datos a enviar:', datos);
-
     this.citasService.crearCita(datos).subscribe({
       next: (response) => {
         if (response.success) {
@@ -219,7 +212,6 @@ export class CreateComponent implements OnInit {
         this.guardando = false;
       },
       error: (error) => {
-        console.error('❌ Error al crear cita:', error);
         const mensaje = error.error?.message || error.message || 'Error desconocido';
         alert('Error al crear la cita: ' + mensaje);
         this.guardando = false;

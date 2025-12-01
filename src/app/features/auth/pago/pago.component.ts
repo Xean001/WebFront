@@ -38,10 +38,6 @@ export class PagoComponent implements OnInit {
       this.router.navigate(['/auth/register-admin']);
       return;
     }
-
-    console.log('💳 Componente Pago inicializado');
-    console.log('📊 ID Suscripción:', this.idSuscripcion);
-    console.log('💰 Monto:', this.monto);
   }
 
   crearFormulario(): FormGroup {
@@ -96,19 +92,14 @@ export class PagoComponent implements OnInit {
       };
     }
 
-    console.log('💳 Iniciando procesamiento de pago');
-    console.log('📦 Datos enviados:', solicitudPago);
-
     this.pagosService.procesarPago(solicitudPago).subscribe({
       next: (response: any) => {
         this.cargando = false;
-        console.log('✅ Respuesta del servidor:', response);
         
         if (response.success && response.data) {
           const estado = response.data.estado?.toUpperCase();
           
           if (estado === 'EXITOSO') {
-            console.log('✅ ¡Pago procesado exitosamente!');
             this.pagoExitoso = true;
             // Limpiar sessionStorage
             sessionStorage.removeItem('idSuscripcion');
@@ -129,9 +120,6 @@ export class PagoComponent implements OnInit {
       },
       error: (error: any) => {
         this.cargando = false;
-        console.error('❌ Error al procesar pago');
-        console.error('Status:', error.status);
-        console.error('Respuesta:', error.error);
         
         // Manejar errores específicos
         switch(error.status) {

@@ -39,7 +39,6 @@ export class ListBarbersComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al cargar barberías:', error);
       }
     });
   }
@@ -48,7 +47,6 @@ export class ListBarbersComponent implements OnInit {
     this.cargando = true;
     this.personalService.obtenerTodosBarberos().subscribe({
       next: (response) => {
-        console.log('Barberos recibidos:', response);
         if (response.success) {
           this.barberos = response.data || [];
           this.aplicarFiltros();
@@ -56,7 +54,6 @@ export class ListBarbersComponent implements OnInit {
         this.cargando = false;
       },
       error: (error) => {
-        console.error('Error al cargar barberos:', error);
         this.cargando = false;
       }
     });

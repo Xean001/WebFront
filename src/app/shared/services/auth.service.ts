@@ -92,12 +92,8 @@ export class AuthService {
    * Sin autenticación - Público
    */
   registrarAdmin(request: RegisterAdminRequest): Observable<ApiResponse<AuthResponse>> {
-    console.log('📤 Enviando registro admin a: https://api.fadely.me/api/auth/admin/registro');
-    console.log('📦 Body:', JSON.stringify(request, null, 2));
-
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/admin/registro`, request).pipe(
       tap(response => {
-        console.log('✅ Respuesta de registro:', response);
         if (response.data) {
           this.saveAuthData(response.data);
         }
@@ -196,7 +192,6 @@ export class AuthService {
    */
   refreshUserFromStorage(): void {
     const user = this.getUserFromStorage();
-    console.log('🔄 Refrescando usuario desde localStorage:', user);
     this.currentUserSubject.next(user);
   }
 
@@ -205,20 +200,16 @@ export class AuthService {
    * Útil para cuando el admin aprueba el pago y necesitamos actualizar el estado
    */
   verificarEstadoSuscripcion(): Observable<ApiResponse<AuthResponse>> {
-    console.log('🔍 Verificando estado de suscripción desde el backend...');
     return this.http.get<ApiResponse<AuthResponse>>(`${this.apiUrl}/verificar-estado`).pipe(
       switchMap(response => {
         if (response.success && response.data) {
-          console.log('✅ Estado actualizado desde backend:', response.data);
 
           // Si estadoSuscripcion viene undefined/null, usar fallback
           if (!response.data.estadoSuscripcion) {
-            console.warn('⚠️ estadoSuscripcion es undefined, usando fallback /api/suscripciones/mi-suscripcion');
 
             return this.http.get<ApiResponse<any>>('https://api.fadely.me/api/suscripciones/mi-suscripcion').pipe(
               tap(suscripcionResp => {
                 if (suscripcionResp.success && suscripcionResp.data) {
-                  console.log('✅ Suscripción obtenida desde /mi-suscripcion:', suscripcionResp.data);
 
                   // Actualizar response.data con datos de suscripción
                   response.data.estadoSuscripcion = suscripcionResp.data.estado;
@@ -237,8 +228,6 @@ export class AuthService {
                     localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
                     this.currentUserSubject.next(updatedUser);
                   }
-                } else {
-                  console.error('❌ No se pudo obtener suscripción desde /mi-suscripcion');
                 }
               }),
               switchMap(() => of(response)) // Devolver response original ya actualizado
@@ -277,10 +266,8 @@ export class AuthService {
           user.estadoSuscripcion = nuevoEstado;
           localStorage.setItem(this.userKey, JSON.stringify(user));
           this.currentUserSubject.next(user);
-          console.log(`✅ Estado de suscripción actualizado a: ${nuevoEstado}`);
         }
       } catch (e) {
-        console.error('Error actualizando estado de suscripción:', e);
       }
     }
   }

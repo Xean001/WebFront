@@ -33,17 +33,14 @@ export class ListComponent implements OnInit {
     this.cargando = true;
     this.citasService.obtenerMisCitas().subscribe({
       next: (response) => {
-        console.log('📋 Respuesta del backend:', response);
         if (response.success) {
           this.citas = response.data || [];
-          console.log('📋 Citas cargadas:', this.citas);
           this.calcularContadores();
           this.aplicarFiltro();
         }
         this.cargando = false;
       },
       error: (error) => {
-        console.error('❌ Error al cargar citas:', error);
         this.cargando = false;
       }
     });
@@ -87,7 +84,6 @@ export class ListComponent implements OnInit {
 
   verDetalle(idCita: number): void {
     // Implementar navegación a detalle
-    console.log('Ver detalle de cita:', idCita);
   }
 
   cancelarCita(idCita: number): void {
@@ -102,7 +98,6 @@ export class ListComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al cancelar cita:', error);
         alert('Error al cancelar la cita');
       }
     });

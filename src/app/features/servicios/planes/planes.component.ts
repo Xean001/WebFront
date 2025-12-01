@@ -33,7 +33,7 @@ export class PlanesComponent implements OnInit {
       nombre: 'Plan Mensual',
       tipo: 'MENSUAL',
       descripcion: 'Suscripción mensual',
-      precio: 99.00,
+      precio: 29.00,
       duracionDias: 30,
       limiteBarberos: 150,
       limiteServicios: 200
@@ -42,7 +42,7 @@ export class PlanesComponent implements OnInit {
       nombre: 'Plan Semestral',
       tipo: 'SEMESTRAL',
       descripcion: 'Suscripción semestral (15% descuento)',
-      precio: 504.00,
+      precio: 149.00,
       duracionDias: 180,
       limiteBarberos: 150,
       limiteServicios: 200
@@ -51,7 +51,7 @@ export class PlanesComponent implements OnInit {
       nombre: 'Plan Anual',
       tipo: 'ANUAL',
       descripcion: 'Suscripción anual (25% descuento)',
-      precio: 891.00,
+      precio: 249.00,
       duracionDias: 365,
       limiteBarberos: 150,
       limiteServicios: 200

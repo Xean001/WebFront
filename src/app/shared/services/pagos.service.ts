@@ -54,10 +54,6 @@ export class PagosService {
    * POST /pagos/procesar
    */
   procesarPago(pagoRequest: ProcesarPagoRequest): Observable<ApiResponse<PagoResponse>> {
-    console.log('💳 Procesando pago...');
-    console.log('📤 URL:', `${this.apiUrl}/procesar`);
-    console.log('📦 Datos:', JSON.stringify(pagoRequest, null, 2));
-    
     return this.http.post<ApiResponse<PagoResponse>>(`${this.apiUrl}/procesar`, pagoRequest);
   }
 
@@ -101,9 +97,6 @@ export class PagosService {
    * GET /pagos/datos-pago?metodoPago=YAPE&monto=99
    */
   obtenerDatosParaPagar(metodoPago: 'YAPE' | 'PLIN', monto: number): Observable<ApiResponse<any>> {
-    console.log('📊 Obteniendo datos para pagar...');
-    console.log(`📤 Método: ${metodoPago}, Monto: ${monto}`);
-    
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/datos-pago`,
       { params: { metodoPago, monto: monto.toString() } }
@@ -121,9 +114,6 @@ export class PagosService {
     numeroOperacion: string;
     comprobanteUrl: string;
   }): Observable<ApiResponse<any>> {
-    console.log('📤 Registrando comprobante (URL)...');
-    console.log('📦 Datos:', JSON.stringify(datos, null, 2));
-    
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/registrar-comprobante`, datos);
   }
 
@@ -160,18 +150,6 @@ export class PagosService {
     comprobanteBase64: string; // "data:image/jpeg;base64,..." o "data:image/png;base64,..."
     comprobanteNombre: string;
   }): Observable<ApiResponse<any>> {
-    console.log('📸 Registrando comprobante con imagen Base64...');
-    console.log('📦 Datos:', {
-      idSuscripcion: datos.idSuscripcion,
-      metodoPago: datos.metodoPago,
-      monto: datos.monto,
-      email: datos.email,
-      numeroOperacion: datos.numeroOperacion,
-      comprobanteNombre: datos.comprobanteNombre,
-      comprobanteBase64Length: datos.comprobanteBase64.length,
-      comprobanteBase64Prefix: datos.comprobanteBase64.substring(0, 50) + '...'
-    });
-    
     return this.http.post<ApiResponse<any>>(
       `${this.apiUrl}/registrar-comprobante`,
       datos
@@ -184,8 +162,6 @@ export class PagosService {
    * Requiere: Autenticación y rol SUPER_ADMIN
    */
   obtenerSolicitudesPago(): Observable<ApiResponse<any[]>> {
-    console.log('📋 Obteniendo solicitudes de pago pendientes...');
-    
     return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/solicitudes`);
   }
 
@@ -199,9 +175,6 @@ export class PagosService {
     tipoPlanAprobado?: 'PRUEBA' | 'MENSUAL' | 'SEMESTRAL' | 'ANUAL';
     duracionDiasPersonalizada?: number;
   }): Observable<ApiResponse<any>> {
-    console.log('✅ Aprobando pago con plan...');
-    console.log('📦 Datos:', JSON.stringify(datos, null, 2));
-    
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/aprobar-con-plan`, datos);
   }
 
@@ -211,8 +184,6 @@ export class PagosService {
    * Requiere: Autenticación y rol SUPER_ADMIN
    */
   rechazarPago(idPago: number, motivo?: string): Observable<ApiResponse<any>> {
-    console.log('❌ Rechazando pago...');
-    
     return this.http.post<ApiResponse<any>>(
       `${this.apiUrl}/${idPago}/rechazar`,
       null,
@@ -227,8 +198,6 @@ export class PagosService {
    * Retorna: Blob de la imagen
    */
   verComprobanteImagen(idPago: number): Observable<Blob> {
-    console.log('🖼️ Obteniendo imagen del comprobante...');
-    
     return this.http.get(
       `${this.apiUrl}/${idPago}/comprobante/imagen`,
       { responseType: 'blob' }
@@ -240,8 +209,6 @@ export class PagosService {
    * GET /pagos/{idPago}/verificar
    */
   verificarEstadoPago(idPago: number): Observable<ApiResponse<any>> {
-    console.log('🔍 Verificando estado del pago...');
-    
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/${idPago}/verificar`
     );

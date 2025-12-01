@@ -71,10 +71,8 @@ export class HomeComponent implements OnInit {
   
   cargarBarberias(): void {
     this.cargandoBarberias = true;
-    console.log('🏪 Cargando barberías...');
     this.barberíasService.obtenerBarberiasActivas().subscribe({
       next: (response: any) => {
-        console.log('📦 Respuesta barberías:', response);
         if (response.success && response.data && response.data.length > 0) {
           this.barberias = response.data.map((barberia: BarberiaDTO) => ({
             id: barberia.idBarberia,
@@ -84,14 +82,12 @@ export class HomeComponent implements OnInit {
             calificacion: 4.5, // Por ahora fijo, luego desde backend
             totalResenas: 0,
             servicios: [],
-            precioDesde: 50
+            precioDesde: 15
           }));
-          console.log('✨ Barberías cargadas:', this.barberias.length);
         }
         this.cargandoBarberias = false;
       },
       error: (error: any) => {
-        console.error('❌ Error al cargar barberías:', error);
         this.barberias = [];
         this.cargandoBarberias = false;
       }
@@ -100,10 +96,8 @@ export class HomeComponent implements OnInit {
 
   cargarBarberos(): void {
     this.cargandoBarberos = true;
-    console.log('💈 Cargando barberos...');
     this.personalService.obtenerTodosBarberos().subscribe({
       next: (response: any) => {
-        console.log('📦 Respuesta barberos:', response);
         if (response.success && response.data && response.data.length > 0) {
           // Limitar a los primeros 4 barberos
           this.barberoDestacados = response.data.slice(0, 4).map((barbero: any) => ({
@@ -111,16 +105,14 @@ export class HomeComponent implements OnInit {
             nombre: barbero.usuario?.nombre || 'Barbero',
             especialidad: barbero.especialidad || 'Especialista',
             barberia: '', // Se puede cargar después
-            imagen: this.obtenerUrlImagenBarbero(barbero.idPerfil),
+            imagen: this.obtenerUrlImagenBarbero(barbero.fotoPerfilUrl),
             calificacion: barbero.calificacionPromedio || 4.5,
             totalCortes: 0
           }));
-          console.log('✨ Barberos destacados cargados:', this.barberoDestacados.length);
         }
         this.cargandoBarberos = false;
       },
       error: (error: any) => {
-        console.error('❌ Error al cargar barberos:', error);
         this.barberoDestacados = [];
         this.cargandoBarberos = false;
       }
@@ -129,37 +121,25 @@ export class HomeComponent implements OnInit {
 
   cargarServiciosPopulares(): void {
     this.cargandoServicios = true;
-    console.log('🔍 Cargando servicios populares...');
     this.serviciosService.obtenerServiciosMasPopulares().subscribe({
       next: (response: any) => {
-        console.log('📦 Respuesta del backend:', response);
-        console.log('✅ Success:', response.success);
-        console.log('📊 Data:', response.data);
-        console.log('📏 Data length:', response.data?.length);
-        
         if (response.success && response.data && response.data.length > 0) {
           this.serviciosPopulares = response.data.map((servicio: any) => {
-            const mapped = {
+            return {
               nombre: servicio.nombre,
               descripcion: servicio.descripcion,
               imagen: this.obtenerUrlImagen(servicio.fotoUrl),
               precio: `S/ ${servicio.precio}`,
               totalReservas: servicio.totalReservas || 0
             };
-            console.log('🎨 Servicio mapeado:', mapped);
-            return mapped;
           });
-          console.log('✨ Servicios populares cargados:', this.serviciosPopulares.length);
         } else {
-          console.log('⚠️ No hay datos, usando servicios estáticos');
           // Fallback a servicios estáticos si no hay datos
           this.usarServiciosEstaticos();
         }
         this.cargandoServicios = false;
       },
       error: (error: any) => {
-        console.error('❌ Error al cargar servicios populares:', error);
-        console.error('Error completo:', JSON.stringify(error, null, 2));
         // Usar servicios estáticos como fallback
         this.usarServiciosEstaticos();
         this.cargandoServicios = false;
@@ -282,9 +262,16 @@ export class HomeComponent implements OnInit {
     return defaultImage;
   }
 
-  obtenerUrlImagenBarbero(idBarbero: number): string {
+  obtenerUrlImagenBarbero(fotoUrl: string | null | undefined): string {
     const baseUrl = 'https://api.fadely.me';
-    return `${baseUrl}/api/uploads/barberos/${idBarbero}.jpg`;
+    const defaultImage = 'https://i.pravatar.cc/300';
+    
+    if (!fotoUrl) return defaultImage;
+    if (fotoUrl.startsWith('http')) return fotoUrl;
+    if (fotoUrl.startsWith('data:')) return fotoUrl;
+    if (fotoUrl.startsWith('/api/')) return baseUrl + fotoUrl;
+    
+    return defaultImage;
   }
 
   onImageError(event: any): void {

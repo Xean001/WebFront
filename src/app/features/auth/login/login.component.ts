@@ -51,13 +51,8 @@ export class LoginComponent implements OnInit{
       contrasena: password
     };
 
-    console.log('Intentando iniciar sesión con:', correo);
-
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
-        console.log('Inicio de sesión exitoso!', response);
-        console.log('Token guardado:', this.authService.getToken());
-        console.log('Usuario guardado:', this.authService.getCurrentUser());
         this.loading = false;
         // Pequeño delay para asegurar que el token se guardó
         setTimeout(() => {
@@ -65,7 +60,6 @@ export class LoginComponent implements OnInit{
         }, 100);
       },
       error: (error: HttpErrorResponse) => {
-        console.error('Error en el login:', error);
         this.loading = false;
         
         if (error.status === 401) {
