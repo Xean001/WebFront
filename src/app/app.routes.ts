@@ -10,13 +10,13 @@ export const routes: Routes = [
     redirectTo: '/dashboard',
     pathMatch: 'full'
   },
-  
+
   // Dashboard - Página principal pública (sin guard)
   {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/home/home.component').then(m => m.HomeComponent)
   },
-  
+
   // Rutas de autenticación (públicas - para futuros logins de admin/barberos)
   {
     path: 'auth/login',
@@ -66,7 +66,7 @@ export const routes: Routes = [
     path: 'auth/forgot-password',
     loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
-  
+
   // Rutas de citas (solo clientes autenticados)
   {
     path: 'appointments/list',
@@ -83,7 +83,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/appointments/detail/detail.component').then(m => m.DetailComponent),
     canActivate: [authGuard]  // Solo para usuarios autenticados
   },
-  
+
   // Rutas de barberías (públicas - clientes ven barberías + admin)
   {
     path: 'barberias/list',
@@ -118,7 +118,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/barbers/manage/manage.component').then(m => m.ManageComponent),
     canActivate: [subscriptionGuard]  // Solo para usuarios autenticados con suscripción ACTIVA
   },
-  
+
   // Rutas de usuarios (públicas para ver perfil, protegidas para editar)
   {
     path: 'users/profile',
@@ -129,12 +129,17 @@ export const routes: Routes = [
     loadComponent: () => import('./features/users/edit-profile/edit-profile.component').then(m => m.EditProfileComponent),
     canActivate: [authGuard]  // Solo para usuarios autenticados
   },
-  
-  // Rutas de horarios (admin)
+
+  // Rutas de horarios (admin y barberos)
   {
     path: 'horarios/administrar',
     loadComponent: () => import('./features/horarios/administrar/administrar.component').then(m => m.AdministrarHorariosComponent),
-    canActivate: [subscriptionGuard]  // Solo para usuarios autenticados con suscripción ACTIVA
+    canActivate: [subscriptionGuard]  // Solo para ADMIN con suscripción ACTIVA
+  },
+  {
+    path: 'horarios/gestionar',
+    loadComponent: () => import('./features/horarios/gestionar/gestionar.component').then(m => m.GestionarHorariosComponent),
+    canActivate: [authGuard]  // Para BARBEROS autenticados
   },
 
   // Rutas de servicios (admin)

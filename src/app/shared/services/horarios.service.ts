@@ -11,17 +11,17 @@ export interface HorarioBarberiaRequest {
 }
 
 export interface HorarioBarberoRequest {
-  diaSemana: string;
-  horaInicio: LocalTime;
-  horaFin: LocalTime;
-  activo?: boolean;
+  diaSemana: string;      // MONDAY, TUESDAY, etc.
+  horaInicio: string;     // Formato HH:mm (ej: "09:00")
+  horaFin: string;        // Formato HH:mm (ej: "17:00")
+  disponible?: boolean;   // true = disponible, false = no disponible
 }
 
 export interface ExcepcionHorarioRequest {
-  fechaInicio: string; // date format
-  fechaFin: string;
+  fechaInicio: string; // date format YYYY-MM-DD
+  fechaFin: string;    // date format YYYY-MM-DD
   motivo: string;
-  esVacaciones?: boolean;
+  esVacaciones?: boolean; // true = vacaciones, false = no disponible
 }
 
 export interface LocalTime {
@@ -68,7 +68,7 @@ export interface ExcepcionHorario {
   providedIn: 'root'
 })
 export class HorariosService {
-  private apiUrl = 'https://api.fadely.me/api/horarios';
+  private apiUrl = 'http://localhost:8080/api/horarios';
 
   constructor(private http: HttpClient) { }
 
