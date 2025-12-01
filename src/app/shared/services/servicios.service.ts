@@ -4,16 +4,18 @@ import { Observable } from 'rxjs';
 
 export interface Servicio {
   idServicio: number;
-  idBarberia: number;
   nombre: string;
   descripcion: string;
   precio: number;
-  precioDesde?: boolean;
-  duracionMinutos: number;
+  duracion: number;
+  duracionMinutos?: number;
   categoria: string;
+  idBarberia: number;
+  destacado: boolean;
+  precioDesde?: boolean;
   serviciosIncluidos?: string | null;
   fotoUrl?: string | null;
-  destacado: boolean;
+  urlImagen?: string | null;
   activo?: boolean;
 }
 
@@ -51,5 +53,9 @@ export class ServiciosService {
 
   eliminarServicio(idServicio: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${idServicio}`);
+  }
+
+  obtenerServiciosMasPopulares(limit: number = 8): Observable<any> {
+    return this.http.get(`${this.apiUrl}/populares?limit=${limit}`);
   }
 }

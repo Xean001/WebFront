@@ -24,6 +24,7 @@ export class AdministrarServiciosComponent implements OnInit {
   busqueda: string = '';
   filtroCategoria: string = '';
   categorias: string[] = [];
+  imagenPreview: string | null = null;
 
   constructor(
     private serviciosService: ServiciosService,
@@ -46,6 +47,7 @@ export class AdministrarServiciosComponent implements OnInit {
       duracion: ['', [Validators.required, Validators.min(1)]],
       categoria: ['', Validators.required],
       serviciosIncluidos: [''],  // Campo opcional para servicios incluidos separados por comas
+      fotoUrl: [''],
       destacado: [false],
       activo: [true]
     });
@@ -135,8 +137,39 @@ export class AdministrarServiciosComponent implements OnInit {
     this.mostrarFormulario = !this.mostrarFormulario;
     if (!this.mostrarFormulario) {
       this.editandoId = null;
+      this.imagenPreview = null;
       this.formulario.reset({ destacado: false, activo: true });
     }
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Validar tipo
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona un archivo de imagen');
+        return;
+      }
+
+      // Validar tamaño (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('La imagen no debe superar los 5MB');
+        return;
+      }
+
+      // Leer archivo y crear preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagenPreview = e.target.result;
+        this.formulario.patchValue({ fotoUrl: e.target.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  eliminarImagen(): void {
+    this.imagenPreview = null;
+    this.formulario.patchValue({ fotoUrl: '' });
   }
 
   guardarServicio(): void {
@@ -179,10 +212,11 @@ export class AdministrarServiciosComponent implements OnInit {
       descripcion: datos.descripcion || '',
       precio: parseFloat(datos.precio),
       precioDesde: false,
+      duracion: parseInt(datos.duracion),
       duracionMinutos: parseInt(datos.duracion),
       categoria: datos.categoria,
       serviciosIncluidos: serviciosIncluidosJson,
-      fotoUrl: null,
+      fotoUrl: datos.fotoUrl || null,
       destacado: datos.destacado || false,
       activo: datos.activo !== undefined ? datos.activo : true
     };
@@ -224,12 +258,19 @@ export class AdministrarServiciosComponent implements OnInit {
 
   editarServicio(servicio: any): void {
     this.editandoId = servicio.idServicio;
+    
+    // Cargar imagen si existe
+    if (servicio.fotoUrl) {
+      this.imagenPreview = this.obtenerUrlCompleta(servicio.fotoUrl);
+    }
+    
     this.formulario.patchValue({
       nombre: servicio.nombre,
       descripcion: servicio.descripcion,
       precio: servicio.precio,
       duracion: servicio.duracionMinutos || servicio.duracion,
       categoria: servicio.categoria,
+      fotoUrl: servicio.fotoUrl || '',
       destacado: servicio.destacado,
       activo: servicio.activo
     });
@@ -239,6 +280,7 @@ export class AdministrarServiciosComponent implements OnInit {
 
   cancelarEdicion(): void {
     this.editandoId = null;
+    this.imagenPreview = null;
     this.formulario.reset({ destacado: false, activo: true });
     this.mostrarFormulario = false;
   }
@@ -296,4 +338,19 @@ export class AdministrarServiciosComponent implements OnInit {
 
   // Getter para String en el template
   String = String;
+
+  obtenerUrlCompleta(url: string): string {
+    const baseUrl = 'https://api.fadely.me';
+    
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    if (url.startsWith('/api/')) return baseUrl + url;
+    if (url.startsWith('data:')) return url;
+    
+    return url;
+  }
+
+  onImageError(event: any): void {
+    event.target.src = 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400';
+  }
 }

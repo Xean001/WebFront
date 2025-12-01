@@ -3,6 +3,10 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BarberiaService } from '../../../shared/services/barberias.service';
+import { FavoritosService } from '../../../shared/services/favoritos.service';
+import { AuthService } from '../../../shared/services/auth.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-lista-barberias',
@@ -22,6 +26,9 @@ export class ListaBarberiasComponent implements OnInit {
   totalPaginas: number = 1;
   tamanioPagina: number = 10;
   conErrorAPI: boolean = false;
+  favoritos: Set<number> = new Set<number>();
+  esUsuarioAutenticado: boolean = false;
+  cargandoFavorito: { [key: number]: boolean } = {};
 
   // Datos de muestra en caso de que la API no funcione
   barberiasEjemplo = [
@@ -113,13 +120,19 @@ export class ListaBarberiasComponent implements OnInit {
 
   constructor(
     private barberiaService: BarberiaService,
+    private favoritosService: FavoritosService,
+    private authService: AuthService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
+    this.esUsuarioAutenticado = this.authService.isAuthenticated();
     try {
       this.cargarBarberias();
       this.cargarCiudades();
+      if (this.esUsuarioAutenticado) {
+        this.cargarFavoritos();
+      }
     } catch (error) {
       console.error('Error en ngOnInit:', error);
       // Fallback completo: usar datos de ejemplo
@@ -280,5 +293,120 @@ export class ListaBarberiasComponent implements OnInit {
 
   verDetalle(idBarberia: number): void {
     this.router.navigate(['/barberias/detail', idBarberia]);
+  }
+
+  cargarFavoritos(): void {
+    this.favoritosService.obtenerMisFavoritos().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.favoritos = new Set(response.data.map((b: any) => b.idBarberia));
+          console.log('Favoritos cargados:', this.favoritos);
+          // Reordenar barberías después de cargar favoritos
+          this.ordenarPorFavoritos();
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar favoritos:', error);
+      }
+    });
+  }
+
+  esFavorito(idBarberia: number): boolean {
+    return this.favoritos.has(idBarberia);
+  }
+
+  toggleFavorito(event: Event, idBarberia: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.esUsuarioAutenticado) {
+      alert('Debes iniciar sesión para agregar favoritos');
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.cargandoFavorito[idBarberia] = true;
+
+    if (this.esFavorito(idBarberia)) {
+      this.favoritosService.eliminarFavorito(idBarberia).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.favoritos.delete(idBarberia);
+            this.ordenarPorFavoritos();
+          }
+          this.cargandoFavorito[idBarberia] = false;
+        },
+        error: (error) => {
+          console.error('Error al eliminar favorito:', error);
+          this.cargandoFavorito[idBarberia] = false;
+        }
+      });
+    } else {
+      this.favoritosService.agregarFavorito(idBarberia).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.favoritos.add(idBarberia);
+            this.ordenarPorFavoritos();
+          }
+          this.cargandoFavorito[idBarberia] = false;
+        },
+        error: (error) => {
+          console.error('Error al agregar favorito:', error);
+          this.cargandoFavorito[idBarberia] = false;
+        }
+      });
+    }
+  }
+
+  ordenarPorFavoritos(): void {
+    // Ordenar barberías: favoritos primero
+    this.barberiasOriginales.sort((a, b) => {
+      const aEsFav = this.esFavorito(a.idBarberia) ? 1 : 0;
+      const bEsFav = this.esFavorito(b.idBarberia) ? 1 : 0;
+      return bEsFav - aEsFav; // Favoritos primero
+    });
+    
+    // Recalcular paginación
+    this.totalPaginas = Math.ceil(this.barberiasOriginales.length / this.tamanioPagina);
+    this.aplicarPaginacion();
+  }
+
+  obtenerUrlImagen(barberia: any): string {
+    const baseUrl = 'https://api.fadely.me';
+    
+    // Si tiene foto de portada
+    if (barberia.fotoPortadaUrl) {
+      // Si es una URL completa, devolverla tal cual
+      if (barberia.fotoPortadaUrl.startsWith('http')) {
+        return barberia.fotoPortadaUrl;
+      }
+      // Si es una URL relativa del backend, agregar base URL
+      if (barberia.fotoPortadaUrl.startsWith('/api/')) {
+        return baseUrl + barberia.fotoPortadaUrl;
+      }
+    }
+    
+    // Si tiene logo
+    if (barberia.logoUrl) {
+      if (barberia.logoUrl.startsWith('http')) {
+        return barberia.logoUrl;
+      }
+      if (barberia.logoUrl.startsWith('/api/')) {
+        return baseUrl + barberia.logoUrl;
+      }
+    }
+    
+    // Si tiene urlImagen (datos de ejemplo)
+    if (barberia.urlImagen) {
+      return barberia.urlImagen;
+    }
+    
+    // Imagen por defecto
+    return 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400';
+  }
+
+  onImageError(event: any): void {
+    // Si la imagen falla al cargar, usar imagen por defecto
+    event.target.src = 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400';
   }
 }

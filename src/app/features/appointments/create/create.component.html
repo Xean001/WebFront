@@ -61,7 +61,7 @@
               <select class="form-select" formControlName="idServicio" (change)="onServicioChange()">
                 <option value="">-- Seleccionar servicio --</option>
                 <option *ngFor="let servicio of servicios" [value]="servicio.idServicio">
-                  {{ servicio.nombre }} - ${{ servicio.precio }} ({{ servicio.duracion }} min)
+                  {{ servicio.nombre }} - ${{ servicio.precio }} ({{ servicio.duracionMinutos }} min)
                 </option>
               </select>
               <div class="error-message" *ngIf="formularioCita.get('idServicio')?.touched && formularioCita.get('idServicio')?.invalid">
@@ -86,17 +86,22 @@
                      [class.selected]="formularioCita.get('idBarbero')?.value === barbero.idBarbero"
                      (click)="seleccionarBarbero(barbero.idBarbero)">
                   <div class="barbero-image-wrapper">
-                    <img [src]="barbero.urlFoto || 'assets/images/avatar-default.jpg'" 
+                    <img [src]="barbero.usuario?.fotoUrl || 'assets/images/avatar-default.jpg'" 
                          class="barbero-image" 
-                         alt="{{ barbero.usuario.nombre }}">
+                         alt="{{ barbero.usuario?.nombre || 'Barbero' }}"
+                         onerror="this.src='https://via.placeholder.com/80?text=👤'">
                   </div>
                   <div class="barbero-info">
-                    <h4 class="barbero-name">{{ barbero.usuario.nombre }}</h4>
-                    <div class="barbero-rating">
+                    <h4 class="barbero-name">{{ barbero.usuario?.nombre }} {{ barbero.usuario?.apellido }}</h4>
+                    <p class="barbero-specialty" *ngIf="barbero.especialidad">{{ barbero.especialidad }}</p>
+                    <div class="barbero-rating" *ngIf="barbero.valoracionPromedio && barbero.valoracionPromedio > 0">
                       <span class="star">⭐</span>
-                      <span class="rating-value">{{ barbero.calificacion | number:'1.1-1' }}</span>
+                      <span class="rating-value">{{ barbero.valoracionPromedio | number:'1.1-1' }}</span>
+                      <span class="rating-count">({{ barbero.totalValoraciones }})</span>
                     </div>
-                    <p class="barbero-citas">{{ barbero.totalCitas }} citas</p>
+                    <p class="barbero-citas" *ngIf="barbero.totalServiciosCompletados">
+                      {{ barbero.totalServiciosCompletados }} servicios
+                    </p>
                   </div>
                   <div class="checkmark" *ngIf="formularioCita.get('idBarbero')?.value === barbero.idBarbero">
                     ✓
@@ -118,22 +123,51 @@
             <div class="step-header">
               <div class="step-number">4</div>
               <h2>Selecciona Fecha y Hora</h2>
+              <p class="step-subtitle" *ngIf="barberoSeleccionado">
+                Horario de {{ barberoSeleccionado.usuario?.nombre }}
+              </p>
             </div>
             <div class="step-body">
-              <div class="date-time-grid">
-                <div class="form-group">
-                  <label class="form-label">Fecha *</label>
-                  <input type="date" class="form-control" formControlName="fechaCita">
-                  <div class="error-message" *ngIf="formularioCita.get('fechaCita')?.touched && formularioCita.get('fechaCita')?.invalid">
-                    Debes seleccionar una fecha
-                  </div>
+              <!-- Selector de Fecha -->
+              <div class="form-group">
+                <label class="form-label">Fecha de la Cita *</label>
+                <input type="date" 
+                       class="form-control" 
+                       formControlName="fechaCita"
+                       [min]="getMinDate()"
+                       (change)="onFechaChange()">
+                <div class="error-message" *ngIf="formularioCita.get('fechaCita')?.touched && formularioCita.get('fechaCita')?.invalid">
+                  Debes seleccionar una fecha válida
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Hora *</label>
-                  <input type="time" class="form-control" formControlName="horaCita">
-                  <div class="error-message" *ngIf="formularioCita.get('horaCita')?.touched && formularioCita.get('horaCita')?.invalid">
-                    Debes seleccionar una hora
-                  </div>
+              </div>
+
+              <!-- Horarios Disponibles -->
+              <div class="horarios-section" *ngIf="formularioCita.get('fechaCita')?.value">
+                <label class="form-label">Horarios Disponibles *</label>
+                
+                <div *ngIf="cargandoHorarios" class="loading-horarios">
+                  <div class="spinner-small"></div>
+                  <p>Cargando horarios disponibles...</p>
+                </div>
+
+                <div *ngIf="!cargandoHorarios && horariosDisponibles.length === 0" class="no-horarios">
+                  <p>⚠️ No hay horarios disponibles para esta fecha</p>
+                  <small>Intenta seleccionar otra fecha</small>
+                </div>
+
+                <div *ngIf="!cargandoHorarios && horariosDisponibles.length > 0" class="horarios-grid">
+                  <button type="button"
+                          *ngFor="let horario of horariosDisponibles"
+                          class="horario-btn"
+                          [class.selected]="formularioCita.get('horaCita')?.value === horario"
+                          (click)="formularioCita.patchValue({ horaCita: horario })">
+                    <span class="horario-icon">🕐</span>
+                    {{ horario }}
+                  </button>
+                </div>
+
+                <div class="error-message" *ngIf="formularioCita.get('horaCita')?.touched && formularioCita.get('horaCita')?.invalid">
+                  Debes seleccionar un horario
                 </div>
               </div>
             </div>
@@ -166,13 +200,17 @@
               <span class="summary-label">✂️ Servicio</span>
               <p class="summary-value">{{ servicioSeleccionado.nombre }}</p>
             </div>
+            <div class="summary-item" *ngIf="barberoSeleccionado">
+              <span class="summary-label">💈 Barbero</span>
+              <p class="summary-value">{{ barberoSeleccionado.usuario?.nombre }} {{ barberoSeleccionado.usuario?.apellido }}</p>
+            </div>
             <div class="summary-item" *ngIf="servicioSeleccionado">
               <span class="summary-label">💰 Precio</span>
               <p class="summary-value price">${{ servicioSeleccionado.precio }}</p>
             </div>
             <div class="summary-item" *ngIf="servicioSeleccionado">
               <span class="summary-label">⏱️ Duración</span>
-              <p class="summary-value">{{ servicioSeleccionado.duracion }} min</p>
+              <p class="summary-value">{{ servicioSeleccionado.duracionMinutos }} min</p>
             </div>
             <div class="summary-item">
               <span class="summary-label">📅 Fecha</span>

@@ -25,6 +25,10 @@ export class BarbershopDetailComponent implements OnInit {
   cargando: boolean = false;
   editando: boolean = false;
   errores: { [key: string]: string } = {};
+  
+  // Imágenes
+  fotoPortadaPreview: string | null = null;
+  logoPreview: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,6 +58,14 @@ export class BarbershopDetailComponent implements OnInit {
         if (response.success && response.data) {
           this.barbershop = response.data;
           this.inicializarFormulario();
+          
+          // Cargar previews de imágenes si existen
+          if (this.barbershop.fotoPortadaUrl) {
+            this.fotoPortadaPreview = this.obtenerUrlCompleta(this.barbershop.fotoPortadaUrl);
+          }
+          if (this.barbershop.logoUrl) {
+            this.logoPreview = this.obtenerUrlCompleta(this.barbershop.logoUrl);
+          }
         }
         this.cargando = false;
       },
@@ -100,12 +112,23 @@ export class BarbershopDetailComponent implements OnInit {
     this.cargando = true;
     const datos = this.formulario.value;
 
+    // Si hay previews de imágenes, usar esas en lugar de las URLs antiguas
+    if (this.fotoPortadaPreview) {
+      datos.fotoPortadaUrl = this.fotoPortadaPreview;
+    }
+    if (this.logoPreview) {
+      datos.logoUrl = this.logoPreview;
+    }
+
     this.barberiaService.actualizarBarberia(this.barbershopId, datos).subscribe({
       next: (response) => {
         if (response.success) {
           alert('Barbería actualizada exitosamente');
           this.barbershop = response.data;
           this.editando = false;
+          // Limpiar previews
+          this.fotoPortadaPreview = null;
+          this.logoPreview = null;
         }
         this.cargando = false;
       },
@@ -119,5 +142,66 @@ export class BarbershopDetailComponent implements OnInit {
 
   volver(): void {
     this.router.navigate(['/barberias/administrar']);
+  }
+
+  onFileSelected(event: any, tipo: 'portada' | 'logo'): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Validar que sea una imagen
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona un archivo de imagen');
+        return;
+      }
+
+      // Validar tamaño (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('La imagen no debe superar los 5MB');
+        return;
+      }
+
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        if (tipo === 'portada') {
+          this.fotoPortadaPreview = e.target.result;
+          this.formulario.patchValue({ fotoPortadaUrl: e.target.result });
+        } else {
+          this.logoPreview = e.target.result;
+          this.formulario.patchValue({ logoUrl: e.target.result });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  eliminarImagen(tipo: 'portada' | 'logo'): void {
+    if (tipo === 'portada') {
+      this.fotoPortadaPreview = null;
+      this.formulario.patchValue({ fotoPortadaUrl: '' });
+    } else {
+      this.logoPreview = null;
+      this.formulario.patchValue({ logoUrl: '' });
+    }
+  }
+
+  obtenerUrlCompleta(url: string): string {
+    const baseUrl = 'https://api.fadely.me';
+    
+    // Si ya es una URL completa
+    if (url.startsWith('http')) {
+      return url;
+    }
+    
+    // Si es una URL relativa del backend
+    if (url.startsWith('/api/')) {
+      return baseUrl + url;
+    }
+    
+    // Si es base64, devolverla tal cual
+    if (url.startsWith('data:')) {
+      return url;
+    }
+    
+    return url;
   }
 }

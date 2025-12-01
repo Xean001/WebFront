@@ -11,8 +11,9 @@
   <div *ngIf="!cargando && barberia" class="detail-content">
     <!-- Hero Banner -->
     <div class="hero-banner">
-      <img [src]="barberia.urlImagen || 'assets/images/barberia-default.jpg'" 
-           [alt]="barberia.nombre">
+      <img [src]="obtenerUrlImagen()" 
+           [alt]="barberia.nombre"
+           (error)="onImageError($event)">
       <div class="hero-overlay">
         <h1 class="hero-title">{{ barberia.nombre }}</h1>
         <p class="hero-subtitle">{{ barberia.ciudad }}</p>
@@ -108,6 +109,11 @@
           </div>
           <p class="rating-value">{{ barberia.calificacion | number:'1.1-1' }}</p>
           <p class="rating-reviews">{{ barberia.puntuacion }} opiniones</p>
+          
+          <!-- Indicador de Favorito -->
+          <div *ngIf="esFavorito" style="margin-top: 1rem; padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; text-align: center;">
+            <span style="color: #ef4444; font-size: 0.9rem;">❤️ En tus favoritos</span>
+          </div>
         </div>
 
         <!-- Barbers Card -->
@@ -119,16 +125,21 @@
           </div>
 
           <div *ngFor="let barbero of barberos" class="barber-item">
-            <img [src]="barbero.urlFoto || 'assets/images/avatar-default.jpg'" 
-                 alt="{{ barbero.usuario.nombre }}"
-                 class="barber-image">
+            <img [src]="barbero.usuario?.fotoUrl || 'assets/images/avatar-default.jpg'" 
+                 alt="{{ barbero.usuario?.nombre || 'Barbero' }}"
+                 class="barber-image"
+                 onerror="this.src='https://via.placeholder.com/60?text=👤'">
             <div class="barber-info">
-              <p class="barber-name">{{ barbero.usuario.nombre }}</p>
-              <div class="barber-rating">
+              <p class="barber-name">{{ barbero.usuario?.nombre }} {{ barbero.usuario?.apellido }}</p>
+              <p class="barber-specialty" *ngIf="barbero.especialidad">{{ barbero.especialidad }}</p>
+              <div class="barber-rating" *ngIf="barbero.valoracionPromedio && barbero.valoracionPromedio > 0">
                 <span>⭐</span>
-                <span>{{ barbero.calificacion | number:'1.1-1' }}</span>
+                <span>{{ barbero.valoracionPromedio | number:'1.1-1' }}</span>
+                <span class="barber-reviews">({{ barbero.totalValoraciones }} opiniones)</span>
               </div>
-              <span class="barber-citas">{{ barbero.totalCitas }} citas</span>
+              <span class="barber-citas" *ngIf="barbero.totalServiciosCompletados">
+                {{ barbero.totalServiciosCompletados }} servicios completados
+              </span>
             </div>
           </div>
         </div>
@@ -144,12 +155,66 @@
             </svg>
             Reservar Cita
           </button>
-          <button class="btn-favorite">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 20px; height: 20px;">
+          <button 
+            class="btn-favorite" 
+            [class.is-favorite]="esFavorito"
+            [disabled]="cargandoFavorito"
+            (click)="toggleFavorito()">
+            <svg viewBox="0 0 24 24" [attr.fill]="esFavorito ? 'currentColor' : 'none'" stroke="currentColor" style="width: 20px; height: 20px;">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
             </svg>
-            Agregar a Favoritos
+            <span *ngIf="!cargandoFavorito">{{ esFavorito ? 'Eliminar de Favoritos' : 'Agregar a Favoritos' }}</span>
+            <span *ngIf="cargandoFavorito">Procesando...</span>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Valoraciones Section -->
+    <div class="content-grid" style="margin-top: 2rem;">
+      <div class="detail-card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          Valoraciones de Clientes
+        </h2>
+
+        <div *ngIf="valoraciones.length === 0" class="no-reviews">
+          <p style="color: #b0b0b0; text-align: center; padding: 2rem 0;">
+            Aún no hay valoraciones. ¡Sé el primero en dejar tu opinión!
+          </p>
+        </div>
+
+        <div class="reviews-list" *ngIf="valoraciones.length > 0">
+          <div class="review-card" *ngFor="let valoracion of valoraciones">
+            <div class="review-header">
+              <div class="review-user-info">
+                <img 
+                  [src]="valoracion.clienteFotoUrl || 'https://via.placeholder.com/50?text=👤'" 
+                  alt="Cliente"
+                  class="review-avatar">
+                <div>
+                  <p class="review-user-name">{{ valoracion.clienteNombre }} {{ valoracion.clienteApellido }}</p>
+                  <div class="review-stars">
+                    <span *ngFor="let star of [1,2,3,4,5]" 
+                          [class.filled]="star <= valoracion.puntuacionGeneral"
+                          class="review-star">⭐</span>
+                  </div>
+                </div>
+              </div>
+              <span class="review-date">{{ valoracion.fechaCreacion | date:'dd/MM/yyyy' }}</span>
+            </div>
+            
+            <p class="review-comment" *ngIf="valoracion.comentario">{{ valoracion.comentario }}</p>
+            
+            <div class="review-response" *ngIf="valoracion.respuestaBarberia">
+              <div class="response-header">
+                <strong>Respuesta de {{ barberia.nombre }}:</strong>
+              </div>
+              <p>{{ valoracion.respuestaBarberia }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

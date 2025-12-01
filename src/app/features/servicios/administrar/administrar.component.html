@@ -69,6 +69,32 @@
                 <textarea class="form-input" formControlName="descripcion" rows="3" placeholder="Describe el servicio..."></textarea>
               </div>
             </div>
+
+            <!-- Imagen del Servicio -->
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label class="form-label">Imagen del Servicio</label>
+                <div class="image-upload-container" (click)="imagenInput.click()">
+                  <div class="image-preview" *ngIf="imagenPreview">
+                    <img [src]="imagenPreview" alt="Preview">
+                    <button type="button" class="btn-remove-image" (click)="eliminarImagen(); $event.stopPropagation()">
+                      ✕
+                    </button>
+                  </div>
+                  <div class="upload-placeholder" *ngIf="!imagenPreview">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <p>Imagen del servicio</p>
+                  </div>
+                  <input type="file" accept="image/*" (change)="onFileSelected($event)" class="file-input" #imagenInput>
+                </div>
+                <small class="form-help">Tamaño recomendado: 800x600px. Máximo 5MB</small>
+              </div>
+            </div>
+
             <div class="form-row">
               <div class="form-group checkbox">
                 <input type="checkbox" id="destacado" class="form-checkbox" formControlName="destacado">
@@ -122,6 +148,13 @@
       <!-- Items Grid -->
       <div class="items-grid" *ngIf="barberiaSeleccionada && !cargando && serviciosFiltrados.length > 0">
         <div class="item-card" *ngFor="let servicio of serviciosFiltrados">
+          <!-- Imagen del servicio -->
+          <div class="card-image" *ngIf="servicio.fotoUrl">
+            <img [src]="obtenerUrlCompleta(servicio.fotoUrl)" 
+                 [alt]="servicio.nombre"
+                 (error)="onImageError($event)">
+          </div>
+          
           <div class="card-header">
             <h3 class="card-title">
               {{ servicio.nombre }}

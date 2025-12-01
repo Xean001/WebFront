@@ -22,7 +22,7 @@
 
 
   <!-- Servicios Populares - Carrusel -->
-  <section class="services-section">
+  <section class="services-section" *ngIf="serviciosPopulares && serviciosPopulares.length > 0">
     <div class="container">
       <h2 class="section-title">Servicios populares</h2>
       
@@ -39,14 +39,17 @@
                  class="service-slide"
                  [class.active]="i === 1">
               <div class="service-image-container">
-                <img [src]="servicio.imagen" [alt]="servicio.nombre" class="service-image">
+                <img [src]="servicio?.imagen" 
+                     [alt]="servicio?.nombre" 
+                     class="service-image"
+                     (error)="onImageError($event)">
                 <div class="service-overlay">
-                  <div class="service-price">{{ servicio.precio }}</div>
+                  <div class="service-price">{{ servicio?.precio }}</div>
                 </div>
               </div>
               <div class="service-info">
-                <h3 class="service-title">{{ servicio.nombre }}</h3>
-                <p class="service-description">{{ servicio.descripcion }}</p>
+                <h3 class="service-title">{{ servicio?.nombre }}</h3>
+                <p class="service-description">{{ servicio?.descripcion }}</p>
                 <button class="service-book-btn">Reservar ahora</button>
               </div>
             </div>
