@@ -29,20 +29,22 @@ export class AdministrarBarberiasComponent implements OnInit {
 
   cargarBarberias(): void {
     this.cargando = true;
-    // Obtener todas las barberías activas y luego filtrar las del usuario actual
-    // En un caso real, habría un endpoint para obtener barberías por admin
-    this.barberiaService.obtenerBarberiasActivas().subscribe({
+    // Obtener solo las barberías donde el usuario es PROPIETARIO
+    this.barberiaService.obtenerBarberiasPropias().subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          // Por ahora mostramos todas las barberías activas
-          // En producción, deberías tener un endpoint específico para barberías del admin
           this.barberias = response.data || [];
+          console.log('✅ Barberías propias cargadas:', this.barberias.length);
         }
         this.cargando = false;
       },
       error: (error) => {
         console.error('Error al cargar barberías:', error);
         this.cargando = false;
+        // Si hay error (ej: no autenticado), mostrar mensaje amigable
+        if (error.status === 401 || error.status === 403) {
+          console.error('Usuario no autorizado para ver barberías');
+        }
       }
     });
   }

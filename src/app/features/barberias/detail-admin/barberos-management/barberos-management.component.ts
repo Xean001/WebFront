@@ -41,10 +41,13 @@ export class BarberosManagementComponent implements OnInit {
 
   staff: UsuarioBarberia[] = [];
   formularioPermisos!: FormGroup;
+  formularioCrear!: FormGroup;
   
   cargando: boolean = false;
   editandoId: number | null = null;
+  mostrarFormularioCrear: boolean = false;
   errores: { [key: string]: string } = {};
+  erroresCrear: { [key: string]: string } = {};
 
   roles: string[] = ['PROPIETARIO', 'ADMINISTRADOR', 'BARBERO', 'RECEPCIONISTA'];
 
@@ -59,6 +62,7 @@ export class BarberosManagementComponent implements OnInit {
     if (this.idBarberia) {
       this.cargarStaff();
       this.inicializarFormulario();
+      this.inicializarFormularioCrear();
     }
   }
 
@@ -70,6 +74,71 @@ export class BarberosManagementComponent implements OnInit {
       puedeVerReportes: [false],
       puedeGestionarBarberos: [false]
     });
+  }
+
+  inicializarFormularioCrear(): void {
+    this.formularioCrear = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      apellido: [''],
+      correo: ['', [Validators.required, Validators.email]],
+      telefono: [''],
+      contrasena: ['', [Validators.required, Validators.minLength(6)]],
+      especialidad: [''],
+      anosExperiencia: [0, [Validators.min(0)]],
+      biografia: [''],
+      fechaInicioTrabajo: ['']
+    });
+  }
+
+  toggleFormularioCrear(): void {
+    this.mostrarFormularioCrear = !this.mostrarFormularioCrear;
+    if (!this.mostrarFormularioCrear) {
+      this.formularioCrear.reset({ anosExperiencia: 0 });
+      this.erroresCrear = {};
+    }
+  }
+
+  crearBarbero(): void {
+    if (this.formularioCrear.invalid || !this.idBarberia) {
+      Object.keys(this.formularioCrear.controls).forEach(key => {
+        const control = this.formularioCrear.get(key);
+        if (control?.invalid) {
+          control.markAsTouched();
+        }
+      });
+      return;
+    }
+
+    this.cargando = true;
+    const datos = {
+      ...this.formularioCrear.value,
+      idBarberia: this.idBarberia
+    };
+
+    console.log('📤 Creando barbero:', datos);
+
+    this.http.post<ApiResponse<any>>(`${this.apiUrl}/barbero`, datos)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            alert('Barbero creado exitosamente');
+            this.cargarStaff();
+            this.toggleFormularioCrear();
+          }
+          this.cargando = false;
+        },
+        error: (error) => {
+          console.error('Error:', error);
+          this.erroresCrear['general'] = error.error?.message || 'Error al crear el barbero';
+          this.cargando = false;
+        }
+      });
+  }
+
+  cancelarCrear(): void {
+    this.formularioCrear.reset({ anosExperiencia: 0 });
+    this.mostrarFormularioCrear = false;
+    this.erroresCrear = {};
   }
 
   cargarStaff(): void {

@@ -1,12 +1,103 @@
 <div class="barberos-container">
+  <!-- Header con botón para agregar -->
+  <div class="header">
+    <h2>Personal de la Barbería</h2>
+    <button class="btn btn-primary" (click)="toggleFormularioCrear()" *ngIf="!mostrarFormularioCrear">
+      ➕ Agregar Barbero
+    </button>
+  </div>
+
+  <!-- Formulario Crear Barbero -->
+  <div class="create-form-card" *ngIf="mostrarFormularioCrear">
+    <h3>Crear Nuevo Barbero</h3>
+    <form [formGroup]="formularioCrear" (ngSubmit)="crearBarbero()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre <span class="required">*</span></label>
+          <input type="text" formControlName="nombre" placeholder="Nombre del barbero" class="form-input">
+          <div class="error-message" *ngIf="formularioCrear.get('nombre')?.invalid && formularioCrear.get('nombre')?.touched">
+            El nombre es requerido
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Apellido</label>
+          <input type="text" formControlName="apellido" placeholder="Apellido" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Correo <span class="required">*</span></label>
+          <input type="email" formControlName="correo" placeholder="correo@ejemplo.com" class="form-input">
+          <div class="error-message" *ngIf="formularioCrear.get('correo')?.invalid && formularioCrear.get('correo')?.touched">
+            Correo requerido y válido
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="tel" formControlName="telefono" placeholder="+51 999 999 999" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contraseña <span class="required">*</span></label>
+          <input type="password" formControlName="contrasena" placeholder="Mínimo 6 caracteres" class="form-input">
+          <div class="error-message" *ngIf="formularioCrear.get('contrasena')?.invalid && formularioCrear.get('contrasena')?.touched">
+            Contraseña requerida (mínimo 6 caracteres)
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Especialidad</label>
+          <input type="text" formControlName="especialidad" placeholder="Ej: Cortes clásicos, Barbas" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Años de Experiencia</label>
+          <input type="number" formControlName="anosExperiencia" min="0" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Fecha de Inicio</label>
+          <input type="date" formControlName="fechaInicioTrabajo" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Biografía</label>
+        <textarea formControlName="biografia" rows="3" placeholder="Breve descripción..." class="form-input"></textarea>
+      </div>
+
+      <div class="error-message" *ngIf="erroresCrear['general']">
+        {{ erroresCrear['general'] }}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="cargando || formularioCrear.invalid">
+          {{ cargando ? 'Creando...' : 'Crear Barbero' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancelarCrear()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
   <!-- Loading State -->
-  <div *ngIf="cargando && staff.length === 0" class="loading">
+  <div *ngIf="cargando && staff.length === 0 && !mostrarFormularioCrear" class="loading">
+    <div class="spinner"></div>
     <p>Cargando personal...</p>
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!cargando && staff.length === 0" class="empty-state">
-    <p>No hay miembros del staff registrados en esta barbería.</p>
+  <div *ngIf="!cargando && staff.length === 0 && !mostrarFormularioCrear" class="empty-state">
+    <div class="empty-icon">👥</div>
+    <h3>No hay barberos registrados</h3>
+    <p>Agrega barberos para que puedan atender en tu barbería</p>
+    <button class="btn btn-primary" (click)="toggleFormularioCrear()">
+      Agregar Primer Barbero
+    </button>
   </div>
 
   <!-- Staff List -->

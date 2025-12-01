@@ -1,0 +1,147 @@
+<div class="personal-container">
+  <div class="header">
+    <h2>Gestión de Barberos</h2>
+    <button class="btn btn-primary" (click)="toggleFormulario()" *ngIf="!mostrarFormulario">
+      ➕ Agregar Barbero
+    </button>
+  </div>
+
+  <!-- Formulario -->
+  <div class="form-card" *ngIf="mostrarFormulario">
+    <h3>Crear Nuevo Barbero</h3>
+    <form [formGroup]="formulario" (ngSubmit)="guardarBarbero()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre <span class="required">*</span></label>
+          <input type="text" formControlName="nombre" placeholder="Nombre del barbero" class="form-input">
+          <div class="error-message" *ngIf="nombreInvalido">
+            El nombre es requerido (mínimo 2 caracteres)
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Apellido</label>
+          <input type="text" formControlName="apellido" placeholder="Apellido" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Correo <span class="required">*</span></label>
+          <input type="email" formControlName="correo" placeholder="correo@ejemplo.com" class="form-input">
+          <div class="error-message" *ngIf="correoInvalido">
+            Correo requerido y debe ser válido
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="tel" formControlName="telefono" placeholder="+51 999 999 999" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contraseña <span class="required">*</span></label>
+          <input type="password" formControlName="contrasena" placeholder="Mínimo 6 caracteres" class="form-input">
+          <div class="error-message" *ngIf="contrasenaInvalida">
+            Contraseña requerida (mínimo 6 caracteres)
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Especialidad</label>
+          <input type="text" formControlName="especialidad" placeholder="Ej: Cortes clásicos, Barbas" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Años de Experiencia</label>
+          <input type="number" formControlName="anosExperiencia" min="0" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Fecha de Inicio</label>
+          <input type="date" formControlName="fechaInicioTrabajo" class="form-input">
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Biografía</label>
+        <textarea formControlName="biografia" rows="3" placeholder="Breve descripción del barbero..." class="form-input"></textarea>
+      </div>
+
+      <div class="error-message" *ngIf="errores['general']">
+        {{ errores['general'] }}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="cargando">
+          {{ cargando ? 'Creando...' : 'Crear Barbero' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancelar()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="cargando && !mostrarFormulario">
+    <div class="spinner"></div>
+    <p>Cargando barberos...</p>
+  </div>
+
+  <!-- Lista de Barberos -->
+  <div class="barberos-grid" *ngIf="!cargando && !mostrarFormulario">
+    <div class="barbero-card" *ngFor="let barbero of barberos">
+      <div class="barbero-header">
+        <div class="barbero-avatar">
+          <img [src]="barbero.fotoUrl || 'assets/default-avatar.png'" 
+               [alt]="barbero.nombreUsuario"
+               onerror="this.src='https://via.placeholder.com/80?text=👤'">
+        </div>
+        <div class="barbero-info">
+          <h4>{{ barbero.nombreUsuario }}</h4>
+          <p class="correo">{{ barbero.correoUsuario }}</p>
+          <p class="especialidad" *ngIf="barbero.especialidad">
+            🎨 {{ barbero.especialidad }}
+          </p>
+        </div>
+      </div>
+      
+      <div class="barbero-details">
+        <div class="detail-item" *ngIf="barbero.anosExperiencia">
+          <span class="label">Experiencia:</span>
+          <span class="value">{{ barbero.anosExperiencia }} años</span>
+        </div>
+        <div class="detail-item" *ngIf="barbero.calificacionPromedio">
+          <span class="label">Calificación:</span>
+          <span class="value">⭐ {{ barbero.calificacionPromedio | number: '1.1-1' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Estado:</span>
+          <span class="badge" [ngClass]="barbero.activo ? 'badge-active' : 'badge-inactive'">
+            {{ barbero.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="barbero-biografia" *ngIf="barbero.biografia">
+        <p>{{ barbero.biografia }}</p>
+      </div>
+
+      <div class="barbero-actions">
+        <button class="btn btn-danger btn-sm" (click)="eliminarBarbero(barbero)">
+          🗑️ Eliminar
+        </button>
+      </div>
+    </div>
+
+    <div class="no-barberos" *ngIf="barberos.length === 0">
+      <div class="empty-icon">👥</div>
+      <h3>No hay barberos registrados</h3>
+      <p>Agrega barberos para que puedan atender en tu barbería</p>
+      <button class="btn btn-primary" (click)="toggleFormulario()">
+        Agregar Primer Barbero
+      </button>
+    </div>
+  </div>
+</div>

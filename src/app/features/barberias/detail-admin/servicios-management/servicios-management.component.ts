@@ -114,10 +114,29 @@ export class ServiciosManagementComponent implements OnInit {
     }
 
     this.cargando = true;
+    const formValues = this.formulario.value;
+    
+    // Convertir serviciosIncluidos de string a JSON array válido
+    let serviciosIncluidosJson = null;
+    if (formValues.serviciosIncluidos && formValues.serviciosIncluidos.trim()) {
+      // Separar por comas y crear array JSON válido
+      const serviciosArray = formValues.serviciosIncluidos
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 0);
+      
+      if (serviciosArray.length > 0) {
+        serviciosIncluidosJson = JSON.stringify(serviciosArray);
+      }
+    }
+
     const datos: ServicioDTO = {
-      ...this.formulario.value,
+      ...formValues,
+      serviciosIncluidos: serviciosIncluidosJson,
       idBarberia: this.idBarberia
     };
+
+    console.log('📤 Servicio a enviar:', JSON.stringify(datos, null, 2));
 
     if (this.editandoId) {
       // Actualizar

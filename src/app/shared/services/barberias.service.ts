@@ -161,4 +161,23 @@ export class BarberiaService {
     const params = new HttpParams().set('estado', estado);
     return this.http.put<ApiResponse<void>>(`${this.apiUrl}/${idBarberia}/estado`, {}, { params });
   }
+
+  /**
+   * Obtener barberías del usuario autenticado (donde tiene algún rol)
+   * GET /barberias/mis-barberias
+   * Requiere: Autenticación (token JWT)
+   */
+  obtenerMisBarberias(): Observable<ApiResponse<BarberiaDTO[]>> {
+    return this.http.get<ApiResponse<BarberiaDTO[]>>(`${this.apiUrl}/mis-barberias`);
+  }
+
+  /**
+   * Obtener barberías propias del usuario autenticado (donde es PROPIETARIO)
+   * GET /barberias/mis-barberias-propias
+   * Requiere: Autenticación (token JWT)
+   * Solo: ADMIN o SUPER_ADMIN
+   */
+  obtenerBarberiasPropias(): Observable<ApiResponse<BarberiaDTO[]>> {
+    return this.http.get<ApiResponse<BarberiaDTO[]>>(`${this.apiUrl}/mis-barberias-propias`);
+  }
 }

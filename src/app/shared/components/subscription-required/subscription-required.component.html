@@ -27,8 +27,22 @@
       </div>
     </div>
 
+    <!-- Mensaje de verificación -->
+    <div class="verification-message" *ngIf="verificandoEstado || mensajeVerificacion">
+      <span *ngIf="verificandoEstado">⏳</span>
+      <span *ngIf="!verificandoEstado && mensajeVerificacion.includes('aprobada')">✅</span>
+      {{ mensajeVerificacion }}
+    </div>
+
     <!-- Acciones -->
     <div class="actions">
+      <button 
+        (click)="verificarEstadoSuscripcion()" 
+        class="btn btn-refresh"
+        [disabled]="verificandoEstado">
+        {{ verificandoEstado ? '⏳ Verificando...' : '🔄 Verificar Estado' }}
+      </button>
+
       <button 
         *ngIf="currentUser?.estadoSuscripcion === 'PENDIENTE_PAGO'"
         (click)="irACargarComprobante()" 

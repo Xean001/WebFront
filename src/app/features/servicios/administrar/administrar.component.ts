@@ -45,6 +45,7 @@ export class AdministrarServiciosComponent implements OnInit {
       precio: ['', [Validators.required, Validators.min(0)]],
       duracion: ['', [Validators.required, Validators.min(1)]],
       categoria: ['', Validators.required],
+      serviciosIncluidos: [''],  // Campo opcional para servicios incluidos separados por comas
       destacado: [false],
       activo: [true]
     });
@@ -52,10 +53,14 @@ export class AdministrarServiciosComponent implements OnInit {
 
   cargarBarberias(): void {
     this.cargando = true;
-    this.barberiaService.obtenerBarberiasActivas().subscribe({
+    this.barberiaService.obtenerBarberiasPropias().subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.barberias = response.data || [];
+          // Si no tiene barberías, mostrar mensaje
+          if (this.barberias.length === 0) {
+            alert('Debes crear una barbería primero antes de agregar servicios.');
+          }
         }
         this.cargando = false;
       },
@@ -136,7 +141,12 @@ export class AdministrarServiciosComponent implements OnInit {
 
   guardarServicio(): void {
     if (!this.barberiaSeleccionada) {
-      alert('Selecciona una barbería');
+      alert('Debes seleccionar una barbería primero');
+      return;
+    }
+
+    if (this.barberias.length === 0) {
+      alert('No tienes barberías. Debes crear una barbería antes de agregar servicios.');
       return;
     }
 
@@ -148,16 +158,36 @@ export class AdministrarServiciosComponent implements OnInit {
     this.cargando = true;
     const datos = this.formulario.value;
 
+    // Convertir serviciosIncluidos de string a JSON array válido
+    let serviciosIncluidosJson = null;
+    if (datos.serviciosIncluidos && datos.serviciosIncluidos.trim()) {
+      // Separar por comas y crear array JSON válido
+      const serviciosArray = datos.serviciosIncluidos
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 0);
+      
+      if (serviciosArray.length > 0) {
+        serviciosIncluidosJson = JSON.stringify(serviciosArray);
+      }
+    }
+
     const servicio: Servicio = {
       idServicio: this.editandoId || 0,
-      nombre: datos.nombre,
-      descripcion: datos.descripcion,
-      precio: parseFloat(datos.precio),
-      duracion: parseInt(datos.duracion),
-      categoria: datos.categoria,
       idBarberia: this.barberiaSeleccionada,
-      destacado: datos.destacado
+      nombre: datos.nombre,
+      descripcion: datos.descripcion || '',
+      precio: parseFloat(datos.precio),
+      precioDesde: false,
+      duracionMinutos: parseInt(datos.duracion),
+      categoria: datos.categoria,
+      serviciosIncluidos: serviciosIncluidosJson,
+      fotoUrl: null,
+      destacado: datos.destacado || false,
+      activo: datos.activo !== undefined ? datos.activo : true
     };
+
+    console.log('📤 Servicio a enviar:', JSON.stringify(servicio, null, 2));
 
     if (this.editandoId) {
       // Actualizar

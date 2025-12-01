@@ -4,13 +4,17 @@ import { Observable } from 'rxjs';
 
 export interface Servicio {
   idServicio: number;
+  idBarberia: number;
   nombre: string;
   descripcion: string;
   precio: number;
-  duracion: number;
+  precioDesde?: boolean;
+  duracionMinutos: number;
   categoria: string;
-  idBarberia: number;
+  serviciosIncluidos?: string | null;
+  fotoUrl?: string | null;
   destacado: boolean;
+  activo?: boolean;
 }
 
 @Injectable({

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, switchMap, of } from 'rxjs';
 import { Router } from '@angular/router';
 
 export interface LoginRequest {
@@ -198,6 +198,70 @@ export class AuthService {
     const user = this.getUserFromStorage();
     console.log('🔄 Refrescando usuario desde localStorage:', user);
     this.currentUserSubject.next(user);
+  }
+
+  /**
+   * Verificar y refrescar el estado de suscripción desde el backend
+   * Útil para cuando el admin aprueba el pago y necesitamos actualizar el estado
+   */
+  verificarEstadoSuscripcion(): Observable<ApiResponse<AuthResponse>> {
+    console.log('🔍 Verificando estado de suscripción desde el backend...');
+    return this.http.get<ApiResponse<AuthResponse>>(`${this.apiUrl}/verificar-estado`).pipe(
+      switchMap(response => {
+        if (response.success && response.data) {
+          console.log('✅ Estado actualizado desde backend:', response.data);
+          
+          // Si estadoSuscripcion viene undefined/null, usar fallback
+          if (!response.data.estadoSuscripcion) {
+            console.warn('⚠️ estadoSuscripcion es undefined, usando fallback /api/suscripciones/mi-suscripcion');
+            
+            return this.http.get<ApiResponse<any>>('https://api.fadely.me/api/suscripciones/mi-suscripcion').pipe(
+              tap(suscripcionResp => {
+                if (suscripcionResp.success && suscripcionResp.data) {
+                  console.log('✅ Suscripción obtenida desde /mi-suscripcion:', suscripcionResp.data);
+                  
+                  // Actualizar response.data con datos de suscripción
+                  response.data.estadoSuscripcion = suscripcionResp.data.estado;
+                  response.data.idSuscripcion = suscripcionResp.data.idSuscripcion;
+                  response.data.tipoPlan = suscripcionResp.data.tipoPlan;
+                  
+                  // Actualizar localStorage
+                  const currentUser = this.getCurrentUser();
+                  if (currentUser) {
+                    const updatedUser = {
+                      ...currentUser,
+                      estadoSuscripcion: suscripcionResp.data.estado,
+                      idSuscripcion: suscripcionResp.data.idSuscripcion,
+                      tipoPlan: suscripcionResp.data.tipoPlan
+                    };
+                    localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
+                    this.currentUserSubject.next(updatedUser);
+                  }
+                } else {
+                  console.error('❌ No se pudo obtener suscripción desde /mi-suscripcion');
+                }
+              }),
+              switchMap(() => of(response)) // Devolver response original ya actualizado
+            );
+          }
+          
+          // Si estadoSuscripcion SÍ viene, actualizar localStorage normalmente
+          const currentUser = this.getCurrentUser();
+          if (currentUser) {
+            const updatedUser = {
+              ...currentUser,
+              estadoSuscripcion: response.data.estadoSuscripcion,
+              idSuscripcion: response.data.idSuscripcion,
+              tipoPlan: response.data.tipoPlan
+            };
+            localStorage.setItem(this.userKey, JSON.stringify(updatedUser));
+            this.currentUserSubject.next(updatedUser);
+          }
+        }
+        
+        return of(response);
+      })
+    );
   }
 
   /**
