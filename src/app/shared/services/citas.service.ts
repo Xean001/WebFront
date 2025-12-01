@@ -21,9 +21,10 @@ export interface CrearCitaRequest {
   idBarbero: number;
   idServicio: number;
   idBarberia: number;
-  fechaCita: string;
-  horaCita: string;
+  fecha: string;  // Backend espera "fecha" en formato YYYY-MM-DD
+  horaInicio: string;  // Backend espera "horaInicio" en formato HH:mm
   observaciones?: string;
+  codigoPromocion?: string;
 }
 
 @Injectable({

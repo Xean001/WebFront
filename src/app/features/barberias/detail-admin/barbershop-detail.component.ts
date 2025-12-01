@@ -187,19 +187,16 @@ export class BarbershopDetailComponent implements OnInit {
   obtenerUrlCompleta(url: string): string {
     const baseUrl = 'https://api.fadely.me';
     
-    // Si ya es una URL completa
     if (url.startsWith('http')) {
       return url;
     }
     
-    // Si es una URL relativa del backend
-    if (url.startsWith('/api/')) {
-      return baseUrl + url;
-    }
-    
-    // Si es base64, devolverla tal cual
     if (url.startsWith('data:')) {
       return url;
+    }
+    
+    if (url.startsWith('/api/')) {
+      return baseUrl + url;
     }
     
     return url;

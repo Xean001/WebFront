@@ -160,8 +160,10 @@ export class AdministrarServiciosComponent implements OnInit {
       // Leer archivo y crear preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.imagenPreview = e.target.result;
-        this.formulario.patchValue({ fotoUrl: e.target.result });
+        const base64 = e.target.result;
+        this.imagenPreview = base64;
+        this.formulario.patchValue({ fotoUrl: base64 });
+        console.log('✅ Nueva imagen seleccionada, preview actualizado');
       };
       reader.readAsDataURL(file);
     }
@@ -228,9 +230,9 @@ export class AdministrarServiciosComponent implements OnInit {
       this.serviciosService.actualizarServicio(this.editandoId, servicio).subscribe({
         next: () => {
           alert('Servicio actualizado exitosamente');
+          this.imagenPreview = null;
+          this.cancelarEdicion();
           this.cargarServicios();
-          this.toggleFormulario();
-          this.cargando = false;
         },
         error: (error) => {
           console.error('Error al actualizar servicio:', error);
@@ -243,6 +245,7 @@ export class AdministrarServiciosComponent implements OnInit {
       this.serviciosService.crearServicio(servicio).subscribe({
         next: () => {
           alert('Servicio creado exitosamente');
+          this.imagenPreview = null;
           this.cargarServicios();
           this.toggleFormulario();
           this.cargando = false;
@@ -259,9 +262,15 @@ export class AdministrarServiciosComponent implements OnInit {
   editarServicio(servicio: any): void {
     this.editandoId = servicio.idServicio;
     
-    // Cargar imagen si existe
+    // Limpiar preview primero
+    this.imagenPreview = null;
+    
+    // Cargar imagen si existe (guardar la URL original, no la completa)
     if (servicio.fotoUrl) {
       this.imagenPreview = this.obtenerUrlCompleta(servicio.fotoUrl);
+      console.log('📷 Cargando servicio con imagen:', servicio.fotoUrl);
+    } else {
+      console.log('📷 Servicio sin imagen');
     }
     
     this.formulario.patchValue({
@@ -270,7 +279,7 @@ export class AdministrarServiciosComponent implements OnInit {
       precio: servicio.precio,
       duracion: servicio.duracionMinutos || servicio.duracion,
       categoria: servicio.categoria,
-      fotoUrl: servicio.fotoUrl || '',
+      fotoUrl: servicio.fotoUrl || '', // Guardar la URL original del backend
       destacado: servicio.destacado,
       activo: servicio.activo
     });
@@ -344,8 +353,8 @@ export class AdministrarServiciosComponent implements OnInit {
     
     if (!url) return '';
     if (url.startsWith('http')) return url;
-    if (url.startsWith('/api/')) return baseUrl + url;
     if (url.startsWith('data:')) return url;
+    if (url.startsWith('/api/')) return baseUrl + url;
     
     return url;
   }

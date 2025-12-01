@@ -297,15 +297,9 @@ export class HomeComponent implements OnInit {
     const defaultImage = 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400&h=300&fit=crop';
     
     if (!fotoUrl) return defaultImage;
-    
-    // Si es una URL completa, devolverla tal cual
     if (fotoUrl.startsWith('http')) return fotoUrl;
-    
-    // Si es una URL relativa del backend, agregar base URL
-    if (fotoUrl.startsWith('/api/')) return baseUrl + fotoUrl;
-    
-    // Si es base64, devolverla tal cual
     if (fotoUrl.startsWith('data:')) return fotoUrl;
+    if (fotoUrl.startsWith('/api/')) return baseUrl + fotoUrl;
     
     return defaultImage;
   }

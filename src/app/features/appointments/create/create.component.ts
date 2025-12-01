@@ -182,18 +182,30 @@ export class CreateComponent implements OnInit {
 
   guardarCita(): void {
     if (!this.formularioCita.valid) {
+      alert('Por favor completa todos los campos requeridos');
+      return;
+    }
+
+    // Validar que haya barbero seleccionado
+    const idBarbero = this.formularioCita.get('idBarbero')?.value;
+    if (!idBarbero) {
+      alert('Por favor selecciona un barbero');
       return;
     }
 
     this.guardando = true;
+    
+    // Convertir datos al formato que espera el backend
     const datos = {
-      idBarberia: this.formularioCita.get('idBarberia')?.value,
-      idServicio: this.formularioCita.get('idServicio')?.value,
-      idBarbero: this.formularioCita.get('idBarbero')?.value || null,
-      fechaCita: this.formularioCita.get('fechaCita')?.value,
-      horaCita: this.formularioCita.get('horaCita')?.value,
-      observaciones: this.formularioCita.get('observaciones')?.value
+      idBarberia: parseInt(this.formularioCita.get('idBarberia')?.value),
+      idServicio: parseInt(this.formularioCita.get('idServicio')?.value),
+      idBarbero: parseInt(idBarbero),
+      fecha: this.formularioCita.get('fechaCita')?.value,  // Backend espera "fecha"
+      horaInicio: this.formularioCita.get('horaCita')?.value,  // Backend espera "horaInicio"
+      observaciones: this.formularioCita.get('observaciones')?.value || null
     };
+
+    console.log('📤 Datos a enviar:', datos);
 
     this.citasService.crearCita(datos).subscribe({
       next: (response) => {
@@ -204,8 +216,9 @@ export class CreateComponent implements OnInit {
         this.guardando = false;
       },
       error: (error) => {
-        console.error('Error al crear cita:', error);
-        alert('Error al crear la cita: ' + error.error?.message || error.message);
+        console.error('❌ Error al crear cita:', error);
+        const mensaje = error.error?.message || error.message || 'Error desconocido';
+        alert('Error al crear la cita: ' + mensaje);
         this.guardando = false;
       }
     });

@@ -374,19 +374,15 @@ export class ListaBarberiasComponent implements OnInit {
   obtenerUrlImagen(barberia: any): string {
     const baseUrl = 'https://api.fadely.me';
     
-    // Si tiene foto de portada
     if (barberia.fotoPortadaUrl) {
-      // Si es una URL completa, devolverla tal cual
       if (barberia.fotoPortadaUrl.startsWith('http')) {
         return barberia.fotoPortadaUrl;
       }
-      // Si es una URL relativa del backend, agregar base URL
       if (barberia.fotoPortadaUrl.startsWith('/api/')) {
         return baseUrl + barberia.fotoPortadaUrl;
       }
     }
     
-    // Si tiene logo
     if (barberia.logoUrl) {
       if (barberia.logoUrl.startsWith('http')) {
         return barberia.logoUrl;
@@ -396,12 +392,10 @@ export class ListaBarberiasComponent implements OnInit {
       }
     }
     
-    // Si tiene urlImagen (datos de ejemplo)
     if (barberia.urlImagen) {
       return barberia.urlImagen;
     }
     
-    // Imagen por defecto
     return 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=400';
   }
 
