@@ -125,13 +125,16 @@
               <p class="step-subtitle" *ngIf="barberoSeleccionado">
                 Horario de {{ barberoSeleccionado.usuario?.nombre }}
               </p>
+              <p class="step-subtitle" *ngIf="!barberoSeleccionado">
+                Selecciona primero un barbero para ver horarios disponibles
+              </p>
             </div>
             <div class="step-body">
               <!-- Selector de Fecha -->
               <div class="form-group">
                 <label class="form-label">Fecha de la Cita *</label>
                 <input type="date" class="form-control" formControlName="fechaCita" [min]="getMinDate()"
-                  (change)="onFechaChange()">
+                  [disabled]="!formularioCita.get('idBarbero')?.value" (change)="onFechaChange()">
                 <div class="error-message"
                   *ngIf="formularioCita.get('fechaCita')?.touched && formularioCita.get('fechaCita')?.invalid">
                   Debes seleccionar una fecha válida
@@ -139,32 +142,63 @@
               </div>
 
               <!-- Horarios Disponibles -->
-              <div class="horarios-section" *ngIf="formularioCita.get('fechaCita')?.value">
-                <label class="form-label">Horarios Disponibles *</label>
+              <div class="horarios-section"
+                *ngIf="formularioCita.get('fechaCita')?.value && formularioCita.get('idBarbero')?.value">
+                <label class="form-label">
+                  Horarios Disponibles *
+                  <span class="info-badge" *ngIf="servicioSeleccionado">
+                    (Duración: {{ servicioSeleccionado.duracionMinutos }} min)
+                  </span>
+                </label>
 
+                <!-- Loading State -->
                 <div *ngIf="cargandoHorarios" class="loading-horarios">
                   <div class="spinner-small"></div>
                   <p>Cargando horarios disponibles...</p>
                 </div>
 
+                <!-- No Horarios Disponibles -->
                 <div *ngIf="!cargandoHorarios && horariosDisponibles.length === 0" class="no-horarios">
-                  <p>⚠️ No hay horarios disponibles para esta fecha</p>
-                  <small>Intenta seleccionar otra fecha</small>
+                  <div class="no-horarios-icon">📅</div>
+                  <p class="no-horarios-title">No hay horarios disponibles</p>
+                  <small class="no-horarios-subtitle">
+                    Intenta seleccionar otra fecha o barbero
+                  </small>
                 </div>
 
-                <div *ngIf="!cargandoHorarios && horariosDisponibles.length > 0" class="horarios-grid">
-                  <button type="button" *ngFor="let horario of horariosDisponibles" class="horario-btn"
-                    [class.selected]="formularioCita.get('horaCita')?.value === horario"
-                    (click)="formularioCita.patchValue({ horaCita: horario })">
-                    <span class="horario-icon">🕐</span>
-                    {{ horario }}
-                  </button>
+                <!-- Grid de Horarios Disponibles -->
+                <div *ngIf="!cargandoHorarios && horariosDisponibles.length > 0" class="horarios-container">
+                  <!-- Contador de slots -->
+                  <div class="slots-info">
+                    <span class="slots-count">
+                      {{ horariosDisponibles.length }} horarios disponibles
+                    </span>
+                  </div>
+
+                  <!-- Grid de Horarios -->
+                  <div class="horarios-grid">
+                    <button type="button" *ngFor="let horario of horariosDisponibles; let i = index" class="horario-btn"
+                      [class.selected]="formularioCita.get('horaCita')?.value === horario"
+                      [class.morning]="esManana(horario)" [class.afternoon]="esTarde(horario)"
+                      [class.evening]="esNoche(horario)" (click)="seleccionarHorario(horario)">
+                      <span class="horario-icon">🕐</span>
+                      <span class="horario-time">{{ horario }}</span>
+                      <span class="horario-period">{{ obtenerPeriodo(horario) }}</span>
+                    </button>
+                  </div>
                 </div>
 
+                <!-- Error de validación -->
                 <div class="error-message"
                   *ngIf="formularioCita.get('horaCita')?.touched && formularioCita.get('horaCita')?.invalid">
                   Debes seleccionar un horario
                 </div>
+              </div>
+
+              <!-- Mensaje si no ha seleccionado barbero -->
+              <div class="info-box" *ngIf="!formularioCita.get('idBarbero')?.value">
+                <span class="info-icon">ℹ️</span>
+                <p>Primero selecciona un barbero para ver los horarios disponibles</p>
               </div>
             </div>
           </div>
