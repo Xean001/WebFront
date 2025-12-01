@@ -26,7 +26,7 @@
   <div class="form-section">
     <div class="container">
       <form [formGroup]="formularioCita" (ngSubmit)="guardarCita()" novalidate>
-        
+
         <!-- Step 1: Barbería -->
         <div class="form-step" *ngIf="currentStep === 1">
           <div class="step-card">
@@ -42,7 +42,8 @@
                   {{ barberia.nombre }} - {{ barberia.ciudad }}
                 </option>
               </select>
-              <div class="error-message" *ngIf="formularioCita.get('idBarberia')?.touched && formularioCita.get('idBarberia')?.invalid">
+              <div class="error-message"
+                *ngIf="formularioCita.get('idBarberia')?.touched && formularioCita.get('idBarberia')?.invalid">
                 Debes seleccionar una barbería
               </div>
             </div>
@@ -64,7 +65,8 @@
                   {{ servicio.nombre }} - ${{ servicio.precio }} ({{ servicio.duracionMinutos }} min)
                 </option>
               </select>
-              <div class="error-message" *ngIf="formularioCita.get('idServicio')?.touched && formularioCita.get('idServicio')?.invalid">
+              <div class="error-message"
+                *ngIf="formularioCita.get('idServicio')?.touched && formularioCita.get('idServicio')?.invalid">
                 Debes seleccionar un servicio
               </div>
             </div>
@@ -81,15 +83,12 @@
             </div>
             <div class="step-body">
               <div class="barberos-grid" *ngIf="barberos.length > 0; else noBarberos">
-                <div class="barbero-option" 
-                     *ngFor="let barbero of barberos"
-                     [class.selected]="formularioCita.get('idBarbero')?.value === barbero.idBarbero"
-                     (click)="seleccionarBarbero(barbero.idBarbero)">
+                <div class="barbero-option" *ngFor="let barbero of barberos"
+                  [class.selected]="formularioCita.get('idBarbero')?.value === barbero.idBarbero"
+                  (click)="seleccionarBarbero(barbero.idBarbero)">
                   <div class="barbero-image-wrapper">
-                    <img [src]="barbero.usuario?.fotoUrl || 'assets/images/avatar-default.jpg'" 
-                         class="barbero-image" 
-                         alt="{{ barbero.usuario?.nombre || 'Barbero' }}"
-                         onerror="this.src='https://via.placeholder.com/80?text=👤'">
+                    <img [src]="barbero.usuario?.fotoUrl || 'assets/images/default-avatar.jpg'" class="barbero-image"
+                      alt="{{ barbero.usuario?.nombre || 'Barbero' }}">
                   </div>
                   <div class="barbero-info">
                     <h4 class="barbero-name">{{ barbero.usuario?.nombre }} {{ barbero.usuario?.apellido }}</h4>
@@ -131,12 +130,10 @@
               <!-- Selector de Fecha -->
               <div class="form-group">
                 <label class="form-label">Fecha de la Cita *</label>
-                <input type="date" 
-                       class="form-control" 
-                       formControlName="fechaCita"
-                       [min]="getMinDate()"
-                       (change)="onFechaChange()">
-                <div class="error-message" *ngIf="formularioCita.get('fechaCita')?.touched && formularioCita.get('fechaCita')?.invalid">
+                <input type="date" class="form-control" formControlName="fechaCita" [min]="getMinDate()"
+                  (change)="onFechaChange()">
+                <div class="error-message"
+                  *ngIf="formularioCita.get('fechaCita')?.touched && formularioCita.get('fechaCita')?.invalid">
                   Debes seleccionar una fecha válida
                 </div>
               </div>
@@ -144,7 +141,7 @@
               <!-- Horarios Disponibles -->
               <div class="horarios-section" *ngIf="formularioCita.get('fechaCita')?.value">
                 <label class="form-label">Horarios Disponibles *</label>
-                
+
                 <div *ngIf="cargandoHorarios" class="loading-horarios">
                   <div class="spinner-small"></div>
                   <p>Cargando horarios disponibles...</p>
@@ -156,17 +153,16 @@
                 </div>
 
                 <div *ngIf="!cargandoHorarios && horariosDisponibles.length > 0" class="horarios-grid">
-                  <button type="button"
-                          *ngFor="let horario of horariosDisponibles"
-                          class="horario-btn"
-                          [class.selected]="formularioCita.get('horaCita')?.value === horario"
-                          (click)="formularioCita.patchValue({ horaCita: horario })">
+                  <button type="button" *ngFor="let horario of horariosDisponibles" class="horario-btn"
+                    [class.selected]="formularioCita.get('horaCita')?.value === horario"
+                    (click)="formularioCita.patchValue({ horaCita: horario })">
                     <span class="horario-icon">🕐</span>
                     {{ horario }}
                   </button>
                 </div>
 
-                <div class="error-message" *ngIf="formularioCita.get('horaCita')?.touched && formularioCita.get('horaCita')?.invalid">
+                <div class="error-message"
+                  *ngIf="formularioCita.get('horaCita')?.touched && formularioCita.get('horaCita')?.invalid">
                   Debes seleccionar un horario
                 </div>
               </div>
@@ -182,8 +178,8 @@
               <h2>Notas Adicionales (Opcional)</h2>
             </div>
             <div class="step-body">
-              <textarea class="form-control" rows="5" formControlName="observaciones" 
-                        placeholder="Cuéntanos algo especial sobre tu cita o preferencias..."></textarea>
+              <textarea class="form-control" rows="5" formControlName="observaciones"
+                placeholder="Cuéntanos algo especial sobre tu cita o preferencias..."></textarea>
             </div>
           </div>
         </div>
@@ -202,7 +198,8 @@
             </div>
             <div class="summary-item" *ngIf="barberoSeleccionado">
               <span class="summary-label">💈 Barbero</span>
-              <p class="summary-value">{{ barberoSeleccionado.usuario?.nombre }} {{ barberoSeleccionado.usuario?.apellido }}</p>
+              <p class="summary-value">{{ barberoSeleccionado.usuario?.nombre }} {{
+                barberoSeleccionado.usuario?.apellido }}</p>
             </div>
             <div class="summary-item" *ngIf="servicioSeleccionado">
               <span class="summary-label">💰 Precio</span>
@@ -231,7 +228,8 @@
           <button type="button" class="btn-primary" (click)="nextStep()" *ngIf="currentStep < 5 && isStepValid()">
             Siguiente →
           </button>
-          <button type="submit" class="btn-success" *ngIf="currentStep === 5" [disabled]="!formularioCita.valid || guardando">
+          <button type="submit" class="btn-success" *ngIf="currentStep === 5"
+            [disabled]="!formularioCita.valid || guardando">
             <span *ngIf="!guardando">✓ Confirmar Cita</span>
             <span *ngIf="guardando">⏳ Guardando...</span>
           </button>
